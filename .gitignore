@@ -22,3 +22,19 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Test
+coverage
+jest
+
+# Build
+build
+dist
+
+frontend
+
+
+.env
+# Supabase
+supabase-schema.sql
+setup_storage.sql
