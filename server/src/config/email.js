@@ -1,9 +1,7 @@
 const nodemailer = require('nodemailer');
-const { Resend } = require('resend');
 const Brevo = require('@getbrevo/brevo');
 const logger = require('../utils/logger');
 
-let resendClient = null;
 let brevoApiInstance = null;
 let nodemailerTransporter = null;
 
@@ -14,9 +12,6 @@ if (process.env.BREVO_API_KEY) {
   apiKey.apiKey = process.env.BREVO_API_KEY;
   brevoApiInstance = apiInstance;
   logger.info('Email: Using Brevo HTTP API');
-} else if (process.env.RESEND_API_KEY) {
-  resendClient = new Resend(process.env.RESEND_API_KEY);
-  logger.info('Email: Using Resend HTTP API');
 } else {
   // Fallback to nodemailer for local development
   nodemailerTransporter = nodemailer.createTransport({
@@ -38,8 +33,8 @@ if (process.env.BREVO_API_KEY) {
  * Send email using the available provider
  */
 const sendEmail = async (to, subject, html) => {
-  let fromEmail = 'mohamed.hassan221012@gmail.com';
-  let fromName = 'MirhalGO';
+  let fromEmail = process.env.EMAIL_FROM_ADDRESS;
+  let fromName = process.env.EMAIL_FROM_NAME || 'MirhalGO';
 
   // Parse EMAIL_FROM if it exists (e.g. "Name <email@domain.com>")
   if (process.env.EMAIL_FROM) {
@@ -50,6 +45,10 @@ const sendEmail = async (to, subject, html) => {
     } else {
       fromEmail = process.env.EMAIL_FROM.trim();
     }
+  }
+
+  if (!fromEmail) {
+    throw new Error('EMAIL_FROM environment variable is required');
   }
 
   const from = `${fromName} <${fromEmail}>`;
@@ -78,24 +77,6 @@ const sendEmail = async (to, subject, html) => {
       }
     } 
     
-    if (resendClient) {
-      // Use Resend HTTP API
-      const { data, error } = await resendClient.emails.send({
-        from,
-        to,
-        subject,
-        html
-      });
-
-      if (error) {
-        logger.error('Resend API error:', error);
-        throw new Error(error.message);
-      }
-
-      logger.info(`Email sent via Resend to ${to}`, { id: data?.id });
-      return { success: true, messageId: data?.id };
-    } 
-    
     if (nodemailerTransporter) {
       // Fallback to Nodemailer SMTP
       const info = await nodemailerTransporter.sendMail({
@@ -111,7 +92,7 @@ const sendEmail = async (to, subject, html) => {
 
     throw new Error('No email transport configured');
   } catch (error) {
-    logger.error('Email sending failed:', error);
+    logger.error('Email sending failed:', error.message);
     throw error;
   }
 };
