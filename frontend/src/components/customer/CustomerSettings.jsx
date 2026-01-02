@@ -13,25 +13,47 @@ const CustomerSettings = () => {
   const [loading, setLoading] = useState(false);
 
   const [profileData, setProfileData] = useState({
-    name: user?.name || '',
-    email: user?.email || '',
-    phone: user?.phone || '',
-    address: user?.address || '',
-    whatsapp: user?.whatsapp || ''
+    name: '',
+    email: '',
+    phone: '',
+    address: '',
+    whatsapp: ''
   });
 
-  // Effect to update form data when user data is loaded/updated
+  // Fetch fresh profile data from API on mount
   React.useEffect(() => {
-    if (user) {
-      setProfileData({
-        name: user.name || user.full_name || '',
-        email: user.email || '',
-        phone: user.phone || '',
-        address: user.address || user.customerProfile?.address || '',
-        whatsapp: user.whatsapp || ''
-      });
-    }
-  }, [user]);
+    const loadProfile = async () => {
+      try {
+        setLoading(true);
+        const response = await authService.getCurrentUser();
+        if (response.data) {
+          const userData = response.data;
+          setProfileData({
+            name: userData.full_name || userData.name || '',
+            email: userData.email || '',
+            phone: userData.phone || '',
+            address: userData.customerProfile?.address || userData.address || '',
+            whatsapp: userData.whatsapp || ''
+          });
+        }
+      } catch (error) {
+        console.error('Failed to load profile:', error);
+        // Fallback to context data
+        if (user) {
+          setProfileData({
+            name: user.name || user.full_name || '',
+            email: user.email || '',
+            phone: user.phone || '',
+            address: user.address || user.customerProfile?.address || '',
+            whatsapp: user.whatsapp || ''
+          });
+        }
+      } finally {
+        setLoading(false);
+      }
+    };
+    loadProfile();
+  }, []);
 
   const [securityData, setSecurityData] = useState({
     currentPassword: '',

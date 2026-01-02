@@ -13,11 +13,11 @@ const CompanySettings = () => {
   const [loading, setLoading] = useState(false);
 
   const [profileData, setProfileData] = useState({
-    name: user?.name || user?.full_name || '',
-    phone: user?.phone || '',
-    address: user?.address || user?.companyProfile?.address || '',
-    representativeName: user?.companyProfile?.representative_name || '',
-    email: user?.email || ''
+    name: '',
+    phone: '',
+    address: '',
+    representativeName: '',
+    email: ''
   });
 
   const [securityData, setSecurityData] = useState({
@@ -26,18 +26,40 @@ const CompanySettings = () => {
     confirmPassword: ''
   });
 
-  // Effect to update form data when user data is loaded/updated
+  // Fetch fresh profile data from API on mount
   React.useEffect(() => {
-    if (user) {
-      setProfileData({
-        name: user.companyProfile?.company_name || '', // Name = Company Name
-        email: user.email || '',
-        phone: user.phone || '', // Phone from profiles
-        address: user.companyProfile?.main_office_address || '', // Address from company_profiles
-        representativeName: user.name || user.full_name || '' // Representative = User Full Name
-      });
-    }
-  }, [user]);
+    const loadProfile = async () => {
+      try {
+        setLoading(true);
+        const response = await authService.getCurrentUser();
+        if (response.data) {
+          const userData = response.data;
+          setProfileData({
+            name: userData.companyProfile?.company_name || '',
+            email: userData.email || '',
+            phone: userData.phone || '',
+            address: userData.companyProfile?.main_office_address || '',
+            representativeName: userData.full_name || userData.name || ''
+          });
+        }
+      } catch (error) {
+        console.error('Failed to load profile:', error);
+        // Fallback to context data
+        if (user) {
+          setProfileData({
+            name: user.companyProfile?.company_name || '',
+            email: user.email || '',
+            phone: user.phone || '',
+            address: user.companyProfile?.main_office_address || '',
+            representativeName: user.name || user.full_name || ''
+          });
+        }
+      } finally {
+        setLoading(false);
+      }
+    };
+    loadProfile();
+  }, []);
 
   const handleProfileChange = (e) => {
     const { name, value } = e.target;
