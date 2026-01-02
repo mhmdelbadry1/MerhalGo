@@ -13,6 +13,7 @@ const AdminDashboard = () => {
     totalOrders: 0,
     localShipping: 0,
     internationalShipping: 0,
+    sheinShipping: 0,
     companyRequests: 0
   });
   const [chartData, setChartData] = useState([]);
@@ -44,6 +45,7 @@ const AdminDashboard = () => {
         totalOrders: allOrders.length,
         localShipping: allOrders.filter(o => o.order_type === 'local').length,
         internationalShipping: allOrders.filter(o => o.order_type === 'international').length,
+        sheinShipping: allOrders.filter(o => o.order_type === 'shein').length,
         companyRequests: allRequests.filter(r => r.status === 'pending').length
       });
 
@@ -157,6 +159,20 @@ const AdminDashboard = () => {
             </div>
             <div className="w-12 h-12 bg-purple-100 dark:bg-purple-900/30 rounded-full flex items-center justify-center text-purple-600 dark:text-purple-400">
               <i className="fas fa-globe text-xl"></i>
+            </div>
+          </div>
+        </div>
+
+        <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-md border-r-4 border-pink-500">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">شي ان</p>
+              <p className="text-3xl font-bold text-gray-800 dark:text-white">
+                {stats.sheinShipping}
+              </p>
+            </div>
+            <div className="w-12 h-12 bg-pink-100 dark:bg-pink-900/30 rounded-full flex items-center justify-center text-pink-600 dark:text-pink-400">
+              <i className="fas fa-shopping-bag text-xl"></i>
             </div>
           </div>
         </div>
