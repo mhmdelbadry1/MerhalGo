@@ -14,7 +14,7 @@ const validate = require('../middleware/validation');
  */
 router.post('/register',
   [
-    body('email').isEmail().normalizeEmail().withMessage('Valid email is required'),
+    body('email').isEmail().withMessage('Valid email is required'),
     body('formData').isObject().withMessage('Company registration data is required')
   ],
   validate,

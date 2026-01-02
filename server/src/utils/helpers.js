@@ -71,28 +71,14 @@ const sanitizeUser = (user) => {
 };
 
 /**
- * Normalize Gmail addresses for duplicate detection
- * Gmail ignores dots in the local part, so foo.bar@gmail.com = foobar@gmail.com
- * Also handles googlemail.com which is the same as gmail.com
+ * Normalize email for comparison purposes
+ * Only lowercases and trims - PRESERVES DOTS as user entered them
  * @param {string} email - Email address to normalize
  * @returns {string} Normalized email address
  */
 const normalizeGmailEmail = (email) => {
   if (!email) return email;
-  
-  const normalized = email.toLowerCase().trim();
-  const [localPart, domain] = normalized.split('@');
-  
-  if (!domain) return normalized;
-  
-  // Check if it's a Gmail address
-  if (domain === 'gmail.com' || domain === 'googlemail.com') {
-    // Remove all dots from local part and standardize domain
-    const cleanLocal = localPart.replace(/\./g, '');
-    return `${cleanLocal}@gmail.com`;
-  }
-  
-  return normalized;
+  return email.toLowerCase().trim();
 };
 
 module.exports = {
