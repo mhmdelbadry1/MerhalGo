@@ -19,7 +19,7 @@ app.use(helmet());
 
 // CORS configuration
 const corsOptions = {
-  origin: process.env.FRONTEND_URL,
+  origin: process.env.FRONTEND_URL?.replace(/\/$/, ''),
   credentials: true,
   optionsSuccessStatus: 200
 };
