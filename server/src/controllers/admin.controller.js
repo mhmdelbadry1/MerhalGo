@@ -2,6 +2,33 @@ const { supabaseAdmin } = require('../config/supabase');
 const { sendSuccess, sendError, getPagination, formatPaginatedResponse, normalizeGmailEmail } = require('../utils/helpers');
 const logger = require('../utils/logger');
 const emailService = require('../services/email.service');
+const crypto = require('crypto');
+
+/**
+ * Generate a strong random password
+ */
+const generateStrongPassword = (length = 12) => {
+  const uppercase = 'ABCDEFGHJKLMNPQRSTUVWXYZ';
+  const lowercase = 'abcdefghjkmnpqrstuvwxyz';
+  const numbers = '23456789';
+  const symbols = '@#$%&*!';
+  const allChars = uppercase + lowercase + numbers + symbols;
+  
+  let password = '';
+  // Ensure at least one of each type
+  password += uppercase[crypto.randomInt(uppercase.length)];
+  password += lowercase[crypto.randomInt(lowercase.length)];
+  password += numbers[crypto.randomInt(numbers.length)];
+  password += symbols[crypto.randomInt(symbols.length)];
+  
+  // Fill the rest randomly
+  for (let i = 4; i < length; i++) {
+    password += allChars[crypto.randomInt(allChars.length)];
+  }
+  
+  // Shuffle the password
+  return password.split('').sort(() => crypto.randomInt(3) - 1).join('');
+};
 
 /**
  * Get company registration requests
@@ -64,6 +91,7 @@ const approveCompany = async (req, res) => {
     const email = request.email;
     const normalizedEmail = normalizeGmailEmail(email);
     let authUserId;
+    let finalPassword = password; // Track the password used for email
 
     // Check if user already exists using Gmail normalization
     // This ensures we find accounts like m.30223824@gmail.com when approving m30223824@gmail.com
@@ -134,9 +162,14 @@ const approveCompany = async (req, res) => {
 
     } else {
       // User doesn't exist (or at least no profile), try to create new user
+      // Generate strong password if admin didn't provide one
+      if (!finalPassword) {
+        finalPassword = generateStrongPassword(12);
+      }
+      
       const { data: authData, error: authError } = await supabaseAdmin.auth.admin.createUser({
         email,
-        password: password || 'TempPass' + Math.random().toString(36).slice(2),
+        password: finalPassword,
         email_confirm: true,
         user_metadata: {
           full_name: formData.companyName,
@@ -230,9 +263,9 @@ const approveCompany = async (req, res) => {
 
     logger.info(`Company approved: ${email} by admin ${req.user.email}`);
 
-    // Send approval email
+    // Send approval email with the password (auto-generated or admin-provided)
     try {
-      await emailService.sendCompanyApprovalEmail(email, formData.companyName, password);
+      await emailService.sendCompanyApprovalEmail(email, formData.companyName, finalPassword);
     } catch (emailError) {
       logger.error('Company approval email failed:', emailError);
     }
