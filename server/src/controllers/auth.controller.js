@@ -19,15 +19,22 @@ const register = async (req, res) => {
 
     if (existingUser) {
       // Check if verified in profile
-      const { data: profile } = await supabaseAdmin
+      const { data: profile, error: profileError } = await supabaseAdmin
         .from('profiles')
         .select('email_verified, role')
         .eq('id', existingUser.id)
         .single();
 
+      logger.info(`Re-registration check for ${email}:`, { 
+        profileExists: !!profile, 
+        emailVerified: profile?.email_verified, 
+        role: profile?.role,
+        profileError: profileError?.message
+      });
+
+      // Case 1: Profile exists and is unverified customer -> resend code
       if (profile && !profile.email_verified && profile.role === 'customer') {
-        // User exists but unverified -> RESEND LOGIC
-        logger.info(`Unverified user re-registering: ${email}. Resending code.`);
+        logger.info(`Unverified customer re-registering: ${email}. Resending code.`);
         
         const verificationCode = Math.floor(100000 + Math.random() * 900000).toString();
         const verificationExpiry = new Date(Date.now() + 15 * 60 * 1000);
@@ -36,7 +43,8 @@ const register = async (req, res) => {
           .from('profiles')
           .update({
             verification_code: verificationCode,
-            verification_code_expires: verificationExpiry.toISOString()
+            verification_code_expires: verificationExpiry.toISOString(),
+            full_name: fullName || profile.full_name // Update name if provided
           })
           .eq('id', existingUser.id);
           
@@ -53,8 +61,46 @@ const register = async (req, res) => {
             requiresVerification: true 
         }, 'Registration successful. Please verify your email.', 200);
       }
+
+      // Case 2: Profile doesn't exist but auth user does -> create profile and send code
+      if (!profile || profileError) {
+        logger.info(`Auth user exists but no profile for: ${email}. Creating profile.`);
+        
+        const verificationCode = Math.floor(100000 + Math.random() * 900000).toString();
+        const verificationExpiry = new Date(Date.now() + 15 * 60 * 1000);
+
+        const { error: createProfileError } = await supabaseAdmin
+          .from('profiles')
+          .insert({
+            id: existingUser.id,
+            email,
+            full_name: fullName,
+            phone,
+            phone_country_code: phoneCountryCode || '+20',
+            whatsapp,
+            whatsapp_country_code: whatsappCountryCode || '+20',
+            role: 'customer',
+            email_verified: false,
+            verification_code: verificationCode,
+            verification_code_expires: verificationExpiry.toISOString()
+          });
+
+        if (createProfileError) {
+          logger.error('Profile creation for existing auth user failed:', createProfileError.message);
+          return sendError(res, 'Failed to create profile', 500);
+        }
+
+        emailService.sendVerificationCode(email, fullName, verificationCode).catch(err => 
+          logger.error('Verification email failed:', err.message)
+        );
+
+        return sendSuccess(res, {
+            user: { email, role: 'customer', emailVerified: false },
+            requiresVerification: true 
+        }, 'Registration successful. Please verify your email.', 201);
+      }
       
-      // If verified or different role, fail as usual
+      // Case 3: Email is verified or different role -> cannot re-register
       return sendError(res, 'Email already registered', 400);
     }
 
