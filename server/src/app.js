@@ -23,30 +23,32 @@ if (process.env.NODE_ENV === 'production') {
 app.use(helmet());
 
 // CORS configuration
-// CORS configuration
 const allowedOrigins = [
   'https://mirhalgo.online',
   'https://www.mirhalgo.online',
-  'https://merhal-go.vercel.app', // Vercel fallback
+  'https://merhal-go.vercel.app',
   process.env.FRONTEND_URL?.replace(/\/$/, '')
 ].filter(Boolean);
 
 const corsOptions = {
-  origin: function (origin, callback) {
-    // Allow requests with no origin (like mobile apps or curl requests)
-    if (!origin) return callback(null, true);
-    
-    if (allowedOrigins.indexOf(origin) !== -1 || process.env.NODE_ENV === 'development') {
-      callback(null, true);
-    } else {
-      console.log('Blocked Origin:', origin);
-      callback(new Error('Not allowed by CORS'));
-    }
-  },
+  origin: true, // This tells cors to reflect the request origin
   credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept', 'Origin'],
   optionsSuccessStatus: 200
 };
-app.use(cors(corsOptions));
+
+// Check origin manually for finer control if needed, but 'origin: true' usually works best for reflection
+// app.use(cors(corsOptions)); is often enough, but let's be safe:
+app.use(cors((req, callback) => {
+  const origin = req.header('Origin');
+  if (!origin || allowedOrigins.includes(origin) || process.env.NODE_ENV === 'development') {
+    callback(null, { origin: true, credentials: true });
+  } else {
+    console.log('Blocked Origin:', origin);
+    callback(new Error('Not allowed by CORS'));
+  }
+}));
 
 // Body parsers
 app.use(express.json({ limit: '10mb' }));
