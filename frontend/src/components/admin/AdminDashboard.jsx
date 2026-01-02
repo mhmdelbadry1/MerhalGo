@@ -17,6 +17,7 @@ const AdminDashboard = () => {
     companyRequests: 0
   });
   const [chartData, setChartData] = useState([]);
+  const [typesChartData, setTypesChartData] = useState([]);
   const [orderStatus, setOrderStatus] = useState({
     new: 0,
     reviewing: 0,
@@ -68,6 +69,14 @@ const AdminDashboard = () => {
         { name: 'مرفوض', value: statuses.rejected, color: '#EF4444' },
       ];
       setChartData(data);
+
+      // Prepare order types data for chart
+      const typesData = [
+        { name: 'شحن محلي', value: allOrders.filter(o => o.order_type === 'local').length, color: '#F97316' },
+        { name: 'شحن دولي', value: allOrders.filter(o => o.order_type === 'international').length, color: '#8B5CF6' },
+        { name: 'شي ان', value: allOrders.filter(o => o.order_type === 'shein').length, color: '#EC4899' },
+      ];
+      setTypesChartData(typesData);
 
       setRecentOrders(allOrders.slice(0, 5)); 
     } catch (error) {
@@ -205,6 +214,25 @@ const AdminDashboard = () => {
                 <Bar dataKey="value" name="العدد" radius={[4, 4, 0, 0]} barSize={40}>
                   {chartData.map((entry, index) => (
                     <Cell key={`cell-${index}`} fill={entry.color} />
+                  ))}
+                </Bar>
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
+
+        <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-md">
+          <h2 className="text-xl font-bold text-gray-800 dark:text-white mb-6">أنواع الطلبان</h2>
+          <div className="h-[300px] w-full" dir="ltr">
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart data={typesChartData} margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
+                <CartesianGrid strokeDasharray="3 3" vertical={false} />
+                <XAxis dataKey="name" />
+                <YAxis allowDecimals={false} />
+                <Tooltip cursor={{ fill: 'transparent' }} contentStyle={{ borderRadius: '8px' }} />
+                <Bar dataKey="value" name="العدد" radius={[4, 4, 0, 0]} barSize={40}>
+                  {typesChartData.map((entry, index) => (
+                    <Cell key={`cell-type-${index}`} fill={entry.color} />
                   ))}
                 </Bar>
               </BarChart>
