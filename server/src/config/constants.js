@@ -42,10 +42,10 @@ module.exports = {
 
   // File upload limits
   FILE_LIMITS: {
-    MAX_SIZE: parseInt(process.env.MAX_FILE_SIZE) || 5242880, // 5MB
-    ALLOWED_TYPES: (process.env.ALLOWED_FILE_TYPES || 'image/jpeg,image/png,application/pdf').split(',')
+    MAX_SIZE: parseInt(process.env.MAX_FILE_SIZE),
+    ALLOWED_TYPES: process.env.ALLOWED_FILE_TYPES.split(',')
   },
 
   // Offer expiry
-  OFFER_EXPIRY_HOURS: parseInt(process.env.OFFER_EXPIRY_HOURS) || 48
+  OFFER_EXPIRY_HOURS: parseInt(process.env.OFFER_EXPIRY_HOURS)
 };

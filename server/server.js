@@ -11,7 +11,7 @@ if (!fs.existsSync(logsDir)) {
 }
 
 // Get port from environment or use default
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT;
 
 // Start server
 const server = app.listen(PORT, () => {
