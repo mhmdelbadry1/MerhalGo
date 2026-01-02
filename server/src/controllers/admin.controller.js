@@ -92,6 +92,7 @@ const approveCompany = async (req, res) => {
     const normalizedEmail = normalizeGmailEmail(email);
     let authUserId;
     let finalPassword = password; // Track the password used for email
+    logger.info(`approveCompany: initial password from req.body exists: ${!!password}`);
 
     // Check if user already exists using Gmail normalization
     // This ensures we find accounts like m.30223824@gmail.com when approving m30223824@gmail.com
@@ -165,6 +166,7 @@ const approveCompany = async (req, res) => {
       // Generate strong password if admin didn't provide one
       if (!finalPassword) {
         finalPassword = generateStrongPassword(12);
+        logger.info(`Generated new password for new user: ${email}`);
       }
       
       const { data: authData, error: authError } = await supabaseAdmin.auth.admin.createUser({
@@ -264,6 +266,7 @@ const approveCompany = async (req, res) => {
     logger.info(`Company approved: ${email} by admin ${req.user.email}`);
 
     // Send approval email with the password (auto-generated or admin-provided)
+    logger.info(`Sending approval email to ${email}, finalPassword exists: ${!!finalPassword}`);
     try {
       await emailService.sendCompanyApprovalEmail(email, formData.companyName, finalPassword);
     } catch (emailError) {
