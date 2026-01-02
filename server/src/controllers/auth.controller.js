@@ -184,10 +184,11 @@ const register = async (req, res) => {
 const login = async (req, res) => {
   try {
     const { email, password } = req.body;
+    const normalizedEmail = email.toLowerCase().trim();
 
     // Sign in with Supabase
     const { data, error } = await supabaseAdmin.auth.signInWithPassword({
-      email,
+      email: normalizedEmail,
       password
     });
 
