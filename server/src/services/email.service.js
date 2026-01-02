@@ -1,11 +1,7 @@
-const createTransporter = require('../config/email');
+const { sendEmail } = require('../config/email');
 const logger = require('../utils/logger');
 
 class EmailService {
-  constructor() {
-    this.transporter = createTransporter();
-  }
-
   /**
    * Send email
    * @param {string} to - Recipient email
@@ -14,16 +10,8 @@ class EmailService {
    */
   async sendEmail(to, subject, html) {
     try {
-      const mailOptions = {
-        from: process.env.EMAIL_FROM,
-        to,
-        subject,
-        html
-      };
-
-      const info = await this.transporter.sendMail(mailOptions);
-      logger.info(`Email sent successfully to ${to}`, { messageId: info.messageId });
-      return { success: true, messageId: info.messageId };
+      const result = await sendEmail(to, subject, html);
+      return result;
     } catch (error) {
       logger.error('Email sending failed:', error);
       throw error;
