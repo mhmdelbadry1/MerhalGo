@@ -23,8 +23,26 @@ if (process.env.NODE_ENV === 'production') {
 app.use(helmet());
 
 // CORS configuration
+// CORS configuration
+const allowedOrigins = [
+  'https://mirhalgo.online',
+  'https://www.mirhalgo.online',
+  'https://merhal-go.vercel.app', // Vercel fallback
+  process.env.FRONTEND_URL?.replace(/\/$/, '')
+].filter(Boolean);
+
 const corsOptions = {
-  origin: process.env.FRONTEND_URL?.replace(/\/$/, ''),
+  origin: function (origin, callback) {
+    // Allow requests with no origin (like mobile apps or curl requests)
+    if (!origin) return callback(null, true);
+    
+    if (allowedOrigins.indexOf(origin) !== -1 || process.env.NODE_ENV === 'development') {
+      callback(null, true);
+    } else {
+      console.log('Blocked Origin:', origin);
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
   credentials: true,
   optionsSuccessStatus: 200
 };
