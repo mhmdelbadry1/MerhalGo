@@ -197,7 +197,11 @@ class EmailService {
           <h3 style="margin-top: 0; color: #4b5563;">معلومات الدخول الجديدة:</h3>
           <p style="margin: 5px 0;"><strong>البريد الإلكتروني:</strong> ${email}</p>
           <p style="margin: 5px 0;"><strong>كلمة المرور:</strong> ${password}</p>
-          <p style="font-size: 12px; color: #dc2626; margin-top: 10px;">يرجى تغيير كلمة المرور بعد تسجيل الدخول لأول مرة.</p>
+        </div>
+        <div style="background-color: #fef3c7; padding: 15px; border-radius: 5px; margin: 20px 0; border: 1px solid #f59e0b;">
+          <p style="margin: 0; color: #92400e; font-weight: bold;">
+            ⚠️ تنبيه هام: يرجى تغيير كلمة المرور فور تسجيل الدخول من صفحة الإعدادات لضمان أمان حسابك.
+          </p>
         </div>
       `;
     } else {
