@@ -31,7 +31,7 @@ jest
 build
 dist
 
-frontend
+# frontend
 
 DEPLOYMENT.md
 
