@@ -11,9 +11,10 @@ const register = async (req, res) => {
   try {
     const { email, password, fullName, phone, phoneCountryCode, whatsapp, whatsappCountryCode, address } = req.body;
 
-    // Check if user already exists
+    // Check if user already exists (case-insensitive email comparison)
     const { data: existingUsers } = await supabaseAdmin.auth.admin.listUsers();
-    const existingUser = existingUsers.users.find(u => u.email === email);
+    const normalizedEmail = email.toLowerCase().trim();
+    const existingUser = existingUsers.users.find(u => u.email?.toLowerCase() === normalizedEmail);
     
     let authUserId;
 
