@@ -57,15 +57,25 @@ const sendEmail = async (to, subject, html) => {
   try {
     if (brevoApiInstance) {
       // Use Brevo HTTP API
-      const sendSmtpEmail = new Brevo.SendSmtpEmail();
-      sendSmtpEmail.subject = subject;
-      sendSmtpEmail.htmlContent = html;
-      sendSmtpEmail.sender = { name: fromName, email: fromEmail };
-      sendSmtpEmail.to = [{ email: to }];
+      try {
+        const sendSmtpEmail = new Brevo.SendSmtpEmail();
+        sendSmtpEmail.subject = subject;
+        sendSmtpEmail.htmlContent = html;
+        sendSmtpEmail.sender = { name: fromName, email: fromEmail };
+        sendSmtpEmail.to = [{ email: to }];
 
-      await brevoApiInstance.sendTransacEmail(sendSmtpEmail);
-      logger.info(`Email sent via Brevo to ${to}`);
-      return { success: true };
+        const result = await brevoApiInstance.sendTransacEmail(sendSmtpEmail);
+        logger.info(`Email sent via Brevo to ${to}`, { messageId: result?.body?.messageId });
+        return { success: true, messageId: result?.body?.messageId };
+      } catch (brevoError) {
+        // Extract readable error message from Brevo error
+        const errorMessage = brevoError?.response?.body?.message 
+          || brevoError?.message 
+          || 'Unknown Brevo error';
+        const errorCode = brevoError?.response?.body?.code || brevoError?.code;
+        logger.error(`Brevo API error: ${errorMessage}`, { code: errorCode });
+        throw new Error(`Brevo: ${errorMessage}`);
+      }
     } 
     
     if (resendClient) {
