@@ -1,18 +1,22 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-
-// Navbar handled by Layout
 import { useAuth } from '../../contexts/AuthContext';
+import authService from '../../services/auth.service';
+import { useToast } from '../../contexts/ToastContext';
 
 const AdminSettings = () => {
   const { t } = useTranslation();
-  const { user, updateUser } = useAuth();
-  const [showSuccess, setShowSuccess] = useState(false);
+  const { user, refreshUser } = useAuth();
+  const { showToast } = useToast();
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
   const [activeTab, setActiveTab] = useState('profile');
 
   const [profileData, setProfileData] = useState({
-    name: user?.name || 'المدير',
-    email: 'admin@mirhalgo.com'
+    full_name: '',
+    email: '',
+    phone: '',
+    phone_country_code: '+20'
   });
 
   const [securityData, setSecurityData] = useState({
@@ -20,6 +24,31 @@ const AdminSettings = () => {
     newPassword: '',
     confirmPassword: ''
   });
+
+  // Load profile data on mount
+  useEffect(() => {
+    loadProfile();
+  }, []);
+
+  const loadProfile = async () => {
+    try {
+      setLoading(true);
+      const response = await authService.getCurrentUser();
+      if (response.data) {
+        setProfileData({
+          full_name: response.data.full_name || '',
+          email: response.data.email || '',
+          phone: response.data.phone || '',
+          phone_country_code: response.data.phone_country_code || '+20'
+        });
+      }
+    } catch (error) {
+      console.error('Failed to load profile:', error);
+      showToast('فشل في تحميل الملف الشخصي', 'error');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleProfileChange = (e) => {
     const { name, value } = e.target;
@@ -31,26 +60,58 @@ const AdminSettings = () => {
     setSecurityData(prev => ({ ...prev, [name]: value }));
   };
 
-  const saveProfile = () => {
-    updateUser(profileData);
-    setShowSuccess(true);
-    setTimeout(() => setShowSuccess(false), 3000);
+  const saveProfile = async () => {
+    try {
+      setSaving(true);
+      await authService.updateProfile({
+        full_name: profileData.full_name,
+        phone: profileData.phone,
+        phone_country_code: profileData.phone_country_code
+      });
+      showToast('تم حفظ التغييرات بنجاح', 'success');
+      if (refreshUser) refreshUser();
+    } catch (error) {
+      console.error('Failed to save profile:', error);
+      showToast(error.response?.data?.message || 'فشل في حفظ التغييرات', 'error');
+    } finally {
+      setSaving(false);
+    }
   };
 
-  const changePassword = () => {
+  const changePassword = async () => {
     if (securityData.newPassword !== securityData.confirmPassword) {
-      alert('كلمتا المرور غير متطابقتين');
+      showToast('كلمتا المرور غير متطابقتين', 'error');
       return;
     }
     if (securityData.newPassword.length < 6) {
-      alert('كلمة المرور يجب أن تكون 6 أحرف على الأقل');
+      showToast('كلمة المرور يجب أن تكون 6 أحرف على الأقل', 'error');
       return;
     }
-    updateUser({ password: securityData.newPassword });
-    setSecurityData({ currentPassword: '', newPassword: '', confirmPassword: '' });
-    setShowSuccess(true);
-    setTimeout(() => setShowSuccess(false), 3000);
+    if (!securityData.currentPassword) {
+      showToast('يرجى إدخال كلمة المرور الحالية', 'error');
+      return;
+    }
+
+    try {
+      setSaving(true);
+      await authService.updatePassword(securityData.currentPassword, securityData.newPassword);
+      setSecurityData({ currentPassword: '', newPassword: '', confirmPassword: '' });
+      showToast('تم تغيير كلمة المرور بنجاح', 'success');
+    } catch (error) {
+      console.error('Failed to change password:', error);
+      showToast(error.response?.data?.message || 'فشل في تغيير كلمة المرور', 'error');
+    } finally {
+      setSaving(false);
+    }
   };
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-[50vh]">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
@@ -109,9 +170,10 @@ const AdminSettings = () => {
                     </label>
                     <input
                       type="text"
-                      name="name"
-                      value={profileData.name}
+                      name="full_name"
+                      value={profileData.full_name}
                       onChange={handleProfileChange}
+                      placeholder="أدخل اسمك"
                       className="w-full p-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-800 dark:text-white focus:ring-2 focus:ring-primary focus:border-transparent"
                     />
                   </div>
@@ -124,17 +186,48 @@ const AdminSettings = () => {
                       type="email"
                       name="email"
                       value={profileData.email}
-                      onChange={handleProfileChange}
-                      className="w-full p-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-800 dark:text-white focus:ring-2 focus:ring-primary focus:border-transparent"
+                      disabled
+                      className="w-full p-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-gray-100 dark:bg-gray-600 text-gray-500 dark:text-gray-400 cursor-not-allowed"
                     />
+                    <p className="text-xs text-gray-500 mt-1">لا يمكن تغيير البريد الإلكتروني</p>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                      رقم الهاتف
+                    </label>
+                    <div className="flex gap-2">
+                      <select
+                        name="phone_country_code"
+                        value={profileData.phone_country_code}
+                        onChange={handleProfileChange}
+                        className="w-24 p-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-800 dark:text-white"
+                      >
+                        <option value="+20">+20</option>
+                        <option value="+966">+966</option>
+                        <option value="+971">+971</option>
+                      </select>
+                      <input
+                        type="tel"
+                        name="phone"
+                        value={profileData.phone}
+                        onChange={handleProfileChange}
+                        placeholder="رقم الهاتف"
+                        className="flex-1 p-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-800 dark:text-white focus:ring-2 focus:ring-primary focus:border-transparent"
+                      />
+                    </div>
                   </div>
 
                   <button
                     onClick={saveProfile}
-                    className="w-full md:w-auto px-8 py-3 bg-primary text-white rounded-lg hover:bg-opacity-90 transition-all font-semibold"
+                    disabled={saving}
+                    className="w-full md:w-auto px-8 py-3 bg-primary text-white rounded-lg hover:bg-opacity-90 transition-all font-semibold disabled:opacity-50"
                   >
-                    <i className="fas fa-save ml-2"></i>
-                    حفظ التغييرات
+                    {saving ? (
+                      <><i className="fas fa-spinner fa-spin ml-2"></i>جاري الحفظ...</>
+                    ) : (
+                      <><i className="fas fa-save ml-2"></i>حفظ التغييرات</>
+                    )}
                   </button>
                 </div>
               </div>
@@ -156,6 +249,7 @@ const AdminSettings = () => {
                       name="currentPassword"
                       value={securityData.currentPassword}
                       onChange={handleSecurityChange}
+                      placeholder="أدخل كلمة المرور الحالية"
                       className="w-full p-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-800 dark:text-white focus:ring-2 focus:ring-primary focus:border-transparent"
                     />
                   </div>
@@ -169,6 +263,7 @@ const AdminSettings = () => {
                       name="newPassword"
                       value={securityData.newPassword}
                       onChange={handleSecurityChange}
+                      placeholder="أدخل كلمة المرور الجديدة"
                       className="w-full p-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-800 dark:text-white focus:ring-2 focus:ring-primary focus:border-transparent"
                     />
                   </div>
@@ -182,6 +277,7 @@ const AdminSettings = () => {
                       name="confirmPassword"
                       value={securityData.confirmPassword}
                       onChange={handleSecurityChange}
+                      placeholder="أعد إدخال كلمة المرور الجديدة"
                       className="w-full p-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-800 dark:text-white focus:ring-2 focus:ring-primary focus:border-transparent"
                     />
                   </div>
@@ -200,10 +296,14 @@ const AdminSettings = () => {
 
                   <button
                     onClick={changePassword}
-                    className="w-full md:w-auto px-8 py-3 bg-primary text-white rounded-lg hover:bg-opacity-90 transition-all font-semibold"
+                    disabled={saving}
+                    className="w-full md:w-auto px-8 py-3 bg-primary text-white rounded-lg hover:bg-opacity-90 transition-all font-semibold disabled:opacity-50"
                   >
-                    <i className="fas fa-key ml-2"></i>
-                    تغيير كلمة المرور
+                    {saving ? (
+                      <><i className="fas fa-spinner fa-spin ml-2"></i>جاري التغيير...</>
+                    ) : (
+                      <><i className="fas fa-key ml-2"></i>تغيير كلمة المرور</>
+                    )}
                   </button>
                 </div>
               </div>
@@ -211,16 +311,6 @@ const AdminSettings = () => {
           </div>
         </div>
       </div>
-
-      {showSuccess && (
-        <div className="fixed bottom-4 left-4 bg-green-600 text-white px-6 py-4 rounded-lg shadow-2xl flex items-center gap-3 fade-in z-50">
-          <i className="fas fa-check-circle text-2xl"></i>
-          <div>
-            <p className="font-semibold">تم الحفظ بنجاح</p>
-            <p className="text-sm">تم تحديث معلوماتك</p>
-          </div>
-        </div>
-      )}
     </div>
   );
 };

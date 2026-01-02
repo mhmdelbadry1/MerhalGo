@@ -86,6 +86,19 @@ const AdminSidebar = () => {
           <i className="fas fa-plane w-6 text-center text-lg text-purple-500"></i>
           <span className="font-medium">شحن دولي</span>
         </NavLink>
+
+        <NavLink
+          to="/admin/orders?type=shein"
+          className={({ isActive }) => `
+            flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200
+            ${isActive 
+              ? 'bg-pink-100 text-pink-700 dark:bg-pink-900/30 dark:text-pink-300' 
+              : 'text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700'}
+          `}
+        >
+          <i className="fas fa-shopping-bag w-6 text-center text-lg text-pink-500"></i>
+          <span className="font-medium">شي ان</span>
+        </NavLink>
       </nav>
 
       <div className="p-4 border-t border-gray-200 dark:border-gray-700">

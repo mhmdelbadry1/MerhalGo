@@ -35,6 +35,11 @@ dist
 
 DEPLOYMENT.md
 
+# Debugging the database
+debug-user.js
+check_user.js
+
+
 .env
 # Supabase
 supabase-schema.sql
