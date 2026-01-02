@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import orderService from '../../services/order.service';
-import LoadingSpinner from '../Shared/LoadingSpinner';
+import LoadingSpinner from '../shared/LoadingSpinner';
 import { useToast } from '../../contexts/ToastContext';
 import { useAuth } from '../../contexts/AuthContext';
 import { formatOrderField } from '../../utils/orderFormatters';

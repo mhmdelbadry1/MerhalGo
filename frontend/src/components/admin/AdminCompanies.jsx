@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import adminService from '../../services/admin.service';
-import LoadingSpinner from '../Shared/LoadingSpinner';
+import LoadingSpinner from '../shared/LoadingSpinner';
 import { useToast } from '../../contexts/ToastContext';
 
 const AdminCompanies = () => {
