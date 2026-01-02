@@ -4,7 +4,7 @@ import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell 
 } from 'recharts';
 import adminService from '../../services/admin.service';
-import Navbar from '../Shared/Navbar';
+import Navbar from '../shared/Navbar';
 
 const AdminDashboard = () => {
   const navigate = useNavigate();

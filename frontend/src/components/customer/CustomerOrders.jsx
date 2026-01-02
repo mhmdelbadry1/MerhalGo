@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import Navbar from '../Shared/Navbar';
+import Navbar from '../shared/Navbar';
 import { useNavigate } from 'react-router-dom';
 import orderService from '../../services/order.service';
 import { useAuth } from '../../contexts/AuthContext';
