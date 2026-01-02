@@ -3,8 +3,8 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { AuthProvider } from './contexts/AuthContext';
 import { ToastProvider } from './contexts/ToastContext';
 import ProtectedRoute from './components/shared/ProtectedRoute';
-import Toast from './components/Shared/Toast';
-import NotFound from './components/Shared/NotFound';
+import Toast from './components/shared/Toast';
+import NotFound from './components/shared/NotFound';
 
 // Landing
 import LandingPage from './components/Landing/LandingPage';
