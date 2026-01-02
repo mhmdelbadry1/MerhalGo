@@ -67,11 +67,7 @@ const CompanyRequests = () => {
   };
 
   const acceptCompany = async () => {
-    if (!password) {
-      showError('يرجى إدخال كلمة المرور');
-      return;
-    }
-
+    // Password is optional - backend will auto-generate if empty
     try {
       setIsSubmitting(true);
       await adminService.approveCompany(selectedRequest.id, password);
