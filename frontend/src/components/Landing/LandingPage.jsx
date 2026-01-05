@@ -132,7 +132,7 @@ const LandingPage = () => {
           <div className="text-center mb-16">
             <div className="inline-flex items-center gap-2 bg-primary/10 text-primary px-4 py-2 rounded-full text-sm font-semibold mb-6">
               <i className="fas fa-star"></i>
-              <span>منصة الشحن الأولى في مصر</span>
+              <span> المنصة الاولي لكل خدمات الشحن في مصر </span>
             </div>
             <h1 className="text-4xl md:text-6xl font-bold text-gray-800 dark:text-white mb-6 leading-tight">
               {t('welcome') || 'مرحباً بك في مرحال جو'}
@@ -211,23 +211,6 @@ const LandingPage = () => {
             ))}
           </div>
 
-          {/* Stats Section */}
-          <div className="bg-gradient-to-r from-primary/10 to-indigo-500/10 dark:from-primary/20 dark:to-indigo-500/20 rounded-3xl p-8 md:p-12 backdrop-blur-sm border border-primary/10">
-            <div className="grid grid-cols-3 gap-8 text-center">
-              <div>
-                <div className="text-3xl md:text-4xl font-bold text-primary mb-2">100+</div>
-                <div className="text-sm text-gray-600 dark:text-gray-400">شركة شحن</div>
-              </div>
-              <div>
-                <div className="text-3xl md:text-4xl font-bold text-primary mb-2">5000+</div>
-                <div className="text-sm text-gray-600 dark:text-gray-400">شحنة منجزة</div>
-              </div>
-              <div>
-                <div className="text-3xl md:text-4xl font-bold text-primary mb-2">50+</div>
-                <div className="text-sm text-gray-600 dark:text-gray-400">دولة</div>
-              </div>
-            </div>
-          </div>
         </div>
       </main>
 
