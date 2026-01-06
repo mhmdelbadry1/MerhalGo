@@ -74,6 +74,14 @@ const companyService = {
   deleteOffer: async (offerId) => {
     const response = await api.delete(`/company/offers/${offerId}`);
     return response.data;
+  },
+
+  /**
+   * Get all offers for an order (to see competing offers)
+   */
+  getOrderOffers: async (orderId) => {
+    const response = await api.get(`/company/orders/${orderId}/offers`);
+    return response.data;
   }
 };
 
