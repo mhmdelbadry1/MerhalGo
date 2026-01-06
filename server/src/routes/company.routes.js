@@ -108,6 +108,21 @@ router.get('/offers',
 );
 
 /**
+ * @route   GET /api/company/orders/:orderId/offers
+ * @desc    Get all offers for an order (for companies to see competing offers)
+ * @access  Private (Company only)
+ */
+router.get('/orders/:orderId/offers',
+  auth,
+  isCompany,
+  [
+    param('orderId').isUUID().withMessage('معرف الطلب غير صالح')
+  ],
+  validate,
+  companyController.getOrderOffersForCompany
+);
+
+/**
  * @route   PATCH /api/company/offers/:id
  * @desc    Update offer
  * @access  Private (Company only)

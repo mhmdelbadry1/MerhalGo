@@ -24,6 +24,10 @@ const AllOrders = () => {
     notes: ''
   });
   const [loading, setLoading] = useState(true);
+  const [competingOffers, setCompetingOffers] = useState([]);
+  const [loadingOffers, setLoadingOffers] = useState(false);
+  const [submittingOffer, setSubmittingOffer] = useState(false);
+  const [showSuccessAnimation, setShowSuccessAnimation] = useState(false);
 
   useEffect(() => {
     loadOrders();
@@ -52,9 +56,22 @@ const AllOrders = () => {
     return labels[type] || type;
   };
 
-  const openOfferModal = (order) => {
+  const openOfferModal = async (order) => {
     setSelectedOrder(order);
     setShowOfferModal(true);
+    setCompetingOffers([]);
+    
+    // Fetch competing offers
+    try {
+      setLoadingOffers(true);
+      const response = await companyService.getOrderOffers(order.id);
+      setCompetingOffers(response.data?.offers || []);
+    } catch (error) {
+      console.error('Error fetching competing offers:', error);
+      // Don't show error - just proceed without offers
+    } finally {
+      setLoadingOffers(false);
+    }
   };
 
   const submitOffer = async () => {
@@ -81,6 +98,8 @@ const AllOrders = () => {
     }
 
     try {
+      setSubmittingOffer(true);
+      
       const offerPayload = {
         orderId: selectedOrder.id,
         ...offerData,
@@ -89,13 +108,34 @@ const AllOrders = () => {
       
       await companyService.submitOffer(offerPayload);
       
-      showSuccess('تم إضافة العرض بنجاح!');
-      setShowOfferModal(false);
-      setOfferData({ price: '', currency: 'EGP', startDate: '', endDate: '', notes: '' });
-      loadOrders();
+      // Show success animation
+      setSubmittingOffer(false);
+      setShowSuccessAnimation(true);
+      
+      // Immediately update the order in state to show green badge
+      setOrders(prevOrders => {
+        // Safety check: ensure prevOrders is an array
+        if (!Array.isArray(prevOrders)) return prevOrders;
+        return prevOrders.map(order => 
+          order.id === selectedOrder.id 
+            ? { ...order, has_offered: true, total_offers: (order.total_offers || 0) + 1 }
+            : order
+        );
+      });
+      
+      // Auto-close modal after animation
+      setTimeout(() => {
+        setShowSuccessAnimation(false);
+        setShowOfferModal(false);
+        setOfferData({ price: '', currency: 'EGP', startDate: '', endDate: '', notes: '' });
+        showSuccess('تم إضافة العرض بنجاح!');
+        // Refresh orders from server to ensure sync
+        loadOrders();
+      }, 2000);
+      
     } catch (error) {
+      setSubmittingOffer(false);
       console.error('Error submitting offer:', error);
-      // Show the actual error message from server
       const errorMsg = error.response?.data?.errors?.[0]?.msg 
         || error.response?.data?.message 
         || 'فشل إضافة العرض - تأكد من صحة البيانات';
@@ -447,16 +487,39 @@ const AllOrders = () => {
               </div>
             </div>
             
-            <div className="p-6 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 rounded-b-2xl flex justify-end">
-              <button
-                onClick={() => {
-                  setShowDetailsModal(false);
-                  openOfferModal(selectedOrder);
-                }}
-                className="px-6 py-2 bg-primary text-white rounded-lg hover:bg-opacity-90 transition-all font-semibold"
-              >
-                إضافة عرض لهذا الطلب
-              </button>
+            <div className="p-6 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 rounded-b-2xl flex justify-end gap-3">
+              {selectedOrder?.has_offered ? (
+                <>
+                  <button
+                    onClick={() => {
+                      setShowDetailsModal(false);
+                      openOfferModal(selectedOrder);
+                    }}
+                    className="px-6 py-2 border border-primary text-primary rounded-lg hover:bg-primary hover:text-white transition-all font-semibold"
+                  >
+                    <i className="fas fa-eye ml-2"></i>
+                    عرض العروض الأخرى
+                  </button>
+                  <a
+                    href="/company/offers"
+                    className="px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-all font-semibold"
+                  >
+                    <i className="fas fa-edit ml-2"></i>
+                    تعديل عرضي
+                  </a>
+                </>
+              ) : (
+                <button
+                  onClick={() => {
+                    setShowDetailsModal(false);
+                    openOfferModal(selectedOrder);
+                  }}
+                  className="px-6 py-2 bg-primary text-white rounded-lg hover:bg-opacity-90 transition-all font-semibold"
+                >
+                  <i className="fas fa-plus ml-2"></i>
+                  إضافة عرض لهذا الطلب
+                </button>
+              )}
             </div>
           </div>
         </div>
@@ -465,7 +528,38 @@ const AllOrders = () => {
       {/* Add Offer Modal */}
       {showOfferModal && selectedOrder && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white dark:bg-gray-800 rounded-2xl max-w-md w-full shadow-2xl">
+          <div className="bg-white dark:bg-gray-800 rounded-2xl max-w-md w-full shadow-2xl relative overflow-hidden">
+            {/* Success Animation Overlay */}
+            {showSuccessAnimation && (
+              <div className="absolute inset-0 bg-white dark:bg-gray-800 flex flex-col items-center justify-center z-10 animate-fadeIn">
+                {/* Confetti particles */}
+                <div className="absolute inset-0 overflow-hidden pointer-events-none">
+                  {[...Array(20)].map((_, i) => (
+                    <div
+                      key={i}
+                      className="absolute w-3 h-3 rounded-full animate-confetti"
+                      style={{
+                        left: `${Math.random() * 100}%`,
+                        backgroundColor: ['#10B981', '#3B82F6', '#F59E0B', '#EF4444', '#8B5CF6'][i % 5],
+                        animationDelay: `${Math.random() * 0.5}s`,
+                        animationDuration: `${1 + Math.random()}s`
+                      }}
+                    />
+                  ))}
+                </div>
+                
+                {/* Success checkmark */}
+                <div className="w-24 h-24 bg-green-100 dark:bg-green-900/30 rounded-full flex items-center justify-center mb-6 animate-scaleIn">
+                  <i className="fas fa-check text-green-500 text-5xl"></i>
+                </div>
+                <h3 className="text-2xl font-bold text-gray-800 dark:text-white mb-2">
+                  تم إرسال العرض بنجاح!
+                </h3>
+                <p className="text-gray-600 dark:text-gray-400">
+                  سيتم إغلاق النافذة تلقائياً...
+                </p>
+              </div>
+            )}
             <div className="flex items-center justify-between p-6 border-b border-gray-200 dark:border-gray-700">
               <h2 className="text-2xl font-bold text-gray-800 dark:text-white">
                 إضافة عرض سعر
@@ -478,84 +572,180 @@ const AllOrders = () => {
               </button>
             </div>
 
-            <div className="p-6 space-y-4">
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                    السعر *
-                  </label>
-                  <input
-                    type="number"
-                    min="0"
-                    placeholder="0.00"
-                    value={offerData.price}
-                    onChange={(e) => setOfferData({...offerData, price: e.target.value})}
-                    className="w-full p-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-                  />
+            <div className="p-6 space-y-4 max-h-[70vh] overflow-y-auto">
+              {/* Competing Offers Section */}
+              <div className="mb-4">
+                <div className="flex items-center gap-2 mb-3">
+                  <i className="fas fa-users text-primary"></i>
+                  <h3 className="text-lg font-semibold text-gray-800 dark:text-white">
+                    عروض الشركات الأخرى ({competingOffers.length})
+                  </h3>
                 </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                    العملة *
-                  </label>
-                  <select
-                    value={offerData.currency}
-                    onChange={(e) => setOfferData({...offerData, currency: e.target.value})}
-                    className="w-full p-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                
+                {loadingOffers ? (
+                  <div className="text-center py-4">
+                    <i className="fas fa-spinner fa-spin text-primary text-2xl"></i>
+                    <p className="text-gray-500 mt-2">جاري تحميل العروض...</p>
+                  </div>
+                ) : competingOffers.length > 0 ? (
+                  <div className="space-y-2 max-h-40 overflow-y-auto">
+                    {competingOffers.map((offer, index) => (
+                      <div 
+                        key={offer.id} 
+                        className="bg-gray-50 dark:bg-gray-700 rounded-lg p-3 border border-gray-200 dark:border-gray-600"
+                      >
+                        <div className="flex justify-between items-center">
+                          <div className="flex items-center gap-2">
+                            <span className="w-8 h-8 bg-primary/10 text-primary rounded-full flex items-center justify-center text-sm font-bold">
+                              {index + 1}
+                            </span>
+                            <span className="font-medium text-gray-800 dark:text-white">
+                              {offer.companyName}
+                            </span>
+                          </div>
+                          <span className="text-lg font-bold text-primary">
+                            {offer.price} {offer.currency}
+                          </span>
+                        </div>
+                        <div className="mt-2 text-sm text-gray-500 dark:text-gray-400 flex items-center gap-4">
+                          <span>
+                            <i className="fas fa-calendar-alt mr-1"></i>
+                            {offer.startDate ? new Date(offer.startDate).toLocaleDateString('ar-EG') : '-'}
+                          </span>
+                          <span>→</span>
+                          <span>
+                            <i className="fas fa-calendar-check mr-1"></i>
+                            {offer.endDate ? new Date(offer.endDate).toLocaleDateString('ar-EG') : '-'}
+                          </span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="bg-blue-50 dark:bg-blue-900/20 rounded-lg p-3 text-center">
+                    <i className="fas fa-info-circle text-blue-500 mb-1"></i>
+                    <p className="text-blue-700 dark:text-blue-300 text-sm">
+                      {selectedOrder?.has_offered 
+                        ? 'لا توجد عروض من شركات أخرى على هذا الطلب'
+                        : 'لا توجد عروض من شركات أخرى حتى الآن - كن أول من يقدم عرضاً!'}
+                    </p>
+                  </div>
+                )}
+              </div>
+              
+              <hr className="border-gray-200 dark:border-gray-700" />
+              
+              {/* Show form OR message based on whether user has already offered */}
+              {selectedOrder?.has_offered ? (
+                <div className="bg-green-50 dark:bg-green-900/20 rounded-lg p-4 text-center">
+                  <i className="fas fa-check-circle text-green-500 text-3xl mb-2"></i>
+                  <p className="text-green-700 dark:text-green-300 font-semibold mb-2">
+                    لقد قدمت عرضاً على هذا الطلب بالفعل
+                  </p>
+                  <a
+                    href="/company/offers"
+                    className="inline-block px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-all font-semibold"
                   >
-                    <option value="EGP">جنية مصري (EGP)</option>
-                    <option value="USD">دولار أمريكي (USD)</option>
-                    <option value="SAR">ريال سعودي (SAR)</option>
-                    <option value="AED">درهم إماراتي (AED)</option>
-                  </select>
+                    <i className="fas fa-edit ml-2"></i>
+                    تعديل عرضي من صفحة العروض
+                  </a>
                 </div>
-              </div>
+              ) : (
+                <>
+                  {/* Your Offer Form */}
+                  <h4 className="font-semibold text-gray-800 dark:text-white">عرضك:</h4>
+
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                        السعر *
+                      </label>
+                      <input
+                        type="number"
+                        min="0"
+                        placeholder="0.00"
+                        value={offerData.price}
+                        onChange={(e) => setOfferData({...offerData, price: e.target.value})}
+                        className="w-full p-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                        العملة *
+                      </label>
+                      <select
+                        value={offerData.currency}
+                        onChange={(e) => setOfferData({...offerData, currency: e.target.value})}
+                        className="w-full p-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                      >
+                        <option value="EGP">جنية مصري (EGP)</option>
+                        <option value="USD">دولار أمريكي (USD)</option>
+                        <option value="SAR">ريال سعودي (SAR)</option>
+                        <option value="AED">درهم إماراتي (AED)</option>
+                      </select>
+                    </div>
+                  </div>
 
 
 
-              <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                  تاريخ بداية الرحلة *
-                </label>
-                <input
-                  type="date"
-                  value={offerData.startDate}
-                  onChange={(e) => setOfferData({...offerData, startDate: e.target.value})}
-                  className="w-full p-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700"
-                />
-              </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                      تاريخ بداية الرحلة *
+                    </label>
+                    <input
+                      type="date"
+                      value={offerData.startDate}
+                      onChange={(e) => setOfferData({...offerData, startDate: e.target.value})}
+                      className="w-full p-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700"
+                    />
+                  </div>
 
-              <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                  تاريخ وصول الرحلة *
-                </label>
-                <input
-                  type="date"
-                  value={offerData.endDate}
-                  onChange={(e) => setOfferData({...offerData, endDate: e.target.value})}
-                  className="w-full p-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700"
-                />
-              </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                      تاريخ وصول الرحلة *
+                    </label>
+                    <input
+                      type="date"
+                      value={offerData.endDate}
+                      onChange={(e) => setOfferData({...offerData, endDate: e.target.value})}
+                      className="w-full p-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700"
+                    />
+                  </div>
 
-              <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                  ملاحظات إضافية (اختياري)
-                </label>
-                <textarea
-                  rows="3"
-                  value={offerData.notes}
-                  onChange={(e) => setOfferData({...offerData, notes: e.target.value})}
-                  className="w-full p-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700"
-                  placeholder="أي ملاحظات..."
-                ></textarea>
-              </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                      ملاحظات إضافية (اختياري)
+                    </label>
+                    <textarea
+                      rows="3"
+                      value={offerData.notes}
+                      onChange={(e) => setOfferData({...offerData, notes: e.target.value})}
+                      className="w-full p-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700"
+                      placeholder="أي ملاحظات..."
+                    ></textarea>
+                  </div>
 
-              <button
-                onClick={submitOffer}
-                className="w-full px-6 py-3 bg-primary text-white rounded-lg hover:bg-opacity-90 transition-all font-semibold"
-              >
-                <i className="fas fa-check ml-2"></i>
-                تأكيد العرض
-              </button>
+                  <button
+                    onClick={submitOffer}
+                    disabled={submittingOffer}
+                    className={`w-full px-6 py-3 bg-primary text-white rounded-lg transition-all font-semibold ${
+                      submittingOffer ? 'opacity-70 cursor-not-allowed' : 'hover:bg-opacity-90'
+                    }`}
+                  >
+                    {submittingOffer ? (
+                      <>
+                        <i className="fas fa-spinner fa-spin ml-2"></i>
+                        جاري إرسال العرض...
+                      </>
+                    ) : (
+                      <>
+                        <i className="fas fa-check ml-2"></i>
+                        تأكيد العرض
+                      </>
+                    )}
+                  </button>
+                </>
+              )}
             </div>
           </div>
         </div>

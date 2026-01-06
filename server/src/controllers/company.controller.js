@@ -546,6 +546,83 @@ const deleteOffer = async (req, res) => {
   }
 };
 
+/**
+ * Get all offers for an order (for companies to see competing offers)
+ * GET /api/company/orders/:orderId/offers
+ */
+const getOrderOffersForCompany = async (req, res) => {
+  try {
+    const companyId = req.user.id;
+    const { orderId } = req.params;
+
+    // Verify order exists and is available for offers
+    const { data: order } = await supabaseAdmin
+      .from('orders')
+      .select('id, status')
+      .eq('id', orderId)
+      .single();
+
+    if (!order) {
+      return sendError(res, 'Order not found', 404);
+    }
+
+    // Get all offers for this order (excluding the current company's own offer)
+    const { data: offers, error } = await supabaseAdmin
+      .from('offers')
+      .select(`
+        id,
+        price,
+        currency,
+        estimated_days,
+        start_date,
+        end_date,
+        status,
+        created_at,
+        company:company_id (
+          id,
+          full_name,
+          company_profiles:company_profiles!company_profiles_user_id_fkey (
+            company_name,
+            company_name_en
+          )
+        )
+      `)
+      .eq('order_id', orderId)
+      .neq('company_id', companyId) // Exclude current company's offer
+      .order('created_at', { ascending: false });
+
+    if (error) {
+      logger.error('Get order offers for company error:', error);
+      return sendError(res, 'Failed to fetch offers', 500);
+    }
+
+    // Format the offers for response
+    const formattedOffers = offers?.map(offer => ({
+      id: offer.id,
+      price: offer.price,
+      currency: offer.currency,
+      estimatedDays: offer.estimated_days,
+      startDate: offer.start_date,
+      endDate: offer.end_date,
+      status: offer.status,
+      createdAt: offer.created_at,
+      companyName: offer.company?.company_profiles?.[0]?.company_name || 
+                   offer.company?.company_profiles?.[0]?.company_name_en ||
+                   offer.company?.full_name || 
+                   'شركة مجهولة'
+    })) || [];
+
+    return sendSuccess(res, { 
+      offers: formattedOffers,
+      totalOffers: formattedOffers.length
+    });
+
+  } catch (error) {
+    logger.error('Get order offers for company error:', error);
+    return sendError(res, 'Failed to fetch offers', 500);
+  }
+};
+
 module.exports = {
   submitRegistration,
   getProfile,
@@ -555,5 +632,6 @@ module.exports = {
   getOffers,
   updateOffer,
   deleteOffer,
-  getCompanyOrders
+  getCompanyOrders,
+  getOrderOffersForCompany
 };
