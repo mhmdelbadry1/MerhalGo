@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+        xmlns:xhtml="http://www.w3.org/1999/xhtml"
+        xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
+  
+  <!-- Homepage -->
+  <url>
+    <loc>https://mirhalgo.online/</loc>
+    <lastmod>2026-01-05</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>1.0</priority>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://mirhalgo.online/" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://mirhalgo.online/en" />
+  </url>
+  
+  <!-- Company Registration -->
+  <url>
+    <loc>https://mirhalgo.online/company-register</loc>
+    <lastmod>2026-01-05</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://mirhalgo.online/company-register" />
+  </url>
+  
+  <!-- Customer Dashboard -->
+  <url>
+    <loc>https://mirhalgo.online/customer</loc>
+    <lastmod>2026-01-05</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.7</priority>
+  </url>
+  
+  <!-- Customer Orders -->
+  <url>
+    <loc>https://mirhalgo.online/customer/orders</loc>
+    <lastmod>2026-01-05</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.7</priority>
+  </url>
+  
+  <!-- International Shipping -->
+  <url>
+    <loc>https://mirhalgo.online/customer/shipping/international</loc>
+    <lastmod>2026-01-05</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  
+  <!-- Local Shipping -->
+  <url>
+    <loc>https://mirhalgo.online/customer/shipping/local</loc>
+    <lastmod>2026-01-05</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  
+  <!-- Chinese Stores Shipping -->
+  <url>
+    <loc>https://mirhalgo.online/customer/shipping/chinese</loc>
+    <lastmod>2026-01-05</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  
+  <!-- Shein Shipping -->
+  <url>
+    <loc>https://mirhalgo.online/customer/shipping/shein</loc>
+    <lastmod>2026-01-05</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  
+  <!-- Company Dashboard -->
+  <url>
+    <loc>https://mirhalgo.online/company</loc>
+    <lastmod>2026-01-05</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.7</priority>
+  </url>
+  
+  <!-- Company Offers -->
+  <url>
+    <loc>https://mirhalgo.online/company/offers</loc>
+    <lastmod>2026-01-05</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.7</priority>
+  </url>
+  
+  <!-- All Orders (Company) -->
+  <url>
+    <loc>https://mirhalgo.online/company/all-orders</loc>
+    <lastmod>2026-01-05</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.7</priority>
+  </url>
+
+</urlset>

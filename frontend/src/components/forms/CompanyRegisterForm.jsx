@@ -406,6 +406,7 @@ const CompanyRegisterForm = () => {
                       <option value="customs">تخليص جمركي</option>
                       <option value="chinese">شحن من مواقع صينية</option>
                       <option value="shein">شحن من شي إن</option>
+                      <option value="shein">شحن + تخليص جمركي   </option>
                       <option value="other">أخرى</option>
                     </select>
                   </div>
