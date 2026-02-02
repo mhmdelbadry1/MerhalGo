@@ -1,0 +1,2594 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>مرحال جو — طلب شحن من شي إن</title>
+
+  <!-- Tailwind -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: { 
+            primary: '#5D5CDE',
+            secondary: '#8B5CF6',
+            success: '#10B981',
+            warning: '#F59E0B',
+            required: '#ef4444'
+          },
+          fontFamily: { arabic: ['Cairo', 'Arial', 'sans-serif'] },
+          animation: {
+            'fade-in': 'fadeIn 0.3s ease-in',
+            'slide-up': 'slideUp 0.3s ease-out'
+          },
+          keyframes: {
+            fadeIn: { '0%': { opacity: '0' }, '100%': { opacity: '1' } },
+            slideUp: { '0%': { transform: 'translateY(10px)', opacity: '0' }, '100%': { transform: 'translateY(0)', opacity: '1' } }
+          }
+        }
+      }
+    }
+  </script>
+
+  <!-- Cairo font -->
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700&display=swap" rel="stylesheet">
+
+  <style>
+    body { font-family: 'Cairo', sans-serif; }
+    .form-step { display: none; }
+    .form-step.active { display: block; animation: fadeIn 0.5s ease; }
+    .small-muted { font-size: 12px; color: #6b7280; }
+    input[type="file"] { padding: .35rem; }
+    .required-star::after { content: " *"; color: #ef4444; font-weight: bold; }
+    .section-title { font-size: 1.1rem; font-weight: 700; color: #374151; margin-bottom: 1.5rem; padding-bottom: 0.5rem; border-bottom: 2px solid #5D5CDE; }
+    .service-card { border: 2px solid #e5e7eb; border-radius: 1rem; padding: 1.5rem; cursor: pointer; transition: all 0.2s; margin-bottom: 1rem; }
+    .service-card:hover { border-color: #9ca3af; transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
+    .service-card.selected { border-color: #5D5CDE; background: linear-gradient(135deg, #f8f9ff 0%, #f0f3ff 100%); }
+    .step-subtitle { color: #6b7280; font-size: 0.95rem; margin-top: -0.5rem; margin-bottom: 1.5rem; }
+    .dynamic-section { animation: slideUp 0.4s ease; }
+    .tab-button { padding: 0.75rem 1.5rem; border-bottom: 3px solid transparent; font-weight: 600; color: #6b7280; cursor: pointer; transition: all 0.2s; }
+    .tab-button.active { color: #5D5CDE; border-bottom-color: #5D5CDE; background-color: #f8f9ff; }
+    .order-tab { display: none; }
+    .order-tab.active { display: block; }
+    .shipping-option.selected .border-gray-200 { border-color: #5D5CDE; background-color: #f8f9ff; }
+    .marketplace-option.selected .border { border-color: #5D5CDE; background-color: #f8f9ff; }
+    .toast {
+      position: fixed;
+      bottom: 20px;
+      left: 20px;
+      background: #10B981;
+      color: white;
+      padding: 12px 20px;
+      border-radius: 8px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+      z-index: 1000;
+      display: none;
+      animation: slideUp 0.3s ease;
+    }
+  </style>
+</head>
+<body class="bg-gray-50 arabic text-gray-800">
+
+  <!-- Toast message للتنبيهات -->
+  <div id="autoSaveToast" class="toast">
+    <i class="fas fa-save ml-2"></i> تم الحفظ التلقائي
+  </div>
+
+  <div class="max-w-5xl mx-auto py-8 px-4">
+    <div class="bg-white shadow-xl rounded-xl p-6 md:p-8">
+      <!-- Header -->
+      <div class="flex items-center gap-4 mb-8">
+        <div class="w-14 h-14 bg-primary rounded-xl flex items-center justify-center text-white shadow-md">
+          <i class="fas fa-shipping-fast text-xl"></i>
+        </div>
+        <div>
+          <h1 class="text-2xl font-bold text-primary">طلب شحن من شي إن</h1>
+          <p class="text-sm text-gray-500 mt-1">املأ البيانات - سنوافيك بالرد خلال 24 ساعة عمل</p>
+          <div id="draftNotice" class="mt-2 text-xs bg-blue-50 text-blue-700 px-3 py-1 rounded-lg hidden inline-block">
+            <i class="fas fa-history ml-1"></i> تم استرجاع آخر طلب غير مكتمل
+          </div>
+        </div>
+      </div>
+
+      <!-- Progress - 4 خطوات فقط -->
+      <div class="mb-10">
+        <div class="flex items-center justify-between text-sm text-center mb-3">
+          <div class="w-1/4 font-medium flex flex-col items-center">
+            <div class="w-10 h-10 rounded-full bg-primary text-white flex items-center justify-center mb-2">1</div>
+            <span>بيانات العميل</span>
+          </div>
+          <div class="w-1/4 font-medium flex flex-col items-center">
+            <div class="w-10 h-10 rounded-full bg-gray-200 text-gray-600 flex items-center justify-center mb-2">2</div>
+            <span>تفاصيل الطلب</span>
+          </div>
+          <div class="w-1/4 font-medium flex flex-col items-center">
+            <div class="w-10 h-10 rounded-full bg-gray-200 text-gray-600 flex items-center justify-center mb-2">3</div>
+            <span>الشحن</span>
+          </div>
+          <div class="w-1/4 font-medium flex flex-col items-center">
+            <div class="w-10 h-10 rounded-full bg-gray-200 text-gray-600 flex items-center justify-center mb-2">4</div>
+            <span>المراجعة</span>
+          </div>
+        </div>
+        <div class="w-full bg-gray-200 rounded-full h-2.5 overflow-hidden shadow-inner">
+          <div id="progressBar" class="h-2.5 bg-primary rounded-full transition-all duration-300" style="width:25%"></div>
+        </div>
+      </div>
+
+      <form id="chinaForm" class="space-y-8">
+
+        <!-- ========== STEP 1: بيانات العميل (كما هي) ========== -->
+        <div class="form-step active" data-step="1">
+          <h2 class="section-title">1 — بيانات العميل</h2>
+          <p class="step-subtitle">معلومات التواصل الأساسية</p>
+          
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <!-- الاسم الكامل -->
+            <div>
+              <label class="block text-sm font-medium mb-2 required-star">الاسم الكامل</label>
+              <input id="c_clientName" type="text" class="w-full p-3.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent auto-save" placeholder="أدخل الاسم الكامل" required>
+            </div>
+
+            <!-- رقم الهاتف -->
+            <div>
+              <label class="block text-sm font-medium mb-2 required-star">رقم الهاتف</label>
+              <div class="flex gap-2">
+                <select id="c_phoneCountry" class="p-3.5 border border-gray-300 rounded-lg w-32 focus:ring-2 focus:ring-primary focus:border-transparent auto-save">
+                  <option value="+20" selected>EG +20</option>
+                  <option value="+966">SA +966</option>
+                  <option value="+971">AE +971</option>
+                  <option value="other">أخرى</option>
+                </select>
+                <input id="c_phoneNumber" type="tel" class="flex-1 p-3.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent auto-save" placeholder="1X XXXXXXXX" required pattern="[0-9]{10,11}">
+              </div>
+              <div class="text-xs text-gray-500 mt-2">أدخل رقم الهاتف بدون كود الدولة</div>
+              <input id="c_phoneOther" type="text" class="mt-2 p-3 border rounded-lg hidden w-full auto-save" placeholder="+ كود الدولة">
+            </div>
+
+            <!-- رقم الواتساب -->
+            <div>
+              <label class="block text-sm font-medium mb-2 required-star">رقم الواتساب</label>
+              <div class="flex gap-2">
+                <select id="c_waCountry" class="p-3.5 border border-gray-300 rounded-lg w-32 focus:ring-2 focus:ring-primary focus:border-transparent auto-save">
+                  <option value="+20" selected>EG +20</option>
+                  <option value="+966">SE +966</option>
+                  <option value="+971">AE +971</option>
+                  <option value="other"> أخرى</option>
+                </select>
+                <input id="c_waNumber" type="tel" class="flex-1 p-3.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent auto-save" placeholder="1X XXXXXXXX" required pattern="[0-9]{10,11}">
+              </div>
+              <div class="text-xs text-gray-500 mt-2">يمكن أن يكون نفس رقم الهاتف</div>
+              <input id="c_waOther" type="text" class="mt-2 p-3 border rounded-lg hidden w-full auto-save" placeholder="+ كود الدولة">
+            </div>
+
+            <!-- نوع العميل -->
+            <div>
+              <label class="block text-sm font-medium mb-2 required-star">نوع العميل</label>
+              <select id="c_clientType" class="p-3.5 border border-gray-300 rounded-lg w-full focus:ring-2 focus:ring-primary focus:border-transparent auto-save" onchange="onClientTypeChange()" required>
+                <option value="" disabled selected>اختر نوع العميل</option>
+                <option value="فرد">فرد</option>
+                <option value="تاجر">تاجر</option>
+                <option value="شركة">شركة</option>
+                <option value="other">أخرى</option>
+              </select>
+              <input id="c_clientTypeOther" type="text" class="mt-3 p-3.5 border border-gray-300 rounded-lg hidden w-full auto-save" placeholder="اذكر نوع العميل">
+            </div>
+
+            <!-- حفظ البيانات -->
+            <div class="md:col-span-2">
+              <div class="flex items-center gap-3 p-4 bg-gray-50 rounded-lg border border-gray-200">
+                <input id="c_saveClient" type="checkbox" class="w-5 h-5 text-primary rounded focus:ring-primary auto-save">
+                <div>
+                  <label for="c_saveClient" class="text-sm font-medium">حفظ بياناتي للمرات القادمة</label>
+                  <p class="text-xs text-gray-500 mt-1">سيتم حفظ معلوماتك تلقائيًا لتجربة أسرع في المستقبل</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ========== STEP 2: تفاصيل الطلب (مدمجة) ========== -->
+        <div class="form-step" data-step="2">
+          <h2 class="section-title">2 — تفاصيل طلبك</h2>
+          <p class="step-subtitle">اختر الخدمة وأضف منتجاتك</p>
+          
+          <!-- Tabs للتنقل داخل هذه الخطوة -->
+          <div class="flex border-b mb-6" id="serviceTabs">
+            <div class="tab-button active" onclick="switchOrderTab('service')">
+              <i class="fas fa-cog ml-2"></i> نوع الخدمة
+            </div>
+            <!-- سيتم تغيير هذه التبويبات ديناميكياً حسب نوع الخدمة -->
+          </div>
+          
+          <!-- محتوى التبويبات -->
+          <div id="orderTabsContent">
+            
+            <!-- تبويب الخدمة -->
+            <div id="serviceTab" class="order-tab active">
+              <div class="text-center mb-6">
+                <h3 class="text-lg font-bold text-gray-800 mb-2">ما هي الخدمة التي تحتاجها؟</h3>
+                <p class="text-gray-600">اختر نوع الخدمة التي تناسب متطلباتك</p>
+              </div>
+              
+              <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <!-- خيار شراء فقط -->
+                <div class="service-card" onclick="selectService('شراء فقط')" id="serviceBuyOnly">
+                  <div class="text-center">
+                    <div class="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                      <i class="fas fa-shopping-cart text-2xl text-blue-600"></i>
+                    </div>
+                    <h4 class="font-bold text-lg mb-2">شراء فقط</h4>
+                    <p class="text-sm text-gray-600 mb-3">نشتري لك المنتجات من شي إن</p>
+                    <div class="text-xs text-green-600 font-medium">
+                      <i class="fas fa-check-circle"></i> التسليم داخل (السعودية / الإمارات) حسب اختيار العميل
+                    </div>
+                  </div>
+                  <input type="radio" name="c_serviceType" value="شراء فقط" class="hidden auto-save-radio" onchange="onServiceChange()">
+                </div>
+                
+                <!-- خيار شحن فقط -->
+                <div class="service-card" onclick="selectService('شحن فقط')" id="serviceShipOnly">
+                  <div class="text-center">
+                    <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                      <i class="fas fa-ship text-2xl text-green-600"></i>
+                    </div>
+                    <h4 class="font-bold text-lg mb-2">شحن فقط</h4>
+                    <p class="text-sm text-gray-600 mb-3">نشحن منتجاتك من السعودية - الإمارات</p>
+                    <div class="text-xs text-green-600 font-medium">
+                      <i class="fas fa-check-circle"></i> تحتاج عنوانين
+                    </div>
+                  </div>
+                  <input type="radio" name="c_serviceType" value="شحن فقط" class="hidden auto-save-radio" onchange="onServiceChange()">
+                </div>
+                
+                <!-- خيار شراء + شحن -->
+                <div class="service-card" onclick="selectService('شراء+شحن')" id="serviceBuyShip">
+                  <div class="text-center">
+                    <div class="w-16 h-16 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                      <i class="fas fa-boxes text-2xl text-purple-600"></i>
+                    </div>
+                    <h4 class="font-bold text-lg mb-2">شراء + شحن</h4>
+                    <p class="text-sm text-gray-600 mb-3">نشتري ثم نشحن لك</p>
+                    <div class="text-xs text-green-600 font-medium">
+                      <i class="fas fa-check-circle"></i> خدمة متكاملة
+                    </div>
+                  </div>
+                  <input type="radio" name="c_serviceType" value="شراء+شحن" class="hidden auto-save-radio" onchange="onServiceChange()">
+                </div>
+              </div>
+              
+              <div class="mt-8 p-4 bg-blue-50 rounded-lg border border-blue-200">
+                <div class="flex items-start gap-3">
+                  <i class="fas fa-info-circle text-blue-600 mt-0.5"></i>
+                  <div>
+                    <p class="text-sm text-blue-800 font-medium">ملاحظة:</p>
+                    <p class="text-sm text-blue-700">بعد اختيار الخدمة، انتقل إلى التبويب التالي لإضافة تفاصيل طلبك</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            <!-- تبويب الموقع والمنتجات (مدمج) - لخدمات الشراء -->
+            <div id="marketplaceProductsTab" class="order-tab hidden">
+              <!-- قسم الموقع -->
+              <div class="mb-10">
+                <h3 class="text-lg font-bold text-gray-800 mb-4">من أي موقع ستشتري؟</h3>
+                
+                <div class="mb-6">
+                  <label class="block text-sm font-medium mb-2 required-star">اختر موقع شي إن</label>
+                  <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                    <label class="marketplace-option" onclick="selectMarketplace('شي إن السعودية')">
+                      <input type="radio" name="c_marketplace" value="شي إن السعودية" class="hidden auto-save-radio" onchange="onMarketplaceChange()">
+                      <div class="p-4 border rounded-lg text-center cursor-pointer hover:border-primary transition">
+                        <div class="font-medium">شي إن السعودية</div>
+                        <div class="text-xs text-gray-500 mt-1">shein.sa</div>
+                      </div>
+                    </label>
+                    <label class="marketplace-option" onclick="selectMarketplace('شي إن الإمارات')">
+                      <input type="radio" name="c_marketplace" value="شي إن الإمارات" class="hidden auto-save-radio" onchange="onMarketplaceChange()">
+                      <div class="p-4 border rounded-lg text-center cursor-pointer hover:border-primary transition">
+                        <div class="font-medium">شي إن الإمارات</div>
+                        <div class="text-xs text-gray-500 mt-1">shein.ae</div>
+                      </div>
+                    </label>
+                  </div>
+                </div>
+                
+                <div class="mb-6 p-4 bg-gray-50 rounded-lg">
+                  <p class="text-sm text-gray-700">
+                    <i class="fas fa-lightbulb text-yellow-500 ml-1"></i>
+                    <span class="font-medium">نصيحة:</span> يمكنك إضافة روابط المنتجات من موقع شي إن في قسم المنتجات أدناه
+                  </p>
+                </div>
+              </div>
+              
+              <!-- قسم طريقة إضافة المنتجات -->
+              <div class="border-t pt-8">
+                <h3 class="text-lg font-bold text-gray-800 mb-4">📦 طريقة إضافة المنتجات</h3>
+                
+                <!-- اختيار طريقة الإضافة -->
+                <div class="mb-8">
+                  <label class="block text-sm font-medium mb-3 required-star">كيف تريد إضافة المنتجات؟</label>
+                  <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <!-- خيار لينك الباج -->
+                    <label class="flex items-center p-5 border-2 border-gray-200 rounded-xl cursor-pointer hover:border-primary transition" onclick="selectProductMethod('cartLink')">
+                      <input type="radio" name="productMethod" value="cartLink" class="w-5 h-5 text-primary auto-save-radio" onchange="toggleProductMethod()">
+                      <div class="mr-3">
+                        <div class="font-bold text-lg text-gray-800">إضافة لينك الباج (Cart Link)</div>
+                        <div class="text-sm text-gray-600 mt-1">أرسل رابط واحد يحتوي جميع منتجاتك</div>
+                      </div>
+                      <div class="mr-auto">
+                        <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
+                          <i class="fas fa-link text-blue-600 text-xl"></i>
+                        </div>
+                      </div>
+                    </label>
+                    
+                    <!-- خيار الإضافة اليدوية -->
+                    <label class="flex items-center p-5 border-2 border-gray-200 rounded-xl cursor-pointer hover:border-primary transition" onclick="selectProductMethod('manual')">
+                      <input type="radio" name="productMethod" value="manual" class="w-5 h-5 text-primary auto-save-radio" onchange="toggleProductMethod()">
+                      <div class="mr-3">
+                        <div class="font-bold text-lg text-gray-800">إضافة المنتجات يدويًا</div>
+                        <div class="text-sm text-gray-600 mt-1">أضف كل منتج على حدة</div>
+                      </div>
+                      <div class="mr-auto">
+                        <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
+                          <i class="fas fa-edit text-green-600 text-xl"></i>
+                        </div>
+                      </div>
+                    </label>
+                  </div>
+                </div>
+                
+                <!-- قسم لينك الباج -->
+                <div id="cartLinkSection" class="hidden mb-8">
+                  <div class="bg-blue-50 rounded-xl p-6 border border-blue-200">
+                    <div class="flex items-start gap-3 mb-4">
+                      <div class="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center text-blue-600">
+                        <i class="fas fa-shopping-bag"></i>
+                      </div>
+                      <div>
+                        <h4 class="text-lg font-bold text-gray-800 mb-1">لينك الباج (Cart Link)</h4>
+                        <p class="text-sm text-gray-600">أرسل رابط واحد يحتوي جميع منتجاتك مع تفاصيلها</p>
+                      </div>
+                    </div>
+                    
+                    <div class="space-y-4">
+                      <div>
+                        <label class="block text-sm font-medium mb-2 required-star">لينك الباج من شي إن</label>
+                        <textarea 
+                          id="c_cartLink" 
+                          class="w-full p-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent auto-save" 
+                          rows="3" 
+                          placeholder="الصق هنا لينك الباج من موقع شي إن الذي يحتوي على جميع المنتجات (يشمل الكمية، الألوان، المقاسات… إن وُجد)"
+                          required
+                        ></textarea>
+                      </div>
+                      
+                      <div class="p-4 bg-yellow-50 rounded-lg border border-yellow-200">
+                        <div class="flex items-start gap-3">
+                          <i class="fas fa-info-circle text-yellow-600 mt-0.5"></i>
+                          <div>
+                            <p class="text-sm text-yellow-800 font-medium mb-2">ملاحظة هامة:</p>
+                            <p class="text-sm text-yellow-700">
+                              عند إرسال لينك الباج من شي إن، يُرجى التأكد أن جميع المنتجات والمواصفات (الكمية – اللون – المقاس – الموديل…) تم اختيارها بدقة.
+                              سيتم اعتماد البيانات الموجودة داخل اللينك كما هي، لتفادي أي سوء فهم أو اختلاف في التنفيذ.
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                
+                <!-- قسم المنتجات اليدوية -->
+                <div id="manualProductsSection" class="hidden">
+                  <div class="mb-6">
+                    <h3 class="text-lg font-bold text-gray-800 mb-4">منتجاتك من شي إن</h3>
+                    <div id="productsList" class="space-y-6"></div>
+                    
+                    <div class="flex gap-3 mt-8">
+                      <button type="button" class="px-5 py-3 bg-primary text-white rounded-lg hover:bg-primary/90 transition flex items-center gap-2 font-medium" onclick="addProduct()">
+                        <i class="fas fa-plus"></i> إضافة منتج جديد
+                      </button>
+                      <button type="button" class="px-5 py-3 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition flex items-center gap-2 font-medium" onclick="importProducts()">
+                        <i class="fas fa-file-import"></i> استيراد من ملف
+                      </button>
+                    </div>
+                    
+                    <div class="text-sm text-gray-500 mt-3">
+                      <i class="fas fa-info-circle ml-1"></i> يمكنك إضافة حتى 10 منتجات
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            <!-- تبويب مواصفات الشحنة (لخدمة شحن فقط) -->
+            <div id="shipmentDetailsTab" class="order-tab hidden">
+              <div class="mb-10">
+                <h3 class="text-lg font-bold text-gray-800 mb-4">📦 مواصفات الطلب</h3>
+                <p class="text-gray-600 mb-6">قم بوصف البضاعة التي تريد شحنها</p>
+                
+                <div class="bg-gray-50 p-6 rounded-xl border border-gray-200">
+                  <label class="block text-sm font-medium mb-2 required-star">اوصف البضاعة و الكمية و الوزن (إن وُجد)</label>
+                  <textarea 
+                    id="c_shipmentDescription" 
+                    class="w-full p-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent auto-save" 
+                    rows="6" 
+                    placeholder="مثال: كراتين ملابس – 5 كراتين – الوزن التقريبي 120 كجم&#10;مثال آخر: أجهزة إلكترونية – 10 قطع – الوزن التقريبي 50 كجم&#10;مثال ثالث: مواد بناء – 2 طن"
+                    required
+                  ></textarea>
+                  <div class="text-sm text-gray-500 mt-3">
+                    <i class="fas fa-info-circle ml-1"></i> يمكنك كتابة أي تفاصيل أخرى مهمة عن الطلب
+                  </div>
+                </div>
+                
+                <div class="mt-6 p-4 bg-yellow-50 rounded-lg border border-yellow-200">
+                  <p class="text-sm text-yellow-800">
+                    <i class="fas fa-exclamation-triangle ml-1"></i>
+                    <span class="font-medium">ملاحظة:</span> ستتم مناقشة التفاصيل الدقيقة والرسوم بعد إرسال الطلب
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ========== STEP 3: الشحن&التسليم (معدلة) ========== -->
+        <div class="form-step" data-step="3">
+          <h2 class="section-title">3 — الشحن&التسليم</h2>
+          <p class="step-subtitle">حدد طريقة الشحن والعناوين المطلوبة</p>
+          
+          <div class="space-y-8">
+            <!-- طريقة الشحن -->
+            <div id="shippingSection" class="dynamic-section">
+              <h3 class="text-lg font-bold text-gray-800 mb-4">🚢 طريقة الشحن</h3>
+              
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <label class="shipping-option" onclick="selectShippingMode('جوي')">
+                  <input type="radio" name="c_shipMode" value="جوي" class="hidden auto-save-radio">
+                  <div class="p-5 border-2 border-gray-200 rounded-xl cursor-pointer hover:border-blue-300 transition">
+                    <div class="flex items-center gap-3 mb-3">
+                      <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
+                        <i class="fas fa-plane text-blue-600 text-xl"></i>
+                      </div>
+                      <div>
+                        <div class="font-bold text-lg">الشحن السريع</div>
+                        <div class="text-sm text-gray-600">أسرع - أعلى تكلفة</div>
+                      </div>
+                    </div>
+                    <div class="text-sm text-gray-700">
+                      <i class="fas fa-clock ml-1"></i> 3-7 أيام
+                    </div>
+                  </div>
+                </label>
+                
+                <label class="shipping-option" onclick="selectShippingMode('بري')">
+                  <input type="radio" name="c_shipMode" value="بري" class="hidden auto-save-radio">
+                  <div class="p-5 border-2 border-gray-200 rounded-xl cursor-pointer hover:border-green-300 transition">
+                    <div class="flex items-center gap-3 mb-3">
+                      <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
+                        <i class="fas fa-truck text-green-600 text-xl"></i>
+                      </div>
+                      <div>
+                        <div class="font-bold text-lg">الشحن العادي</div>
+                        <div class="text-sm text-gray-600">أبطأ - أقل تكلفة</div>
+                      </div>
+                    </div>
+                    <div class="text-sm text-gray-700">
+                      <i class="fas fa-clock ml-1"></i> 7-14 يوم
+                    </div>
+                  </div>
+                </label>
+              </div>
+              
+              <div class="mt-4 p-4 bg-yellow-50 rounded-lg border border-yellow-200">
+                <p class="text-sm text-yellow-800">
+                  <i class="fas fa-exclamation-triangle ml-1"></i>
+                  <span class="font-medium">ملاحظة:</span> الطلبات الصغيرة تتطلب الشحن السريع إجباريًا
+                </p>
+              </div>
+            </div>
+            
+            <!-- العناوين الديناميكية -->
+            <div id="addressesSection" class="dynamic-section">
+              <!-- سيتم ملؤها تلقائياً حسب نوع الخدمة -->
+            </div>
+            
+            <!-- التغليف والتفاصيل -->
+            <div class="dynamic-section">
+              <h3 class="text-lg font-bold text-gray-800 mb-4">📦 التغليف والمواصفات</h3>
+              
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- هل يحتاج تغليف خاص؟ -->
+                <div>
+                  <label class="block text-sm font-medium mb-3">هل تحتاج طريقة تغليف خاصة؟</label>
+                  <div class="flex gap-6">
+                    <label class="flex items-center gap-3 cursor-pointer">
+                      <input type="radio" name="c_needsPackaging" value="نعم" class="w-5 h-5 text-primary auto-save-radio" onchange="togglePackagingOptions()">
+                      <span class="font-medium">نعم</span>
+                    </label>
+                    <label class="flex items-center gap-3 cursor-pointer">
+                      <input type="radio" name="c_needsPackaging" value="لا" class="w-5 h-5 text-primary auto-save-radio" onchange="togglePackagingOptions()">
+                      <span class="font-medium">لا</span>
+                    </label>
+                  </div>
+                  
+                  <div id="packagingOptions" class="hidden mt-4">
+                    <label class="block text-sm font-medium mb-2">نوع التغليف المطلوب</label>
+                    <select id="c_packaging" class="p-3.5 border border-gray-300 rounded-lg w-full focus:ring-2 focus:ring-primary focus:border-transparent auto-save">
+                      <option value="" selected>اختر طريقة التغليف</option>
+                      <option value="كراتين">كراتين</option>
+                      <option value="باليت">باليِت خشبي</option>
+                      <option value="براميل">براميل بلاستيك</option>
+                      <option value="أكياس">أكياس محكمة</option>
+                      <option value="other">أخرى</option>
+                    </select>
+                    <input id="c_packagingOther" type="text" class="mt-3 p-3.5 border border-gray-300 rounded-lg hidden w-full auto-save" placeholder="اذكر طريقة التغليف">
+                  </div>
+                </div>
+                
+                <!-- هل المنتجات قابلة للكسر؟ -->
+                <div>
+                  <label class="block text-sm font-medium mb-2">هل المنتجات قابلة للكسر؟</label>
+                  <select id="c_isFragile" class="p-3.5 border border-gray-300 rounded-lg w-full focus:ring-2 focus:ring-primary focus:border-transparent auto-save">
+                    <option value="" selected>اختر</option>
+                    <option value="نعم">نعم</option>
+                    <option value="لا">لا</option>
+                  </select>
+                </div>
+                
+                <!-- مواد خطرة -->
+                <div>
+                  <label class="block text-sm font-medium mb-2">هل تحتوي على مواد خطرة؟</label>
+                  <select id="c_hasHazmat" class="p-3.5 border border-gray-300 rounded-lg w-full focus:ring-2 focus:ring-primary focus:border-transparent auto-save" onchange="toggleHazmatType()">
+                    <option value="" selected>اختر</option>
+                    <option value="نعم">نعم</option>
+                    <option value="لا">لا</option>
+                  </select>
+                  <div id="hazmatTypeDiv" class="hidden mt-3">
+                    <label class="block text-sm font-medium mb-2">نوع المواد الخطرة</label>
+                    <input id="c_hazmatType" type="text" class="w-full p-3.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent auto-save" placeholder="بطاريات - سوائل - كيماويات">
+                  </div>
+                </div>
+                
+                <!-- رفع ملفات -->
+                <div class="md:col-span-2">
+                  <label class="block text-sm font-medium mb-2">رفع ملفات (اختياري)</label>
+                  <div class="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
+                    <i class="fas fa-cloud-upload-alt text-3xl text-gray-400 mb-3"></i>
+                    <p class="text-gray-600 mb-2">اسحب وأفلت الملفات هنا أو انقر للاختيار</p>
+                    <input id="c_files" type="file" multiple class="hidden auto-save-file">
+                    <button type="button" onclick="document.getElementById('c_files').click()" class="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition">
+                      اختيار ملفات
+                    </button>
+                    <p class="text-xs text-gray-500 mt-3">PDF, JPG, PNG - الحد الأقصى 10MB</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ========== STEP 4: المراجعة والإرسال ========== -->
+        <div class="form-step" data-step="4">
+          <h2 class="section-title">4 — مراجعة طلبك</h2>
+          <p class="step-subtitle">راجع معلوماتك قبل الإرسال النهائي</p>
+          
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <!-- ملخص الطلب -->
+            <div class="md:col-span-2">
+              <div class="bg-gray-50 rounded-xl p-6 border border-gray-200">
+                <h3 class="text-lg font-bold text-gray-800 mb-4">📋 ملخص الطلب</h3>
+                <div id="finalSummary" class="space-y-4">
+                  <!-- سيتم ملؤه تلقائياً -->
+                </div>
+              </div>
+              
+              <!-- الملاحظات الإضافية -->
+              <div class="mt-8">
+                <h3 class="text-lg font-bold text-gray-800 mb-4">💬 ملاحظات إضافية</h3>
+                <textarea id="c_additionalNotes" class="w-full p-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent auto-save" rows="5" placeholder="اكتب أي ملاحظات أو تعليمات إضافية تريد إضافتها..."></textarea>
+              </div>
+            </div>
+            
+            <!-- معلومات إضافية -->
+            <div>
+              <div class="sticky top-6">
+                <!-- كيف علمت بالخدمة -->
+                <div class="mb-6">
+                  <label class="block text-sm font-medium mb-3">كيف علمت بخدماتنا؟</label>
+                  <select id="c_howFound" class="p-3.5 border border-gray-300 rounded-lg w-full focus:ring-2 focus:ring-primary focus:border-transparent auto-save" onchange="toggleReferralSection()">
+                    <option value="" selected>اختر</option>
+                    <option value="website">موقع الشركة</option>
+                    <option value="referral">عميل سابق</option>
+                    <option value="social">سوشيال ميديا</option>
+                    <option value="search">محرك بحث</option>
+                    <option value="advertisement">إعلان</option>
+                  </select>
+                  
+                  <div id="referralSection" class="hidden mt-4 p-4 bg-green-50 rounded-lg border border-green-200">
+                    <p class="text-sm text-green-800 mb-3">
+                      <i class="fas fa-gift ml-1"></i>
+                      <span class="font-medium">مكافأة:</span> العميل السابق سيحصل على كاش باك
+                    </p>
+                    <input id="c_referralName" type="text" class="w-full p-3 border border-gray-300 rounded-lg mb-3 auto-save" placeholder="اسم العميل السابق">
+                    <input id="c_referralPhone" type="tel" class="w-full p-3 border border-gray-300 rounded-lg auto-save" placeholder="رقم العميل السابق">
+                  </div>
+                </div>
+                
+                <!-- تأكيد الإرسال -->
+                <div class="p-5 bg-primary/10 rounded-xl border border-primary/20">
+                  <h4 class="font-bold text-lg text-primary mb-3">✅ تأكيد الإرسال</h4>
+                  <p class="text-sm text-gray-700 mb-4">بعد إرسال الطلب، سنتواصل معك خلال 24 ساعة عمل لتأكيد التفاصيل والبدء في التنفيذ.</p>
+                  
+                  <div class="flex items-center gap-3 p-3 bg-white rounded-lg mb-4">
+                    <input id="c_confirmTerms" type="checkbox" class="w-5 h-5 text-primary rounded auto-save" required>
+                    <label for="c_confirmTerms" class="text-sm">
+                      أوافق على <a href="#" class="text-primary font-medium">الشروط والأحكام</a>
+                    </label>
+                  </div>
+                  
+                  <button type="submit" class="w-full py-3 bg-success text-white rounded-lg hover:bg-success/90 transition font-bold flex items-center justify-center gap-2">
+                    <i class="fas fa-paper-plane"></i> إرسال الطلب النهائي
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ========== أزرار التنقل ========== -->
+        <div class="flex items-center justify-between pt-8 mt-8 border-t">
+          <button type="button" id="prevBtn" class="px-6 py-3 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition flex items-center gap-2 font-medium hidden" onclick="prevStep()">
+            <i class="fas fa-arrow-right"></i> رجوع
+          </button>
+
+          <div class="flex gap-3">
+            <button type="button" class="px-5 py-3 bg-yellow-500 text-white rounded-lg hover:bg-yellow-600 transition flex items-center gap-2 font-medium" onclick="saveDraft()">
+              <i class="fas fa-save"></i> حفظ المسودة
+            </button>
+            <button type="button" id="nextBtn" class="px-6 py-3 bg-primary text-white rounded-lg hover:bg-primary/90 transition flex items-center gap-2 font-medium" onclick="nextStep()">
+              التالي <i class="fas fa-arrow-left"></i>
+            </button>
+          </div>
+        </div>
+      </form>
+    </div>
+
+    <!-- نافذة النجاح -->
+    <div id="successModal" class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 hidden">
+      <div class="bg-white rounded-xl p-8 max-w-md w-full mx-4 text-center shadow-2xl animate-fade-in">
+        <div class="w-20 h-20 bg-success/20 rounded-full mx-auto flex items-center justify-center text-success mb-6">
+          <i class="fas fa-check text-3xl"></i>
+        </div>
+        <h3 class="font-bold text-xl mb-3 text-gray-800">تم إرسال طلبك بنجاح! 🎉</h3>
+        <p class="text-gray-600 mb-6">شكراً لثقتك بمرحال جو. سنوافيك بالرد خلال 24 ساعة عمل.</p>
+        <button class="px-6 py-3 bg-primary text-white rounded-lg hover:bg-primary/90 transition font-medium w-full" onclick="closeSuccess()">
+          موافق
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Font Awesome -->
+  <script src="https://kit.fontawesome.com/a2d9b7f8a6.js" crossorigin="anonymous"></script>
+
+  <script>
+    /**********************
+     بيانات المدن والمناطق (محدثة)
+    **********************/
+    const egyptCities = [
+      "القاهرة", "الجيزة", "الإسكندرية", "بورسعيد", "السويس", "المنصورة", 
+      "طنطا", "الإسماعيلية", "أسيوط", "الأقصر", "أسوان", "بنها", 
+      "كفر الشيخ", "دمنهور", "الزقازيق", "سوهاج", "قنا", "العريش"
+    ];
+
+    const saudiCities = [
+      "الرياض", "جدة", "الدمام", "مكة المكرمة", "المدينة المنورة", 
+      "الخبر", "الطائف", "تبوك", "الجبيل", "حائل", "نجران", 
+      "أبها", "ينبع", "الظهران", "القطيف", "الاحساء", "عرعر"
+    ];
+
+    const uaeCities = [
+      "دبي", "أبوظبي", "الشارقة", "عجمان", "رأس الخيمة", 
+      "الفجيرة", "أم القيوين", "العين", "الرويس", "دبا"
+    ];
+
+    /**********************
+     State + init
+    **********************/
+    let currentStep = 1;
+    const totalSteps = 4;
+    let productCounter = 0;
+    let selectedService = '';
+    let selectedMarketplace = '';
+    let currentOrderTab = 'service'; // تتبع التبويب الحالي داخل خطوة 2
+    let selectedProductMethod = 'manual'; // طريقة إضافة المنتجات: 'cartLink' أو 'manual'
+    let autoSaveTimeout = null; // Timeout للحفظ التلقائي
+    let isAutoSaving = false; // لمنع حفظ تلقائي متعدد
+
+    /**********************
+     دوال الحفظ التلقائي (Auto Save Draft)
+    **********************/
+
+    // دالة لجمع جميع البيانات من النموذج
+    function collectAllFormData() {
+      const data = {};
+      
+      // ===== بيانات العميل =====
+      data.clientName = document.getElementById('c_clientName').value || '';
+      data.phoneCountry = document.getElementById('c_phoneCountry').value || '+20';
+      data.phoneNumber = document.getElementById('c_phoneNumber').value || '';
+      data.phoneOther = document.getElementById('c_phoneOther').value || '';
+      data.waCountry = document.getElementById('c_waCountry').value || '+20';
+      data.waNumber = document.getElementById('c_waNumber').value || '';
+      data.waOther = document.getElementById('c_waOther').value || '';
+      data.clientType = document.getElementById('c_clientType').value || '';
+      data.clientTypeOther = document.getElementById('c_clientTypeOther').value || '';
+      data.saveClient = document.getElementById('c_saveClient').checked || false;
+      
+      // ===== الخدمة والمنتجات =====
+      data.serviceType = selectedService || '';
+      data.marketplace = selectedMarketplace || '';
+      data.productMethod = selectedProductMethod || 'manual';
+      data.cartLink = document.getElementById('c_cartLink')?.value || '';
+      data.shipmentDescription = document.getElementById('c_shipmentDescription')?.value || '';
+      
+      // ===== المنتجات اليدوية =====
+      data.products = [];
+      if (selectedService !== 'شحن فقط' && selectedProductMethod === 'manual') {
+        document.querySelectorAll('.product-item').forEach(item => {
+          const idx = item.dataset.idx;
+          if (!idx) return;
+          
+          const product = {
+            link: document.getElementById(`p_link_${idx}`)?.value || '',
+            name: document.getElementById(`p_name_${idx}`)?.value || '',
+            qty: document.getElementById(`p_qty_${idx}`)?.value || '',
+            hasColors: document.getElementById(`p_hasColors_${idx}`)?.value || 'no',
+            hasSizes: document.getElementById(`p_hasSizes_${idx}`)?.value || 'no',
+            note: document.getElementById(`p_note_${idx}`)?.value || '',
+            colors: [],
+            sizes: []
+          };
+          
+          // جمع الألوان
+          const colorContainer = document.getElementById(`colors_container_${idx}`);
+          if (colorContainer && !colorContainer.classList.contains('hidden')) {
+            colorContainer.querySelectorAll('.color-row').forEach(row => {
+              const colorName = row.querySelector('.color-name')?.value || '';
+              const colorQty = row.querySelector('.color-qty')?.value || '';
+              if (colorName && colorQty) {
+                product.colors.push({ name: colorName, qty: colorQty });
+              }
+            });
+          }
+          
+          // جمع المقاسات
+          const sizeContainer = document.getElementById(`sizes_container_${idx}`);
+          if (sizeContainer && !sizeContainer.classList.contains('hidden')) {
+            sizeContainer.querySelectorAll('.size-row').forEach(row => {
+              const sizeName = row.querySelector('.size-name')?.value || '';
+              const sizeQty = row.querySelector('.size-qty')?.value || '';
+              if (sizeName && sizeQty) {
+                product.sizes.push({ name: sizeName, qty: sizeQty });
+              }
+            });
+          }
+          
+          if (product.link || product.name || product.qty) {
+            data.products.push(product);
+          }
+        });
+      }
+      
+      // ===== الشحن والعناوين =====
+      data.shipMode = document.querySelector('input[name="c_shipMode"]:checked')?.value || '';
+      data.needsPackaging = document.querySelector('input[name="c_needsPackaging"]:checked')?.value || 'لا';
+      data.packaging = document.getElementById('c_packaging')?.value || '';
+      data.packagingOther = document.getElementById('c_packagingOther')?.value || '';
+      data.isFragile = document.getElementById('c_isFragile')?.value || '';
+      data.hasHazmat = document.getElementById('c_hasHazmat')?.value || '';
+      data.hazmatType = document.getElementById('c_hazmatType')?.value || '';
+      
+      // ===== العناوين =====
+      data.supplierCity = document.getElementById('c_supplierCity')?.value || '';
+      data.supplierPhone = document.getElementById('c_supplierPhone')?.value || '';
+      data.supplierAddress = document.getElementById('c_supplierAddress')?.value || '';
+      data.warehouseCity = document.getElementById('c_warehouseCity')?.value || '';
+      data.warehousePhone = document.getElementById('c_warehousePhone')?.value || '';
+      data.warehouseAddress = document.getElementById('c_warehouseAddress')?.value || '';
+      
+      data.deliveryCountry = document.getElementById('c_deliveryCountry')?.value || '';
+      data.deliveryCity = document.getElementById('c_deliveryCity')?.value || '';
+      data.deliveryDistrict = document.getElementById('c_deliveryDistrict')?.value || '';
+      data.deliveryAddress = document.getElementById('c_deliveryAddress')?.value || '';
+      data.deliveryCountryOther = document.getElementById('c_deliveryCountryOther')?.value || '';
+      data.deliveryCityOther = document.getElementById('c_deliveryCityOther')?.value || '';
+      
+      // ===== معلومات إضافية =====
+      data.howFound = document.getElementById('c_howFound')?.value || '';
+      data.referralName = document.getElementById('c_referralName')?.value || '';
+      data.referralPhone = document.getElementById('c_referralPhone')?.value || '';
+      data.additionalNotes = document.getElementById('c_additionalNotes')?.value || '';
+      data.confirmTerms = document.getElementById('c_confirmTerms')?.checked || false;
+      
+      // ===== بيانات النظام =====
+      data.currentStep = currentStep;
+      data.currentOrderTab = currentOrderTab;
+      data.lastSaved = new Date().toISOString();
+      
+      return data;
+    }
+
+    // دالة للحفظ التلقائي
+    function autoSaveDraft() {
+      if (isAutoSaving) return;
+      
+      isAutoSaving = true;
+      
+      try {
+        const data = collectAllFormData();
+        localStorage.setItem('mirhal_shein_auto_draft', JSON.stringify(data));
+        
+        // إظهار رسالة الحفظ
+        showAutoSaveToast();
+        
+        console.log('✅ تم الحفظ التلقائي للبيانات');
+      } catch (error) {
+        console.error('❌ خطأ في الحفظ التلقائي:', error);
+      } finally {
+        isAutoSaving = false;
+      }
+    }
+
+    // دالة لتحميل البيانات المحفوظة تلقائياً
+    function loadAutoDraft() {
+      const draft = localStorage.getItem('mirhal_shein_auto_draft');
+      if (!draft) return false;
+      
+      try {
+        const data = JSON.parse(draft);
+        
+        // التحقق إذا كانت هناك بيانات محفوظة
+        if (data && Object.keys(data).length > 0) {
+          // إظهار إشعار الاسترجاع
+          document.getElementById('draftNotice').classList.remove('hidden');
+          
+          // ملء النموذج بالبيانات المحفوظة
+          populateFormFromAutoSave(data);
+          
+          console.log('✅ تم استرجاع البيانات المحفوظة تلقائياً');
+          return true;
+        }
+      } catch (e) {
+        console.error('❌ خطأ في تحميل البيانات المحفوظة تلقائياً:', e);
+      }
+      
+      return false;
+    }
+
+    // دالة لإظهار رسالة الحفظ التلقائي
+    function showAutoSaveToast() {
+      const toast = document.getElementById('autoSaveToast');
+      toast.style.display = 'block';
+      
+      // إخفاء الرسالة بعد 2 ثانية
+      setTimeout(() => {
+        toast.style.display = 'none';
+      }, 2000);
+    }
+
+    // دالة لتفعيل الحفظ التلقائي مع Debouncing
+    function triggerAutoSave() {
+      // Clear any existing timeout
+      if (autoSaveTimeout) {
+        clearTimeout(autoSaveTimeout);
+      }
+      
+      // Set new timeout for auto-save (after 1 second of inactivity)
+      autoSaveTimeout = setTimeout(() => {
+        autoSaveDraft();
+      }, 1000);
+    }
+
+    // دالة لمسح المسودة التلقائية
+    function clearAutoDraft() {
+      localStorage.removeItem('mirhal_shein_auto_draft');
+      console.log('✅ تم مسح المسودة التلقائية');
+    }
+
+    // إعداد listeners للحقول المختلفة
+    function setupAutoSaveListeners() {
+      // لحقول الإدخال النصية
+      document.querySelectorAll('.auto-save').forEach(input => {
+        input.addEventListener('input', triggerAutoSave);
+        input.addEventListener('change', triggerAutoSave);
+      });
+      
+      // للراديو buttons
+      document.querySelectorAll('.auto-save-radio').forEach(radio => {
+        radio.addEventListener('change', triggerAutoSave);
+      });
+      
+      // للملفات
+      document.querySelectorAll('.auto-save-file').forEach(file => {
+        file.addEventListener('change', triggerAutoSave);
+      });
+      
+      // لجميع selects
+      document.querySelectorAll('select').forEach(select => {
+        if (!select.classList.contains('auto-save')) {
+          select.addEventListener('change', triggerAutoSave);
+        }
+      });
+      
+      // لجميع textareas
+      document.querySelectorAll('textarea').forEach(textarea => {
+        if (!textarea.classList.contains('auto-save')) {
+          textarea.addEventListener('input', triggerAutoSave);
+          textarea.addEventListener('change', triggerAutoSave);
+        }
+      });
+      
+      // لجميع checkboxes
+      document.querySelectorAll('input[type="checkbox"]').forEach(checkbox => {
+        if (!checkbox.classList.contains('auto-save')) {
+          checkbox.addEventListener('change', triggerAutoSave);
+        }
+      });
+    }
+
+    /**********************
+     Initialization
+    **********************/
+    document.addEventListener('DOMContentLoaded', () => {
+      init();
+      loadAutoDraft();
+      
+      // Listeners لأكواد الدول
+      document.getElementById('c_phoneCountry').addEventListener('change', function() {
+        document.getElementById('c_phoneOther').classList.toggle('hidden', this.value !== 'other');
+        triggerAutoSave();
+      });
+      
+      document.getElementById('c_waCountry').addEventListener('change', function() {
+        document.getElementById('c_waOther').classList.toggle('hidden', this.value !== 'other');
+        triggerAutoSave();
+      });
+    });
+
+    function init() {
+      updateProgress();
+      addProduct(); // منتج افتراضي واحد لخدمات الشراء
+      document.getElementById('chinaForm').addEventListener('submit', onSubmit);
+      
+      // تهيئة Listeners
+      document.getElementById('c_howFound').addEventListener('change', toggleReferralSection);
+      
+      // تهيئة أولية
+      setupOrderTabs();
+      updateProductsCount();
+      
+      // تعيين طريقة المنتجات اليدوية كإفتراضية
+      selectProductMethod('manual');
+      
+      // إضافة event listeners للحفظ التلقائي
+      setupAutoSaveListeners();
+      
+      // حفظ تلقائي عند تحميل الصفحة لأول مرة
+      setTimeout(() => {
+        triggerAutoSave();
+      }, 1000);
+    }
+
+    /**********************
+     Navigation - 4 خطوات مع تحسين الـ Scroll
+    **********************/
+    function showStep(step) {
+      document.querySelectorAll('.form-step').forEach(el => el.classList.remove('active'));
+      const stepElement = document.querySelector(`.form-step[data-step="${step}"]`);
+      stepElement.classList.add('active');
+
+      // أزرار التنقل
+      document.getElementById('prevBtn').style.display = step === 1 ? 'none' : 'flex';
+      document.getElementById('nextBtn').style.display = step === totalSteps ? 'none' : 'flex';
+
+      // تحديث المحتوى الديناميكي
+      if (step === 2) {
+        updateOrderStep();
+        // تحديد التبويب الافتراضي
+        if (selectedService) {
+          // عرض التبويب المناسب حسب نوع الخدمة
+          if (selectedService === 'شحن فقط') {
+            switchOrderTab('shipmentDetails');
+          } else {
+            switchOrderTab('marketplaceProducts');
+          }
+        } else {
+          switchOrderTab('service');
+        }
+      }
+      if (step === 3) {
+        updateShippingStep();
+      }
+      if (step === 4) {
+        updateFinalSummary();
+      }
+
+      currentStep = step;
+      updateProgress();
+      
+      // تمرير الصفحة إلى أعلى الخطوة الحالية
+      setTimeout(() => {
+        stepElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }, 100);
+      
+      // حفظ البيانات عند تغيير الخطوة
+      setTimeout(() => {
+        triggerAutoSave();
+      }, 500);
+    }
+
+    function nextStep() {
+      // التحقق من التبويب الحالي داخل خطوة 2
+      if (currentStep === 2) {
+        if (currentOrderTab === 'service') {
+          // الانتقال إلى التبويب التالي حسب نوع الخدمة
+          if (!validateServiceTab()) return;
+          
+          if (selectedService === 'شحن فقط') {
+            switchOrderTab('shipmentDetails');
+          } else {
+            switchOrderTab('marketplaceProducts');
+          }
+          return;
+        } else if (currentOrderTab === 'marketplaceProducts' || currentOrderTab === 'shipmentDetails') {
+          // الانتقال إلى الخطوة 3
+          if (!validateStep(2)) return;
+        }
+      } else {
+        if (!validateStep(currentStep)) return;
+      }
+      
+      if (currentStep < totalSteps) {
+        showStep(currentStep + 1);
+      }
+    }
+
+    function prevStep() {
+      // التحقق من التبويب الحالي داخل خطوة 2
+      if (currentStep === 2 && (currentOrderTab === 'marketplaceProducts' || currentOrderTab === 'shipmentDetails')) {
+        // العودة إلى تبويب الخدمة
+        switchOrderTab('service');
+        return;
+      }
+      
+      if (currentStep > 1) showStep(currentStep - 1);
+    }
+
+    function updateProgress() {
+      const percent = (currentStep / totalSteps) * 100;
+      document.getElementById('progressBar').style.width = percent + '%';
+      
+      // تحديث أرقام الخطوات
+      document.querySelectorAll('[class*="w-10 h-10 rounded-full"]').forEach((el, index) => {
+        const stepNum = index + 1;
+        if (stepNum <= currentStep) {
+          el.classList.remove('bg-gray-200', 'text-gray-600');
+          el.classList.add('bg-primary', 'text-white');
+        } else {
+          el.classList.remove('bg-primary', 'text-white');
+          el.classList.add('bg-gray-200', 'text-gray-600');
+        }
+      });
+    }
+
+    /**********************
+     إدارة تبويبات الخطوة 2 - محدث
+    **********************/
+    function setupOrderTabs() {
+      // تهيئة التبويب الأول فقط (الخدمة)
+      updateServiceTabs();
+    }
+
+    function updateServiceTabs() {
+      const tabsContainer = document.getElementById('serviceTabs');
+      
+      // إنشاء التبويبات المناسبة حسب الخدمة المختارة
+      let tabsHTML = `
+        <div class="tab-button active" onclick="switchOrderTab('service')">
+          <i class="fas fa-cog ml-2"></i> نوع الخدمة
+        </div>
+      `;
+      
+      if (selectedService === 'شحن فقط') {
+        tabsHTML += `
+          <div class="tab-button" onclick="switchOrderTab('shipmentDetails')">
+            <i class="fas fa-box ml-2"></i> مواصفات الطلب
+          </div>
+        `;
+      } else if (selectedService === 'شراء فقط' || selectedService === 'شراء+شحن') {
+        tabsHTML += `
+          <div class="tab-button" onclick="switchOrderTab('marketplaceProducts')">
+            <i class="fas fa-store ml-2"></i> الموقع & المنتجات
+            <span id="productsCountBadge" class="bg-gray-200 text-gray-700 text-xs rounded-full px-2 py-1 mr-2 ${selectedService === 'شحن فقط' ? 'hidden' : ''}">0</span>
+          </div>
+        `;
+      }
+      
+      tabsContainer.innerHTML = tabsHTML;
+      
+      // تفعيل التبويب الحالي
+      const tabButton = tabsContainer.querySelector(`[onclick="switchOrderTab('${currentOrderTab}')"]`);
+      if (tabButton) {
+        tabButton.classList.add('active');
+      } else {
+        // إذا كان التبويب غير موجود، العودة إلى تبويب الخدمة
+        currentOrderTab = 'service';
+        tabsContainer.querySelector('[onclick="switchOrderTab(\'service\')"]').classList.add('active');
+      }
+    }
+
+    function switchOrderTab(tabName) {
+      // تحديث أزرار التبويب
+      document.querySelectorAll('.tab-button').forEach(tab => {
+        tab.classList.remove('active');
+      });
+      
+      // تحديث محتوى التبويب
+      document.querySelectorAll('.order-tab').forEach(content => {
+        content.classList.remove('active');
+      });
+      
+      // تفعيل التبويب المطلوب
+      const tabButton = document.querySelector(`[onclick="switchOrderTab('${tabName}')"]`);
+      if (tabButton) {
+        tabButton.classList.add('active');
+      }
+      
+      // إظهار المحتوى المناسب
+      if (tabName === 'shipmentDetails') {
+        document.getElementById('shipmentDetailsTab').classList.add('active');
+      } else {
+        document.getElementById(`${tabName}Tab`).classList.add('active');
+      }
+      
+      // تحديث التبويب الحالي
+      currentOrderTab = tabName;
+      
+      // حفظ البيانات عند تغيير التبويب
+      triggerAutoSave();
+      
+      // تمرير الصفحة إلى أعلى التبويب
+      setTimeout(() => {
+        document.getElementById('orderTabsContent').scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }, 100);
+    }
+
+    /**********************
+     التحقق من صحة تبويب الخدمة
+    **********************/
+    function validateServiceTab() {
+      if (!selectedService) {
+        alert('⚠️ من فضلك اختر نوع الخدمة أولاً');
+        return false;
+      }
+      return true;
+    }
+
+    /**********************
+     إدارة الخدمات - محدث
+    **********************/
+    function selectService(serviceType) {
+      selectedService = serviceType;
+      
+      // تحديث الواجهة
+      document.querySelectorAll('.service-card').forEach(card => {
+        card.classList.remove('selected');
+      });
+      
+      document.getElementById(`service${serviceType.replace(' ', '').replace('+', '')}`).classList.add('selected');
+      
+      // تحديث الراديو
+      document.querySelector(`input[name="c_serviceType"][value="${serviceType}"]`).checked = true;
+      
+      // تحديث التبويبات
+      updateServiceTabs();
+      
+      // إذا كانت الخدمة "شحن فقط"، إخفاء قسم المنتجات
+      if (serviceType === 'شحن فقط') {
+        document.getElementById('productsCountBadge').classList.add('hidden');
+      } else {
+        document.getElementById('productsCountBadge').classList.remove('hidden');
+        updateProductsCount();
+      }
+      
+      // حفظ البيانات عند اختيار الخدمة
+      triggerAutoSave();
+    }
+
+    function onServiceChange() {
+      const serviceRadio = document.querySelector('input[name="c_serviceType"]:checked');
+      if (serviceRadio) {
+        selectService(serviceRadio.value);
+      }
+    }
+
+    /**********************
+     إدارة طريقة إضافة المنتجات - جديد
+    **********************/
+    function selectProductMethod(method) {
+      selectedProductMethod = method;
+      
+      // تحديث الراديو
+      const radio = document.querySelector(`input[name="productMethod"][value="${method}"]`);
+      if (radio) {
+        radio.checked = true;
+      }
+      
+      toggleProductMethod();
+      
+      // حفظ البيانات عند اختيار الطريقة
+      triggerAutoSave();
+    }
+
+    function toggleProductMethod() {
+      const method = document.querySelector('input[name="productMethod"]:checked')?.value || 'manual';
+      selectedProductMethod = method;
+      
+      if (method === 'cartLink') {
+        // إظهار قسم لينك الباج وإخفاء قسم المنتجات اليدوية
+        document.getElementById('cartLinkSection').classList.remove('hidden');
+        document.getElementById('manualProductsSection').classList.add('hidden');
+      } else {
+        // إظهار قسم المنتجات اليدوية وإخفاء قسم لينك الباج
+        document.getElementById('cartLinkSection').classList.add('hidden');
+        document.getElementById('manualProductsSection').classList.remove('hidden');
+      }
+    }
+
+    /**********************
+     إدارة المنتجات
+    **********************/
+    function addProduct(initial = {}) {
+      // إذا كانت الخدمة "شحن فقط" أو تم اختيار طريقة لينك الباج، لا نضيف منتجات
+      if (selectedService === 'شحن فقط' || selectedProductMethod === 'cartLink') return;
+      
+      const container = document.getElementById('productsList');
+      const count = container.querySelectorAll('.product-item').length;
+      
+      if (count >= 10) { 
+        alert('⚠️ الحد الأقصى 10 منتجات');
+        return; 
+      }
+      
+      productCounter++;
+      const idx = productCounter;
+
+      const div = document.createElement('div');
+      div.className = 'product-item border border-gray-300 rounded-xl p-5 bg-white';
+      div.dataset.idx = idx;
+
+      div.innerHTML = `
+        <div class="flex items-center justify-between mb-4">
+          <div class="flex items-center gap-3">
+            <div class="w-8 h-8 bg-primary/10 rounded-lg flex items-center justify-center text-primary font-bold">${count + 1}</div>
+            <div class="font-bold text-gray-800">منتج جديد</div>
+          </div>
+          <div class="flex gap-2">
+            <button type="button" class="px-3 py-1.5 bg-red-500 text-white rounded-lg hover:bg-red-600 transition text-sm font-medium" onclick="removeProduct(${idx})">
+              <i class="fas fa-trash ml-1"></i> حذف
+            </button>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div>
+            <label class="block text-sm font-medium mb-2 required-star">رابط المنتج من شي إن</label>
+            <input id="p_link_${idx}" type="url" class="w-full p-3.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent auto-save" value="${initial.link||''}" placeholder="https://shein.sa/..." required>
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium mb-2 required-star">اسم المنتج</label>
+            <input id="p_name_${idx}" type="text" class="w-full p-3.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent auto-save" value="${initial.name||''}" placeholder="مثال: جاكيت رجالي" required>
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium mb-2 required-star">الكمية</label>
+            <input id="p_qty_${idx}" type="number" class="w-full p-3.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent auto-save" value="${initial.qty||''}" min="1" placeholder="مثال: 10" required>
+          </div>
+
+          <div class="md:col-span-3">
+            <label class="block text-sm font-medium mb-2">هل يحتاج تحديد ألوان؟</label>
+            <select id="p_hasColors_${idx}" onchange="toggleColorsFor(${idx})" class="p-3.5 border border-gray-300 rounded-lg w-full focus:ring-2 focus:ring-primary focus:border-transparent auto-save">
+              <option value="no" selected>لا</option>
+              <option value="yes">نعم</option>
+            </select>
+
+            <div id="colors_container_${idx}" class="mt-3 hidden">
+              <div class="flex gap-2 mb-3">
+                <button type="button" class="px-3 py-1.5 bg-primary text-white rounded-lg hover:bg-primary/90 transition text-sm font-medium" onclick="addColorRow(${idx})">
+                  <i class="fas fa-plus ml-1"></i> إضافة لون
+                </button>
+                <div class="text-xs text-gray-500 self-center">أدخل كمية لكل لون</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="md:col-span-3">
+            <label class="block text-sm font-medium mb-2">هل يحتاج تحديد مقاسات؟</label>
+            <select id="p_hasSizes_${idx}" onchange="toggleSizesFor(${idx})" class="p-3.5 border border-gray-300 rounded-lg w-full focus:ring-2 focus:ring-primary focus:border-transparent auto-save">
+              <option value="no" selected>لا</option>
+              <option value="yes">نعم</option>
+            </select>
+
+            <div id="sizes_container_${idx}" class="mt-3 hidden">
+              <div class="flex gap-2 mb-3">
+                <button type="button" class="px-3 py-1.5 bg-primary text-white rounded-lg hover:bg-primary/90 transition text-sm font-medium" onclick="addSizeRow(${idx})">
+                  <i class="fas fa-plus ml-1"></i> إضافة مقاس
+                </button>
+                <div class="text-xs text-gray-500 self-center">أدخل كمية لكل مقاس</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="md:col-span-3">
+            <label class="block text-sm font-medium mb-2">ملاحظات عن المنتج</label>
+            <textarea id="p_note_${idx}" class="w-full p-3.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent auto-save" placeholder="أي ملاحظات إضافية...">${initial.note||''}</textarea>
+          </div>
+        </div>
+      `;
+      container.appendChild(div);
+      
+      // إضافة event listeners للمنتج الجديد
+      setTimeout(() => {
+        const inputs = div.querySelectorAll('.auto-save');
+        inputs.forEach(input => {
+          input.addEventListener('input', triggerAutoSave);
+          input.addEventListener('change', triggerAutoSave);
+        });
+      }, 100);
+      
+      updateProductsCount();
+      updateProductIndices();
+      
+      // حفظ البيانات عند إضافة منتج
+      triggerAutoSave();
+    }
+
+    function removeProduct(idx) {
+      // إذا كانت الخدمة "شحن فقط" أو تم اختيار طريقة لينك الباج، لا نحذف منتجات
+      if (selectedService === 'شحن فقط' || selectedProductMethod === 'cartLink') return;
+      
+      const el = document.querySelector(`.product-item[data-idx="${idx}"]`);
+      if (!el) return;
+      const container = document.getElementById('productsList');
+      const count = container.querySelectorAll('.product-item').length;
+      
+      if (count <= 1) { 
+        alert('⚠️ يجب أن يكون هناك منتج واحد على الأقل'); 
+        return; 
+      }
+      
+      el.remove();
+      updateProductsCount();
+      updateProductIndices();
+      
+      // حفظ البيانات عند حذف منتج
+      triggerAutoSave();
+    }
+
+    function updateProductIndices() {
+      document.querySelectorAll('.product-item').forEach((el, i) => {
+        el.querySelector('.w-8.h-8').textContent = i + 1;
+      });
+    }
+
+    function updateProductsCount() {
+      if (selectedService === 'شحن فقط' || selectedProductMethod === 'cartLink') {
+        document.getElementById('productsCountBadge').classList.add('hidden');
+        return;
+      }
+      
+      const count = document.querySelectorAll('.product-item').length;
+      const badge = document.getElementById('productsCountBadge');
+      
+      if (count > 0) {
+        badge.textContent = count;
+        badge.classList.remove('hidden');
+      } else {
+        badge.classList.add('hidden');
+      }
+    }
+
+    /**********************
+     إدارة الألوان والمقاسات
+    **********************/
+    function toggleColorsFor(idx) {
+      const val = document.getElementById(`p_hasColors_${idx}`).value;
+      document.getElementById(`colors_container_${idx}`).classList.toggle('hidden', val !== 'yes');
+      triggerAutoSave();
+    }
+
+    function addColorRow(idx, initial = {}) {
+      const container = document.getElementById(`colors_container_${idx}`);
+      const row = document.createElement('div');
+      row.className = 'flex gap-2 mb-3 color-row';
+      row.innerHTML = `
+        <input type="text" placeholder="اللون (مثال: أسود)" class="color-name flex-1 p-3 border border-gray-300 rounded-lg auto-save" value="${initial.name||''}">
+        <input type="number" placeholder="الكمية" class="color-qty w-28 p-3 border border-gray-300 rounded-lg auto-save" min="1" value="${initial.qty||''}">
+        <button type="button" class="px-3 py-1.5 bg-red-500 text-white rounded-lg hover:bg-red-600 transition text-sm font-medium" onclick="this.parentNode.remove(); triggerAutoSave()">
+          <i class="fas fa-trash ml-1"></i>
+        </button>
+      `;
+      container.appendChild(row);
+      
+      // إضافة event listeners
+      setTimeout(() => {
+        const inputs = row.querySelectorAll('.auto-save');
+        inputs.forEach(input => {
+          input.addEventListener('input', triggerAutoSave);
+          input.addEventListener('change', triggerAutoSave);
+        });
+      }, 100);
+      
+      triggerAutoSave();
+    }
+
+    function toggleSizesFor(idx) {
+      const val = document.getElementById(`p_hasSizes_${idx}`).value;
+      document.getElementById(`sizes_container_${idx}`).classList.toggle('hidden', val !== 'yes');
+      triggerAutoSave();
+    }
+
+    function addSizeRow(idx, initial = {}) {
+      const container = document.getElementById(`sizes_container_${idx}`);
+      const row = document.createElement('div');
+      row.className = 'flex gap-2 mb-3 size-row';
+      row.innerHTML = `
+        <input type="text" placeholder="المقاس (مثال: L)" class="size-name flex-1 p-3 border border-gray-300 rounded-lg auto-save" value="${initial.name||''}">
+        <input type="number" placeholder="الكمية" class="size-qty w-28 p-3 border border-gray-300 rounded-lg auto-save" min="1" value="${initial.qty||''}">
+        <button type="button" class="px-3 py-1.5 bg-red-500 text-white rounded-lg hover:bg-red-600 transition text-sm font-medium" onclick="this.parentNode.remove(); triggerAutoSave()">
+          <i class="fas fa-trash ml-1"></i>
+        </button>
+      `;
+      container.appendChild(row);
+      
+      // إضافة event listeners
+      setTimeout(() => {
+        const inputs = row.querySelectorAll('.auto-save');
+        inputs.forEach(input => {
+          input.addEventListener('input', triggerAutoSave);
+          input.addEventListener('change', triggerAutoSave);
+        });
+      }, 100);
+      
+      triggerAutoSave();
+    }
+
+    /**********************
+     إدارة الموقع
+    **********************/
+    function selectMarketplace(marketplace) {
+      selectedMarketplace = marketplace;
+      
+      // تحديث الواجهة
+      document.querySelectorAll('.marketplace-option').forEach(option => {
+        option.classList.remove('selected');
+      });
+      
+      // تحديث الراديو
+      document.querySelector(`input[name="c_marketplace"][value="${marketplace}"]`).checked = true;
+      
+      // حفظ البيانات عند اختيار الموقع
+      triggerAutoSave();
+      
+      onMarketplaceChange();
+    }
+
+    function onMarketplaceChange() {
+      const marketplaceRadio = document.querySelector('input[name="c_marketplace"]:checked');
+      if (marketplaceRadio) {
+        selectMarketplace(marketplaceRadio.value);
+      }
+    }
+
+    /**********************
+     تحديث الخطوة 2
+    **********************/
+    function updateOrderStep() {
+      // تحديث حالة التبويبات حسب الخدمة المختارة
+      updateServiceTabs();
+    }
+
+    /**********************
+     تحديث الخطوة 3 مع العنوان الجديد
+    **********************/
+    function updateShippingStep() {
+      const serviceType = selectedService;
+      const addressesSection = document.getElementById('addressesSection');
+      
+      // إنشاء العناوين الديناميكية
+      let addressesHTML = '';
+      
+      if (serviceType === 'شحن فقط') {
+        addressesHTML = `
+          <div class="space-y-6">
+            <!-- العنوان - موقع المورد -->
+            <div class="p-5 border border-gray-300 rounded-xl">
+              <div class="flex items-center gap-3 mb-4">
+                <div class="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center text-blue-600">
+                  <i class="fas fa-map-marker-alt"></i>
+                </div>
+                <h3 class="text-lg font-bold text-gray-800">📍 موقع المورد</h3>
+              </div>
+              
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                <div>
+                  <label class="block text-sm font-medium mb-2 required-star">المدينة</label>
+                  <input type="text" id="c_supplierCity" class="w-full p-3.5 border border-gray-300 rounded-lg auto-save" placeholder="مثال: الرياض - دبي" required>
+                </div>
+                
+                <div>
+                  <label class="block text-sm font-medium mb-2 required-star">رقم هاتف المورد</label>
+                  <input type="tel" id="c_supplierPhone" class="w-full p-3.5 border border-gray-300 rounded-lg auto-save" placeholder="+966 XXXXXXXXXX" required>
+                </div>
+                
+                <div class="md:col-span-2">
+                  <label class="block text-sm font-medium mb-2 required-star">العنوان التفصيلي</label>
+                  <textarea id="c_supplierAddress" class="w-full p-3.5 border border-gray-300 rounded-lg auto-save" rows="2" placeholder="اسم الشارع، رقم المبنى، اسم المورد..." required></textarea>
+                </div>
+              </div>
+            </div>
+            
+            <!-- عنوان التسليم -->
+            <div class="p-5 border border-gray-300 rounded-xl">
+              <div class="flex items-center gap-3 mb-4">
+                <div class="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center text-green-600">
+                  <i class="fas fa-home"></i>
+                </div>
+                <h3 class="text-lg font-bold text-gray-800">🏠 عنوان التسليم النهائي</h3>
+              </div>
+              
+              <div class="space-y-5">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                  <div>
+                    <label class="block text-sm font-medium mb-2 required-star">البلد</label>
+                    <select id="c_deliveryCountry" class="p-3.5 border border-gray-300 rounded-lg w-full auto-save" onchange="updateDeliveryCities()" required>
+                      <option value="" selected disabled>اختر البلد</option>
+                      <option value="مصر">مصر 🇪🇬</option>
+                      <option value="السعودية">السعودية 🇸🇦</option>
+                      <option value="الإمارات">الإمارات 🇦🇪</option>
+                      <option value="other">بلد آخر</option>
+                    </select>
+                    <input id="c_deliveryCountryOther" type="text" class="mt-3 p-3.5 border border-gray-300 rounded-lg hidden w-full auto-save" placeholder="اكتب اسم البلد">
+                  </div>
+                  
+                  <div>
+                    <label class="block text-sm font-medium mb-2 required-star">المدينة/المنطقة</label>
+                    <select id="c_deliveryCity" class="p-3.5 border border-gray-300 rounded-lg w-full auto-save" onchange="toggleDistrictField()" required>
+                      <option value="" selected disabled>اختر المدينة أولاً</option>
+                    </select>
+                    <input id="c_deliveryCityOther" type="text" class="mt-3 p-3.5 border border-gray-300 rounded-lg hidden w-full auto-save" placeholder="اكتب اسم المدينة/المنطقة">
+                  </div>
+                </div>
+                
+                <!-- حقل المنطقة/الحي (اختياري) -->
+                <div id="districtField" class="hidden">
+                  <label class="block text-sm font-medium mb-2">المنطقة/الحي (اختياري)</label>
+                  <input id="c_deliveryDistrict" type="text" class="w-full p-3.5 border border-gray-300 rounded-lg auto-save" placeholder="اسم المنطقة أو الحي">
+                </div>
+                
+                <div class="md:col-span-2">
+                  <label class="block text-sm font-medium mb-2 required-star">العنوان التفصيلي</label>
+                  <textarea id="c_deliveryAddress" class="w-full p-3.5 border border-gray-300 rounded-lg auto-save" rows="2" placeholder="اسم الشارع، رقم العمارة، الشقة..." required></textarea>
+                </div>
+              </div>
+            </div>
+          </div>
+        `;
+      } else if (serviceType === 'شراء+شحن') {
+        addressesHTML = `
+          <div class="space-y-6">
+            <!-- عنوان المستودع -->
+            <div class="p-5 border border-gray-300 rounded-xl">
+              <div class="flex items-center gap-3 mb-4">
+                <div class="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center text-blue-600">
+                  <i class="fas fa-warehouse"></i>
+                </div>
+                <h3 class="text-lg font-bold text-gray-800">🏢 عنوان المستودع</h3>
+              </div>
+              
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                <div>
+                  <label class="block text-sm font-medium mb-2 required-star">المدينة</label>
+                  <input type="text" id="c_warehouseCity" class="w-full p-3.5 border border-gray-300 rounded-lg auto-save" placeholder="مثال: الرياض - دبي" required>
+                </div>
+                
+                <div>
+                  <label class="block text-sm font-medium mb-2 required-star">رقم هاتف المستودع</label>
+                  <input type="tel" id="c_warehousePhone" class="w-full p-3.5 border border-gray-300 rounded-lg auto-save" placeholder="+966 XXXXXXXXXX" required>
+                </div>
+                
+                <div class="md:col-span-2">
+                  <label class="block text-sm font-medium mb-2 required-star">العنوان التفصيلي</label>
+                  <textarea id="c_warehouseAddress" class="w-full p-3.5 border border-gray-300 rounded-lg auto-save" rows="2" placeholder="اسم الشارع، رقم المبنى، اسم المستودع..." required></textarea>
+                </div>
+              </div>
+            </div>
+            
+            <!-- عنوان التسليم النهائي -->
+            <div class="p-5 border border-gray-300 rounded-xl">
+              <div class="flex items-center gap-3 mb-4">
+                <div class="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center text-green-600">
+                  <i class="fas fa-home"></i>
+                </div>
+                <h3 class="text-lg font-bold text-gray-800">🏠 عنوان التسليم النهائي</h3>
+              </div>
+              
+              <div class="space-y-5">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                  <div>
+                    <label class="block text-sm font-medium mb-2 required-star">البلد</label>
+                    <select id="c_deliveryCountry" class="p-3.5 border border-gray-300 rounded-lg w-full auto-save" onchange="updateDeliveryCities()" required>
+                      <option value="" selected disabled>اختر البلد</option>
+                      <option value="مصر">مصر 🇪🇬</option>
+                      <option value="السعودية">السعودية 🇸🇦</option>
+                      <option value="الإمارات">الإمارات 🇦🇪</option>
+                      <option value="other">بلد آخر</option>
+                    </select>
+                    <input id="c_deliveryCountryOther" type="text" class="mt-3 p-3.5 border border-gray-300 rounded-lg hidden w-full auto-save" placeholder="اكتب اسم البلد">
+                  </div>
+                  
+                  <div>
+                    <label class="block text-sm font-medium mb-2 required-star">المدينة/المنطقة</label>
+                    <select id="c_deliveryCity" class="p-3.5 border border-gray-300 rounded-lg w-full auto-save" onchange="toggleDistrictField()" required>
+                      <option value="" selected disabled>اختر المدينة أولاً</option>
+                    </select>
+                    <input id="c_deliveryCityOther" type="text" class="mt-3 p-3.5 border border-gray-300 rounded-lg hidden w-full auto-save" placeholder="اكتب اسم المدينة/المنطقة">
+                  </div>
+                </div>
+                
+                <!-- حقل المنطقة/الحي (اختياري) -->
+                <div id="districtField" class="hidden">
+                  <label class="block text-sm font-medium mb-2">المنطقة/الحي (اختياري)</label>
+                  <input id="c_deliveryDistrict" type="text" class="w-full p-3.5 border border-gray-300 rounded-lg auto-save" placeholder="اسم المنطقة أو الحي">
+                </div>
+                
+                <div class="md:col-span-2">
+                  <label class="block text-sm font-medium mb-2 required-star">العنوان التفصيلي</label>
+                  <textarea id="c_deliveryAddress" class="w-full p-3.5 border border-gray-300 rounded-lg auto-save" rows="2" placeholder="اسم الشارع، رقم العمارة، الشقة..." required></textarea>
+                </div>
+              </div>
+            </div>
+          </div>
+        `;
+      } else if (serviceType === 'شراء فقط') {
+        addressesHTML = `
+          <div class="space-y-6">
+            <!-- عنوان التسليم في بلد العميل -->
+            <div class="p-5 border border-gray-300 rounded-xl">
+              <div class="flex items-center gap-3 mb-4">
+                <div class="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center text-green-600">
+                  <i class="fas fa-map-marker-alt"></i>
+                </div>
+                <h3 class="text-lg font-bold text-gray-800">📍 عنوان التسليم</h3>
+              </div>
+              
+              <div class="space-y-5">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                  <div>
+                    <label class="block text-sm font-medium mb-2 required-star">البلد</label>
+                    <select id="c_deliveryCountry" class="p-3.5 border border-gray-300 rounded-lg w-full auto-save" onchange="updateDeliveryCities()" required>
+                      <option value="" selected disabled>اختر البلد</option>
+                      <option value="مصر">مصر 🇪🇬</option>
+                      <option value="السعودية">السعودية 🇸🇦</option>
+                      <option value="الإمارات">الإمارات 🇦🇪</option>
+                      <option value="other">بلد آخر</option>
+                    </select>
+                    <input id="c_deliveryCountryOther" type="text" class="mt-3 p-3.5 border border-gray-300 rounded-lg hidden w-full auto-save" placeholder="اكتب اسم البلد">
+                  </div>
+                  
+                  <div>
+                    <label class="block text-sm font-medium mb-2 required-star">المدينة/المنطقة</label>
+                    <select id="c_deliveryCity" class="p-3.5 border border-gray-300 rounded-lg w-full auto-save" onchange="toggleDistrictField()" required>
+                      <option value="" selected disabled>اختر المدينة أولاً</option>
+                    </select>
+                    <input id="c_deliveryCityOther" type="text" class="mt-3 p-3.5 border border-gray-300 rounded-lg hidden w-full auto-save" placeholder="اكتب اسم المدينة/المنطقة">
+                  </div>
+                </div>
+                
+                <!-- حقل المنطقة/الحي (اختياري) -->
+                <div id="districtField" class="hidden">
+                  <label class="block text-sm font-medium mb-2">المنطقة/الحي (اختياري)</label>
+                  <input id="c_deliveryDistrict" type="text" class="w-full p-3.5 border border-gray-300 rounded-lg auto-save" placeholder="اسم المنطقة أو الحي">
+                </div>
+                
+                <div class="md:col-span-2">
+                  <label class="block text-sm font-medium mb-2 required-star">العنوان التفصيلي</label>
+                  <textarea id="c_deliveryAddress" class="w-full p-3.5 border border-gray-300 rounded-lg auto-save" rows="2" placeholder="اسم الشارع، رقم العمارة، الشقة..." required></textarea>
+                </div>
+                
+                <div>
+                  <label class="block text-sm font-medium mb-2 required-star">رقم هاتف المستلم</label>
+                  <input type="tel" id="c_warehousePhone" class="w-full p-3.5 border border-gray-300 rounded-lg auto-save" placeholder="+966 XXXXXXXXXX" required>
+                </div>
+              </div>
+            </div>
+          </div>
+        `;
+        
+        // إخفاء قسم طريقة الشحن
+        document.getElementById('shippingSection').classList.add('hidden');
+      } else {
+        addressesHTML = `
+          <div class="p-5 bg-yellow-50 rounded-xl border border-yellow-200 text-center">
+            <i class="fas fa-exclamation-triangle text-yellow-600 text-3xl mb-3"></i>
+            <h3 class="text-lg font-bold text-yellow-800 mb-2">⚠️ اختر الخدمة أولاً</h3>
+            <p class="text-yellow-700">ارجع إلى الخطوة السابقة واختر نوع الخدمة</p>
+          </div>
+        `;
+      }
+      
+      addressesSection.innerHTML = addressesHTML;
+      
+      // إعادة تهيئة الـ listeners للعناصر الجديدة
+      setTimeout(() => {
+        if (document.getElementById('c_deliveryCountry')) {
+          document.getElementById('c_deliveryCountry').addEventListener('change', updateDeliveryCities);
+          document.getElementById('c_deliveryCountry').addEventListener('change', triggerAutoSave);
+        }
+        
+        // إضافة event listeners لجميع الحقول الجديدة
+        document.querySelectorAll('#addressesSection .auto-save').forEach(input => {
+          input.addEventListener('input', triggerAutoSave);
+          input.addEventListener('change', triggerAutoSave);
+        });
+      }, 100);
+      
+      // إظهار/إخفاء قسم طريقة الشحن
+      if (serviceType === 'شراء فقط') {
+        document.getElementById('shippingSection').classList.add('hidden');
+      } else {
+        document.getElementById('shippingSection').classList.remove('hidden');
+      }
+    }
+
+    /**********************
+     دوال مساعدة للعناوين الديناميكية - محدثة
+    **********************/
+    function updateDeliveryCities() {
+      const countrySelect = document.getElementById('c_deliveryCountry');
+      const citySelect = document.getElementById('c_deliveryCity');
+      const countryOtherInput = document.getElementById('c_deliveryCountryOther');
+      
+      if (!countrySelect || !citySelect) return;
+      
+      const selectedCountry = countrySelect.value;
+      
+      // إظهار/إخفاء حقل "بلد أخرى"
+      if (countryOtherInput) {
+        countryOtherInput.classList.toggle('hidden', selectedCountry !== 'other');
+      }
+      
+      // مسح الخيارات القديمة
+      citySelect.innerHTML = '<option value="" selected disabled>اختر المدينة/المنطقة</option>';
+      
+      // إضافة خيار "مدينة أخرى"
+      const otherOption = document.createElement('option');
+      otherOption.value = 'other';
+      otherOption.textContent = 'مدينة/منطقة أخرى';
+      citySelect.appendChild(otherOption);
+      
+      // إضافة المدن حسب البلد المختار
+      let cities = [];
+      if (selectedCountry === 'مصر') {
+        cities = egyptCities;
+      } else if (selectedCountry === 'السعودية') {
+        cities = saudiCities;
+      } else if (selectedCountry === 'الإمارات') {
+        cities = uaeCities;
+      }
+      
+      // إضافة المدن إلى القائمة
+      cities.forEach(city => {
+        const option = document.createElement('option');
+        option.value = city;
+        option.textContent = city;
+        citySelect.appendChild(option);
+      });
+      
+      // Listener لاختيار "مدينة أخرى"
+      citySelect.addEventListener('change', function() {
+        const cityOtherInput = document.getElementById('c_deliveryCityOther');
+        if (cityOtherInput) {
+          cityOtherInput.classList.toggle('hidden', this.value !== 'other');
+        }
+        toggleDistrictField();
+        triggerAutoSave();
+      });
+      
+      // حفظ البيانات عند تحديث المدن
+      triggerAutoSave();
+    }
+
+    function toggleDistrictField() {
+      const citySelect = document.getElementById('c_deliveryCity');
+      const districtField = document.getElementById('districtField');
+      
+      if (!citySelect || !districtField) return;
+      
+      // إظهار حقل المنطقة فقط للمدن الكبيرة
+      const bigCities = ['القاهرة', 'الجيزة', 'الإسكندرية', 'الرياض', 'جدة', 'الدمام', 'دبي', 'أبوظبي'];
+      
+      if (bigCities.includes(citySelect.value)) {
+        districtField.classList.remove('hidden');
+      } else {
+        districtField.classList.add('hidden');
+      }
+    }
+
+    /**********************
+     دوال مساعدة للشحن
+    **********************/
+    function selectShippingMode(mode) {
+      // تحديث الواجهة
+      document.querySelectorAll('.shipping-option').forEach(option => {
+        option.classList.remove('selected');
+      });
+      
+      // تحديث الراديو
+      document.querySelector(`input[name="c_shipMode"][value="${mode}"]`).checked = true;
+      
+      // حفظ البيانات عند اختيار طريقة الشحن
+      triggerAutoSave();
+    }
+
+    function togglePackagingOptions() {
+      const needsPackaging = document.querySelector('input[name="c_needsPackaging"]:checked');
+      document.getElementById('packagingOptions').classList.toggle('hidden', !needsPackaging || needsPackaging.value === 'لا');
+      triggerAutoSave();
+    }
+
+    function toggleHazmatType() {
+      const hasHazmat = document.getElementById('c_hasHazmat').value;
+      document.getElementById('hazmatTypeDiv').classList.toggle('hidden', hasHazmat !== 'نعم');
+      triggerAutoSave();
+    }
+
+    /**********************
+     تحديث الخطوة 4 - محدث
+    **********************/
+    function updateFinalSummary() {
+      const summaryDiv = document.getElementById('finalSummary');
+      let summaryHTML = '';
+      
+      // بيانات العميل
+      const clientName = document.getElementById('c_clientName').value || 'غير محدد';
+      const phone = document.getElementById('c_phoneNumber').value || 'غير محدد';
+      const clientType = document.getElementById('c_clientType').value || 'غير محدد';
+      
+      summaryHTML += `
+        <div class="summary-section">
+          <h4 class="font-bold text-gray-800 mb-2">👤 بيانات العميل</h4>
+          <div class="grid grid-cols-2 gap-2 text-sm">
+            <div class="text-gray-600">الاسم:</div>
+            <div class="font-medium">${clientName}</div>
+            <div class="text-gray-600">الهاتف:</div>
+            <div class="font-medium">${phone}</div>
+            <div class="text-gray-600">النوع:</div>
+            <div class="font-medium">${clientType}</div>
+          </div>
+        </div>
+      `;
+      
+      // الخدمة والمنتجات
+      const serviceType = selectedService || 'غير محدد';
+      
+      summaryHTML += `
+        <div class="summary-section border-t pt-4">
+          <h4 class="font-bold text-gray-800 mb-2">🛒 تفاصيل الطلب</h4>
+          <div class="grid grid-cols-2 gap-2 text-sm">
+            <div class="text-gray-600">نوع الخدمة:</div>
+            <div class="font-medium text-primary">${serviceType}</div>
+      `;
+      
+      if (serviceType === 'شحن فقط') {
+        const shipmentDesc = document.getElementById('c_shipmentDescription')?.value || 'غير محدد';
+        summaryHTML += `
+            <div class="text-gray-600">وصف الطلب:</div>
+            <div class="font-medium">${shipmentDesc.substring(0, 50)}${shipmentDesc.length > 50 ? '...' : ''}</div>
+        `;
+      } else {
+        const marketplace = selectedMarketplace || 'غير محدد';
+        const productMethod = selectedProductMethod === 'cartLink' ? 'لينك الباج' : 'يدوي';
+        
+        summaryHTML += `
+            <div class="text-gray-600">طريقة الإضافة:</div>
+            <div class="font-medium">${productMethod}</div>
+            <div class="text-gray-600">موقع شي إن:</div>
+            <div class="font-medium">${marketplace}</div>
+        `;
+        
+        if (selectedProductMethod === 'cartLink') {
+          const cartLink = document.getElementById('c_cartLink')?.value || 'غير محدد';
+          summaryHTML += `
+            <div class="text-gray-600">لينك الباج:</div>
+            <div class="font-medium text-blue-600 truncate">${cartLink.substring(0, 40)}${cartLink.length > 40 ? '...' : ''}</div>
+          `;
+        } else {
+          const productCount = document.querySelectorAll('.product-item').length;
+          summaryHTML += `
+              <div class="text-gray-600">عدد المنتجات:</div>
+              <div class="font-medium">${productCount} منتج</div>
+          `;
+        }
+      }
+      
+      summaryHTML += `</div></div>`;
+      
+      // الشحن والعناوين
+      if (serviceType !== 'شراء فقط') {
+        const shipMode = document.querySelector('input[name="c_shipMode"]:checked')?.value || 'غير محدد';
+        const needsPackaging = document.querySelector('input[name="c_needsPackaging"]:checked')?.value || 'لا';
+        const packagingType = needsPackaging === 'نعم' ? (document.getElementById('c_packaging').value || 'غير محدد') : 'لا يحتاج';
+        
+        summaryHTML += `
+          <div class="summary-section border-t pt-4">
+            <h4 class="font-bold text-gray-800 mb-2">🚚 معلومات الشحن</h4>
+            <div class="grid grid-cols-2 gap-2 text-sm">
+              <div class="text-gray-600">طريقة الشحن:</div>
+              <div class="font-medium">${shipMode}</div>
+              <div class="text-gray-600">التغليف الخاص:</div>
+              <div class="font-medium">${packagingType}</div>
+        `;
+        
+        if (serviceType === 'شحن فقط') {
+          const supplierCity = document.getElementById('c_supplierCity')?.value || 'غير محدد';
+          summaryHTML += `
+              <div class="text-gray-600">موقع المورد:</div>
+              <div class="font-medium">${supplierCity}</div>
+          `;
+        }
+        
+        if (serviceType === 'شحن فقط' || serviceType === 'شراء+شحن') {
+          const deliveryCountry = document.getElementById('c_deliveryCountry')?.value || 'غير محدد';
+          const deliveryCity = document.getElementById('c_deliveryCity')?.value || 'غير محدد';
+          const deliveryDistrict = document.getElementById('c_deliveryDistrict')?.value || '';
+          
+          let locationText = deliveryCity;
+          if (deliveryDistrict) {
+            locationText += ` - ${deliveryDistrict}`;
+          }
+          locationText += ` - ${deliveryCountry}`;
+          
+          summaryHTML += `
+              <div class="text-gray-600">موقع التسليم:</div>
+              <div class="font-medium">${locationText}</div>
+          `;
+        }
+        
+        summaryHTML += `</div></div>`;
+      } else if (serviceType === 'شراء فقط') {
+        // عنوان التسليم للخدمة "شراء فقط"
+        const deliveryCountry = document.getElementById('c_deliveryCountry')?.value || 'غير محدد';
+        const deliveryCity = document.getElementById('c_deliveryCity')?.value || 'غير محدد';
+        const deliveryDistrict = document.getElementById('c_deliveryDistrict')?.value || '';
+        
+        let locationText = deliveryCity;
+        if (deliveryDistrict) {
+          locationText += ` - ${deliveryDistrict}`;
+        }
+        locationText += ` - ${deliveryCountry}`;
+        
+        summaryHTML += `
+          <div class="summary-section border-t pt-4">
+            <h4 class="font-bold text-gray-800 mb-2">📍 عنوان التسليم</h4>
+            <div class="grid grid-cols-2 gap-2 text-sm">
+              <div class="text-gray-600">الموقع:</div>
+              <div class="font-medium">${locationText}</div>
+            </div>
+          </div>
+        `;
+      }
+      
+      summaryDiv.innerHTML = summaryHTML;
+    }
+
+    /**********************
+     دوال مساعدة إضافية
+    **********************/
+    function onClientTypeChange() {
+      const val = document.getElementById('c_clientType').value;
+      document.getElementById('c_clientTypeOther').classList.toggle('hidden', val !== 'other');
+      triggerAutoSave();
+    }
+
+    function toggleReferralSection() {
+      const howFound = document.getElementById('c_howFound').value;
+      document.getElementById('referralSection').classList.toggle('hidden', howFound !== 'referral');
+      triggerAutoSave();
+    }
+
+    function importProducts() {
+      alert('⏳ ميزة استيراد المنتجات من ملف قريبًا...');
+    }
+
+    /**********************
+     دوال استرجاع البيانات من الحفظ التلقائي
+    **********************/
+
+    // دالة لملء النموذج من البيانات المحفوظة
+    function populateFormFromAutoSave(data) {
+      try {
+        if (!data) return;
+        
+        // بيانات العميل
+        if (data.clientName) document.getElementById('c_clientName').value = data.clientName;
+        
+        // الهاتف
+        if (data.phoneCountry) {
+          document.getElementById('c_phoneCountry').value = data.phoneCountry;
+          if (data.phoneCountry === 'other' && data.phoneOther) {
+            document.getElementById('c_phoneOther').value = data.phoneOther;
+            document.getElementById('c_phoneOther').classList.remove('hidden');
+          }
+        }
+        
+        if (data.phoneNumber) document.getElementById('c_phoneNumber').value = data.phoneNumber;
+        
+        // الواتساب
+        if (data.waCountry) {
+          document.getElementById('c_waCountry').value = data.waCountry;
+          if (data.waCountry === 'other' && data.waOther) {
+            document.getElementById('c_waOther').value = data.waOther;
+            document.getElementById('c_waOther').classList.remove('hidden');
+          }
+        }
+        
+        if (data.waNumber) document.getElementById('c_waNumber').value = data.waNumber;
+        
+        // نوع العميل
+        if (data.clientType) {
+          document.getElementById('c_clientType').value = data.clientType;
+          if (data.clientType === 'other' && data.clientTypeOther) {
+            document.getElementById('c_clientTypeOther').value = data.clientTypeOther;
+            document.getElementById('c_clientTypeOther').classList.remove('hidden');
+          }
+        }
+        
+        if (data.saveClient !== undefined) {
+          document.getElementById('c_saveClient').checked = data.saveClient;
+        }
+        
+        // الخدمة
+        if (data.serviceType) {
+          selectedService = data.serviceType;
+          setTimeout(() => {
+            const serviceRadio = document.querySelector(`input[name="c_serviceType"][value="${data.serviceType}"]`);
+            if (serviceRadio) {
+              serviceRadio.checked = true;
+              selectService(data.serviceType);
+            }
+          }, 100);
+        }
+        
+        // طريقة إضافة المنتجات
+        if (data.productMethod) {
+          selectedProductMethod = data.productMethod;
+          setTimeout(() => {
+            selectProductMethod(data.productMethod);
+          }, 200);
+        }
+        
+        // لينك الباج
+        if (data.cartLink) {
+          setTimeout(() => {
+            document.getElementById('c_cartLink').value = data.cartLink;
+          }, 300);
+        }
+        
+        // وصف الطلب
+        if (data.shipmentDescription) {
+          setTimeout(() => {
+            document.getElementById('c_shipmentDescription').value = data.shipmentDescription;
+          }, 300);
+        }
+        
+        // المنتجات اليدوية
+        if (data.products && data.products.length > 0) {
+          setTimeout(() => {
+            document.getElementById('productsList').innerHTML = '';
+            productCounter = 0;
+            
+            data.products.forEach((product, index) => {
+              addProduct({
+                link: product.link,
+                name: product.name,
+                qty: product.qty,
+                note: product.note
+              });
+              
+              const idx = productCounter;
+              
+              if (product.hasColors === 'yes') {
+                setTimeout(() => {
+                  document.getElementById(`p_hasColors_${idx}`).value = 'yes';
+                  toggleColorsFor(idx);
+                  
+                  if (product.colors && product.colors.length > 0) {
+                    setTimeout(() => {
+                      product.colors.forEach(color => {
+                        addColorRow(idx, { name: color.name, qty: color.qty });
+                      });
+                    }, 100);
+                  }
+                }, 100);
+              }
+              
+              if (product.hasSizes === 'yes') {
+                setTimeout(() => {
+                  document.getElementById(`p_hasSizes_${idx}`).value = 'yes';
+                  toggleSizesFor(idx);
+                  
+                  if (product.sizes && product.sizes.length > 0) {
+                    setTimeout(() => {
+                      product.sizes.forEach(size => {
+                        addSizeRow(idx, { name: size.name, qty: size.qty });
+                      });
+                    }, 100);
+                  }
+                }, 100);
+              }
+            });
+          }, 400);
+        }
+        
+        // الموقع
+        if (data.marketplace) {
+          selectedMarketplace = data.marketplace;
+          setTimeout(() => {
+            const marketplaceRadio = document.querySelector(`input[name="c_marketplace"][value="${data.marketplace}"]`);
+            if (marketplaceRadio) {
+              marketplaceRadio.checked = true;
+              selectMarketplace(data.marketplace);
+            }
+          }, 500);
+        }
+        
+        // طريقة الشحن
+        if (data.shipMode) {
+          setTimeout(() => {
+            const shipModeRadio = document.querySelector(`input[name="c_shipMode"][value="${data.shipMode}"]`);
+            if (shipModeRadio) {
+              shipModeRadio.checked = true;
+              selectShippingMode(data.shipMode);
+            }
+          }, 700);
+        }
+        
+        // التغليف
+        if (data.needsPackaging) {
+          setTimeout(() => {
+            const needsPackagingRadio = document.querySelector(`input[name="c_needsPackaging"][value="${data.needsPackaging}"]`);
+            if (needsPackagingRadio) {
+              needsPackagingRadio.checked = true;
+              togglePackagingOptions();
+            }
+          }, 800);
+        }
+        
+        if (data.packaging) {
+          setTimeout(() => {
+            document.getElementById('c_packaging').value = data.packaging;
+            if (data.packaging === 'other' && data.packagingOther) {
+              document.getElementById('c_packagingOther').value = data.packagingOther;
+              document.getElementById('c_packagingOther').classList.remove('hidden');
+            }
+          }, 900);
+        }
+        
+        // المواد الخطرة
+        if (data.hasHazmat) {
+          setTimeout(() => {
+            document.getElementById('c_hasHazmat').value = data.hasHazmat;
+            toggleHazmatType();
+            if (data.hazmatType) {
+              document.getElementById('c_hazmatType').value = data.hazmatType;
+            }
+          }, 1000);
+        }
+        
+        // العناوين
+        if (data.supplierCity) {
+          setTimeout(() => {
+            document.getElementById('c_supplierCity').value = data.supplierCity;
+          }, 1100);
+        }
+        
+        if (data.supplierPhone) {
+          setTimeout(() => {
+            document.getElementById('c_supplierPhone').value = data.supplierPhone;
+          }, 1200);
+        }
+        
+        if (data.supplierAddress) {
+          setTimeout(() => {
+            document.getElementById('c_supplierAddress').value = data.supplierAddress;
+          }, 1300);
+        }
+        
+        if (data.warehouseCity) {
+          setTimeout(() => {
+            document.getElementById('c_warehouseCity').value = data.warehouseCity;
+          }, 1400);
+        }
+        
+        if (data.warehousePhone) {
+          setTimeout(() => {
+            document.getElementById('c_warehousePhone').value = data.warehousePhone;
+          }, 1500);
+        }
+        
+        if (data.warehouseAddress) {
+          setTimeout(() => {
+            document.getElementById('c_warehouseAddress').value = data.warehouseAddress;
+          }, 1600);
+        }
+        
+        // معلومات إضافية
+        if (data.howFound) {
+          setTimeout(() => {
+            document.getElementById('c_howFound').value = data.howFound;
+            toggleReferralSection();
+          }, 1700);
+        }
+        
+        if (data.referralName) {
+          setTimeout(() => {
+            document.getElementById('c_referralName').value = data.referralName;
+          }, 1800);
+        }
+        
+        if (data.referralPhone) {
+          setTimeout(() => {
+            document.getElementById('c_referralPhone').value = data.referralPhone;
+          }, 1900);
+        }
+        
+        if (data.additionalNotes) {
+          setTimeout(() => {
+            document.getElementById('c_additionalNotes').value = data.additionalNotes;
+          }, 2000);
+        }
+        
+        if (data.confirmTerms !== undefined) {
+          setTimeout(() => {
+            document.getElementById('c_confirmTerms').checked = data.confirmTerms;
+          }, 2100);
+        }
+        
+        // التوجه إلى الخطوة والتبويب المحفوظ
+        if (data.currentStep) {
+          setTimeout(() => {
+            showStep(data.currentStep);
+          }, 2200);
+        }
+        
+        if (data.currentOrderTab) {
+          setTimeout(() => {
+            currentOrderTab = data.currentOrderTab;
+            switchOrderTab(data.currentOrderTab);
+          }, 2300);
+        }
+        
+      } catch (e) {
+        console.error('خطأ في تحميل البيانات المحفوظة:', e);
+      }
+    }
+
+    /**********************
+     Validation - محدث
+    **********************/
+    function validateStep(step) {
+      function showError(message) {
+        alert(`❌ ${message}`);
+        return false;
+      }
+      
+      if (step === 1) {
+        if (!document.getElementById('c_clientName').value.trim()) return showError('من فضلك أدخل الاسم الكامل');
+        
+        const phoneCountry = document.getElementById('c_phoneCountry').value;
+        const phoneNumber = document.getElementById('c_phoneNumber').value.trim();
+        if (!phoneCountry) return showError('اختر كود الدولة للهاتف');
+        if (phoneCountry === 'other' && !document.getElementById('c_phoneOther').value.trim()) return showError('أدخل كود الدولة للهاتف');
+        if (!phoneNumber) return showError('من فضلك أدخل رقم الهاتف');
+        
+        const waCountry = document.getElementById('c_waCountry').value;
+        const waNumber = document.getElementById('c_waNumber').value.trim();
+        if (!waCountry) return showError('اختر كود الدولة للواتساب');
+        if (waCountry === 'other' && !document.getElementById('c_waOther').value.trim()) return showError('أدخل كود الدولة للواتساب');
+        if (!waNumber) return showError('من فضلك أدخل رقم الواتساب');
+        
+        if (!document.getElementById('c_clientType').value) return showError('اختر نوع العميل');
+        if (document.getElementById('c_clientType').value === 'other' && !document.getElementById('c_clientTypeOther').value.trim()) return showError('اذكر نوع العميل');
+      }
+      
+      if (step === 2) {
+        if (currentOrderTab === 'service') {
+          if (!selectedService) return showError('اختر نوع الخدمة');
+        } else if (currentOrderTab === 'marketplaceProducts') {
+          if (!selectedMarketplace) return showError('اختر موقع شي إن');
+          
+          // التحقق من طريقة إضافة المنتجات
+          const productMethod = document.querySelector('input[name="productMethod"]:checked')?.value;
+          if (!productMethod) return showError('اختر طريقة إضافة المنتجات');
+          
+          if (productMethod === 'cartLink') {
+            // التحقق من لينك الباج
+            const cartLink = document.getElementById('c_cartLink')?.value.trim();
+            if (!cartLink) return showError('من فضلك أدخل لينك الباج');
+            if (!cartLink.startsWith('http')) return showError('الرجاء إدخال رابط صحيح يبدأ بـ http أو https');
+          } else if (productMethod === 'manual') {
+            // التحقق من المنتجات اليدوية
+            const products = document.querySelectorAll('.product-item');
+            if (products.length === 0) return showError('أضف منتجًا واحدًا على الأقل');
+            
+            for (let i = 0; i < products.length; i++) {
+              const idx = products[i].dataset.idx;
+              const link = document.getElementById(`p_link_${idx}`).value.trim();
+              const name = document.getElementById(`p_name_${idx}`).value.trim();
+              const qty = document.getElementById(`p_qty_${idx}`).value;
+              
+              if (!link) return showError(`أدخل رابط المنتج رقم ${i + 1}`);
+              if (!name) return showError(`أدخل اسم المنتج رقم ${i + 1}`);
+              if (!qty || Number(qty) <= 0) return showError(`أدخل كمية صحيحة للمنتج رقم ${i + 1}`);
+            }
+          }
+        } else if (currentOrderTab === 'shipmentDetails') {
+          // التحقق من وصف الطلب لخدمة "شحن فقط"
+          const shipmentDesc = document.getElementById('c_shipmentDescription')?.value.trim();
+          if (!shipmentDesc) return showError('من فضلك اكتب وصف الطلب');
+          if (shipmentDesc.length < 10) return showError('من فضلك اكتب وصفًا مفصلاً للطلب');
+        }
+      }
+      
+      if (step === 3) {
+        const serviceType = selectedService;
+        
+        if (serviceType === 'شراء فقط') {
+          // التحقق من عنوان التسليم
+          if (!document.getElementById('c_deliveryCountry')?.value) return showError('اختر البلد');
+          if (!document.getElementById('c_deliveryCity')?.value) return showError('اختر المدينة/المنطقة');
+          if (!document.getElementById('c_deliveryAddress')?.value.trim()) return showError('أدخل العنوان التفصيلي');
+          if (!document.getElementById('c_warehousePhone')?.value.trim()) return showError('أدخل رقم هاتف المستلم');
+        } else {
+          if (!document.querySelector('input[name="c_shipMode"]:checked')) return showError('اختر طريقة الشحن');
+          
+          // التحقق من العناوين
+          if (serviceType === 'شحن فقط') {
+            if (!document.getElementById('c_supplierCity')?.value.trim()) return showError('أدخل مدينة المورد');
+            if (!document.getElementById('c_supplierPhone')?.value.trim()) return showError('أدخل رقم هاتف المورد');
+            if (!document.getElementById('c_supplierAddress')?.value.trim()) return showError('أدخل عنوان المورد');
+          }
+          
+          if (serviceType === 'شحن فقط' || serviceType === 'شراء+شحن') {
+            if (!document.getElementById('c_deliveryCountry')?.value) return showError('اختر البلد');
+            if (!document.getElementById('c_deliveryCity')?.value) return showError('اختر المدينة/المنطقة');
+            if (!document.getElementById('c_deliveryAddress')?.value.trim()) return showError('أدخل العنوان التفصيلي');
+          }
+          
+          if (serviceType === 'شراء+شحن') {
+            if (!document.getElementById('c_warehouseCity')?.value.trim()) return showError('أدخل مدينة المستودع');
+            if (!document.getElementById('c_warehousePhone')?.value.trim()) return showError('أدخل رقم هاتف المستودع');
+            if (!document.getElementById('c_warehouseAddress')?.value.trim()) return showError('أدخل عنوان المستودع');
+          }
+        }
+        
+        // التحقق من التغليف
+        const needsPackaging = document.querySelector('input[name="c_needsPackaging"]:checked');
+        if (needsPackaging && needsPackaging.value === 'نعم') {
+          if (!document.getElementById('c_packaging').value) return showError('اختر طريقة التغليف');
+          if (document.getElementById('c_packaging').value === 'other' && !document.getElementById('c_packagingOther').value.trim()) return showError('اذكر طريقة التغليف');
+        }
+        
+        // التحقق من المواد الخطرة
+        if (document.getElementById('c_hasHazmat').value === 'نعم' && !document.getElementById('c_hazmatType')?.value.trim()) {
+          return showError('اذكر نوع المواد الخطرة');
+        }
+      }
+      
+      if (step === 4) {
+        if (!document.getElementById('c_confirmTerms').checked) {
+          return showError('يجب الموافقة على الشروط والأحكام');
+        }
+      }
+      
+      return true;
+    }
+
+    /**********************
+     حفظ المسودة والتحميل - محدث
+    **********************/
+    function saveDraft() {
+      const data = collectAllFormData();
+      localStorage.setItem('mirhal_shein_smart_draft', JSON.stringify(data));
+      alert('✅ تم حفظ المسودة بنجاح');
+    }
+
+    function loadDraftIfAny() {
+      const draft = localStorage.getItem('mirhal_shein_smart_draft');
+      if (!draft) return;
+      
+      if (confirm('يوجد مسودة محفوظة. هل تريد تحميلها؟')) {
+        try {
+          const data = JSON.parse(draft);
+          populateFormFromAutoSave(data);
+          alert('✅ تم تحميل المسودة بنجاح');
+        } catch (e) {
+          console.error('خطأ في تحميل المسودة:', e);
+          alert('❌ حدث خطأ في تحميل المسودة');
+        }
+      }
+    }
+
+    /**********************
+     Submit
+    **********************/
+    function onSubmit(e) {
+      e.preventDefault();
+      
+      if (!validateStep(currentStep)) return;
+      
+      const data = collectAllFormData();
+      const orders = JSON.parse(localStorage.getItem('mirhal_shein_orders') || '[]');
+      orders.unshift({ 
+        id: 'SHEIN-' + Date.now(), 
+        createdAt: new Date().toISOString(), 
+        data 
+      });
+      
+      localStorage.setItem('mirhal_shein_orders', JSON.stringify(orders));
+      localStorage.removeItem('mirhal_shein_smart_draft');
+      
+      // مسح المسودة التلقائية بعد الإرسال النهائي
+      clearAutoDraft();
+      
+      // إظهار نافذة النجاح
+      document.getElementById('successModal').classList.remove('hidden');
+    }
+
+    function closeSuccess() {
+      document.getElementById('successModal').classList.add('hidden');
+      
+      // إعادة تعيين النموذج
+      document.getElementById('chinaForm').reset();
+      document.getElementById('productsList').innerHTML = '';
+      document.getElementById('c_shipmentDescription').value = '';
+      document.getElementById('c_cartLink').value = '';
+      productCounter = 0;
+      
+      // إضافة منتج افتراضي فقط لخدمات الشراء وطريقة يدوية
+      if (selectedService !== 'شحن فقط' && selectedProductMethod === 'manual') {
+        addProduct();
+      }
+      
+      selectedService = '';
+      selectedMarketplace = '';
+      selectedProductMethod = 'manual';
+      currentOrderTab = 'service';
+      
+      // إخفاء الحقول الديناميكية
+      ['c_clientTypeOther', 'c_marketplaceOther', 'c_packagingOther', 'c_phoneOther', 'c_waOther'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.classList.add('hidden');
+      });
+      
+      // إعادة تعيين التحديدات
+      document.querySelectorAll('.service-card').forEach(card => {
+        card.classList.remove('selected');
+      });
+      
+      document.querySelectorAll('.marketplace-option').forEach(option => {
+        option.classList.remove('selected');
+      });
+      
+      // إعادة تعيين طريقة إضافة المنتجات
+      const manualRadio = document.querySelector('input[name="productMethod"][value="manual"]');
+      if (manualRadio) {
+        manualRadio.checked = true;
+      }
+      toggleProductMethod();
+      
+      // إعادة تعيين التبويبات
+      setupOrderTabs();
+      
+      // إخفاء إشعار استرجاع البيانات
+      document.getElementById('draftNotice').classList.add('hidden');
+      
+      // العودة إلى الخطوة الأولى
+      showStep(1);
+    }
+
+    /**********************
+     Clear Form
+    **********************/
+    function clearForm() {
+      if (!confirm('هل أنت متأكد أنك تريد مسح جميع الحقول؟')) return;
+      
+      document.getElementById('chinaForm').reset();
+      document.getElementById('productsList').innerHTML = '';
+      document.getElementById('c_shipmentDescription').value = '';
+      document.getElementById('c_cartLink').value = '';
+      productCounter = 0;
+      
+      // إضافة منتج افتراضي
+      addProduct();
+      
+      selectedService = '';
+      selectedMarketplace = '';
+      selectedProductMethod = 'manual';
+      currentOrderTab = 'service';
+      
+      // إخفاء الحقول الديناميكية
+      ['c_clientTypeOther', 'c_marketplaceOther', 'c_packagingOther', 'c_phoneOther', 'c_waOther'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.classList.add('hidden');
+      });
+      
+      // إعادة تعيين التحديدات
+      document.querySelectorAll('.service-card').forEach(card => {
+        card.classList.remove('selected');
+      });
+      
+      document.querySelectorAll('.marketplace-option').forEach(option => {
+        option.classList.remove('selected');
+      });
+      
+      // إعادة تعيين طريقة إضافة المنتجات
+      const manualRadio = document.querySelector('input[name="productMethod"][value="manual"]');
+      if (manualRadio) {
+        manualRadio.checked = true;
+      }
+      toggleProductMethod();
+      
+      // إعادة تعيين التبويبات
+      setupOrderTabs();
+      
+      // حذف المسودة
+      localStorage.removeItem('mirhal_shein_smart_draft');
+      
+      // حذف المسودة التلقائية
+      clearAutoDraft();
+      
+      // إخفاء إشعار استرجاع البيانات
+      document.getElementById('draftNotice').classList.add('hidden');
+      
+      // العودة إلى الخطوة الأولى
+      showStep(1);
+      
+      alert('✅ تم مسح النموذج بنجاح');
+    }
+
+    // إضافة زر مسح الكل إلى الواجهة
+    document.addEventListener('DOMContentLoaded', () => {
+      const navButtons = document.querySelector('.flex.gap-3');
+      if (navButtons) {
+        const clearButton = document.createElement('button');
+        clearButton.type = 'button';
+        clearButton.className = 'px-5 py-3 bg-red-500 text-white rounded-lg hover:bg-red-600 transition flex items-center gap-2 font-medium';
+        clearButton.innerHTML = '<i class="fas fa-trash-alt"></i> مسح الكل';
+        clearButton.onclick = clearForm;
+        navButtons.appendChild(clearButton);
+      }
+    });
+
+  </script>
+</body>
+</html>
