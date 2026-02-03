@@ -13,7 +13,7 @@
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #5D5CDE;
+  background: #5d5cde;
   border-radius: 4px;
 }
 
@@ -27,7 +27,7 @@
 }
 
 .dark ::-webkit-scrollbar-thumb {
-  background: #5D5CDE;
+  background: #5d5cde;
 }
 
 @keyframes fadeIn {
@@ -108,5 +108,103 @@
 
 /* Smooth transitions */
 * {
-  transition: background-color 0.2s ease, color 0.2s ease;
+  transition:
+    background-color 0.2s ease,
+    color 0.2s ease;
+}
+
+/* PhoneInput Responsive Fixes */
+.react-international-phone-input-container {
+  width: 100% !important;
+}
+
+.react-international-phone-input-container .react-international-phone-input {
+  width: 100% !important;
+  padding: 0.625rem 0.75rem !important;
+  font-size: 0.875rem !important;
+}
+
+@media (min-width: 640px) {
+  .react-international-phone-input-container .react-international-phone-input {
+    padding: 0.75rem !important;
+    font-size: 1rem !important;
+  }
+}
+
+.react-international-phone-country-selector-button {
+  padding: 0.5rem !important;
+  min-width: 60px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+@media (min-width: 640px) {
+  .react-international-phone-country-selector-button {
+    padding: 0.75rem !important;
+  }
+}
+
+.react-international-phone-country-selector-button__button-content {
+  display: flex !important;
+  align-items: center !important;
+  gap: 0.25rem !important;
+  font-size: 0.75rem !important;
+}
+
+@media (min-width: 640px) {
+  .react-international-phone-country-selector-button__button-content {
+    font-size: 1rem !important;
+  }
+}
+
+.react-international-phone-country-selector-button__dropdown-arrow {
+  margin-left: 0.25rem !important;
+  font-size: 0.75rem !important;
+}
+
+/* Ensure flag is visible */
+.react-international-phone-country-selector-button__flag-emoji {
+  font-size: 1rem !important;
+  line-height: 1 !important;
+}
+
+/* Country code text */
+.react-international-phone-country-selector-button__calling-code {
+  font-size: 0.75rem !important;
+  font-weight: 500 !important;
+}
+
+@media (min-width: 640px) {
+  .react-international-phone-country-selector-button__calling-code {
+    font-size: 1rem !important;
+  }
+}
+
+/* Fix dropdown position - force it to open on left side */
+.react-international-phone-country-selector-dropdown,
+[class*="country-selector-dropdown"],
+[class*="CountrySelector"] {
+  left: 0 !important;
+  right: auto !important;
+  transform-origin: left top !important;
+}
+
+/* Ensure dropdown stays within screen bounds on mobile */
+@media (max-width: 639px) {
+  .react-international-phone-country-selector-dropdown,
+  [class*="country-selector-dropdown"],
+  [class*="CountrySelector"] {
+    left: 0 !important;
+    right: auto !important;
+    max-width: 90vw !important;
+    transform-origin: left top !important;
+  }
+  
+  /* Override any RTL positioning */
+  [dir="rtl"] .react-international-phone-country-selector-dropdown,
+  [dir="rtl"] [class*="country-selector-dropdown"] {
+    left: 0 !important;
+    right: auto !important;
+  }
 }

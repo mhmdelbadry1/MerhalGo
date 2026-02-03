@@ -25,8 +25,8 @@ const InternationalShippingFullForm = () => {
     clientName: '', phone: '', whatsapp: '',
     clientType: '', clientTypeOther: '', saveClientData: false,
     operationType: '', cargoMode: '', serviceType: '',
-    pickupCountry: '', pickupPort: '', routeType: '', pickupFromAddress: '',
-    deliveryCountry: '', deliveryPort: '', deliveryToAddress: '',
+    pickupCountry: '', pickupPort: '', pickupCountryOther: '', pickupPortOther: '', routeType: '', pickupFromAddress: '',
+    deliveryCountry: '', deliveryPort: '', deliveryCountryOther: '', deliveryPortOther: '', deliveryToAddress: '',
     goodsDescription: '', hasLiquids: '', liquidType: '', hasHazmat: '', hazmatType: '',
     hasBatteries: '', batteryType: '', isFragile: '', fragilePacking: '',
     hasDocuments: '', docType: '', totalWeight: '', piecesCount: '',
@@ -37,21 +37,35 @@ const InternationalShippingFullForm = () => {
     otherClearanceDocType: '', howFound: '', referralName: '', referralPhone: '', additionalNotes: ''
   });
 
-  // Load countries and seaports data
+  // Load countries - specific list in Arabic with flags
   useEffect(() => {
     const loadCountries = async () => {
       setLoadingCountries(true);
-      // Use defaultCountries from react-international-phone
-      const countriesList = defaultCountries.map((c) => {
-        const country = parseCountry(c);
-        return {
-          code: country.iso2,
-          nameEn: country.name,
-          dialCode: '+' + country.dialCode,
-          flag: country.iso2
-        };
-      });
-      setCountries(countriesList);
+      const specificCountries = [
+        { code: 'EG', nameAr: 'مصر', flag: '🇪🇬' },
+        { code: 'CN', nameAr: 'الصين', flag: '🇨🇳' },
+        { code: 'SA', nameAr: 'السعودية', flag: '🇸🇦' },
+        { code: 'AE', nameAr: 'الإمارات', flag: '🇦🇪' },
+        { code: 'IN', nameAr: 'الهند', flag: '🇮🇳' },
+        { code: 'TR', nameAr: 'تركيا', flag: '🇹🇷' },
+        { code: 'IT', nameAr: 'إيطاليا', flag: '🇮🇹' },
+        { code: 'ES', nameAr: 'إسبانيا', flag: '🇪🇸' },
+        { code: 'GR', nameAr: 'اليونان', flag: '🇬🇷' },
+        { code: 'RU', nameAr: 'روسيا', flag: '🇷🇺' },
+        { code: 'US', nameAr: 'أمريكا', flag: '🇺🇸' },
+        { code: 'DE', nameAr: 'ألمانيا', flag: '🇩🇪' },
+        { code: 'NL', nameAr: 'هولندا', flag: '🇳🇱' },
+        { code: 'KE', nameAr: 'كينيا', flag: '🇰🇪' },
+        { code: 'NG', nameAr: 'نيجيريا', flag: '🇳🇬' },
+        { code: 'ZA', nameAr: 'جنوب أفريقيا', flag: '🇿🇦' },
+        { code: 'MA', nameAr: 'المغرب', flag: '🇲🇦' },
+        { code: 'TN', nameAr: 'تونس', flag: '🇹🇳' },
+        { code: 'DZ', nameAr: 'الجزائر', flag: '🇩🇿' },
+        { code: 'GH', nameAr: 'غانا', flag: '🇬🇭' },
+        { code: 'CI', nameAr: 'ساحل العاج', flag: '🇨🇮' },
+        { code: 'TZ', nameAr: 'تنزانيا', flag: '🇹🇿' }
+      ];
+      setCountries(specificCountries);
       setLoadingCountries(false);
     };
 
@@ -85,8 +99,8 @@ const InternationalShippingFullForm = () => {
     setFormData({
       clientName: '', phone: '', whatsapp: '',
       clientType: '', clientTypeOther: '', saveClientData: false, operationType: '', cargoMode: '',
-      serviceType: '', pickupCountry: '', pickupPort: '', routeType: '', pickupFromAddress: '',
-      deliveryCountry: '', deliveryPort: '', deliveryToAddress: '', goodsDescription: '',
+      serviceType: '', pickupCountry: '', pickupPort: '', pickupCountryOther: '', pickupPortOther: '', routeType: '', pickupFromAddress: '',
+      deliveryCountry: '', deliveryPort: '', deliveryCountryOther: '', deliveryPortOther: '', deliveryToAddress: '', goodsDescription: '',
       hasLiquids: '', liquidType: '', hasHazmat: '', hazmatType: '', hasBatteries: '',
       batteryType: '', isFragile: '', fragilePacking: '', hasDocuments: '', docType: '',
       totalWeight: '', piecesCount: '', packagingType: '', packagingOther: '', preferredLine: '',
@@ -111,11 +125,15 @@ const InternationalShippingFullForm = () => {
         if (!formData.operationType || !formData.cargoMode || !formData.serviceType) { showError('أكمل تفاصيل العملية'); return false; }
         break;
       case 3:
-        if (!formData.pickupCountry || !formData.pickupPort || !formData.routeType) { showError('أكمل بيانات التحميل'); return false; }
+        if (!formData.pickupCountry || !formData.routeType) { showError('أكمل بيانات التحميل'); return false; }
+        if (!formData.pickupPort) { showError('اختر الميناء أو المطار'); return false; }
+        if (formData.pickupPort === 'other' && !formData.pickupPortOther) { showError('أدخل اسم الميناء أو المطار'); return false; }
         if ((formData.routeType === 'door-door' || formData.routeType === 'door-port') && !formData.pickupFromAddress) { showError('أدخل عنوان التحميل'); return false; }
         break;
       case 4:
-        if (!formData.deliveryCountry || !formData.deliveryPort) { showError('أكمل بيانات التسليم'); return false; }
+        if (!formData.deliveryCountry) { showError('أكمل بيانات التسليم'); return false; }
+        if (!formData.deliveryPort) { showError('اختر الميناء أو المطار'); return false; }
+        if (formData.deliveryPort === 'other' && !formData.deliveryPortOther) { showError('أدخل اسم الميناء أو المطار'); return false; }
         if ((formData.routeType === 'door-door' || formData.routeType === 'port-door') && !formData.deliveryToAddress) { showError('أدخل عنوان التسليم'); return false; }
         break;
       case 5:
@@ -284,27 +302,28 @@ const InternationalShippingFullForm = () => {
       <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700&display=swap" rel="stylesheet" />
       <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
 
-      <div className="max-w-4xl mx-auto py-8 px-4">
-        <div className="bg-white shadow rounded-lg p-6">
-          <div className="flex items-center justify-between gap-4 mb-6">
-            <div className="flex items-center gap-4">
-              <div className="w-12 h-12 rounded-lg flex items-center justify-center text-white" style={{ backgroundColor: '#5D5CDE' }}>
-                <i className="fas fa-route"></i>
+      <div className="max-w-4xl mx-auto py-4 sm:py-6 md:py-8 px-3 sm:px-4 md:px-6">
+        <div className="bg-white shadow rounded-lg p-4 sm:p-5 md:p-6">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-4 mb-4 sm:mb-6">
+            <div className="flex items-center gap-3 sm:gap-4 flex-1">
+              <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-lg flex items-center justify-center text-white flex-shrink-0" style={{ backgroundColor: '#5D5CDE' }}>
+                <i className="fas fa-route text-sm sm:text-base"></i>
               </div>
-              <div>
-                <h1 className="text-2xl font-bold" style={{ color: '#5D5CDE' }}>نموذج شحن دولي عام — مرحال جو</h1>
-                <p className="text-sm text-gray-500">أكمل بيانات الشحنة بدقة — سنوافيك برد خلال 24 ساعة عمل</p>
+              <div className="flex-1 min-w-0">
+                <h1 className="text-lg sm:text-xl md:text-2xl font-bold truncate" style={{ color: '#5D5CDE' }}>نموذج شحن دولي عام — مرحال جو</h1>
+                <p className="text-xs sm:text-sm text-gray-500 hidden sm:block">أكمل بيانات الشحنة بدقة — سنوافيك برد خلال 24 ساعة عمل</p>
               </div>
             </div>
             <button
               onClick={() => navigate(-1)}
-              className="w-10 h-10 rounded-full bg-gray-100 hover:bg-red-100 text-gray-500 hover:text-red-600 transition-colors flex items-center justify-center"
+              className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-gray-100 hover:bg-red-100 text-gray-500 hover:text-red-600 transition-colors flex items-center justify-center flex-shrink-0 self-end sm:self-auto"
             >
-              <i className="fas fa-times text-xl"></i>
+              <i className="fas fa-times text-lg sm:text-xl"></i>
             </button>
           </div>
 
-          <div className="mb-6">
+          {/* Progress bar للشاشات الكبيرة */}
+          <div className="mb-4 sm:mb-6 hidden sm:block">
             <div className="flex items-center justify-between text-xs text-center mb-2">
               {['1. العميل', '2. العملية', '3. التحميل', '4. التسليم', '5. البضاعة', '6. التخليص', '7. النهاية'].map((text, i) => (
                 <div key={i} className="w-1/7">{text}</div>
@@ -315,45 +334,112 @@ const InternationalShippingFullForm = () => {
             </div>
           </div>
 
-          <form onSubmit={handleSubmit} className="space-y-6">
+          {/* Progress bar مبسط للموبايل */}
+          <div className="mb-4 sm:hidden">
+            <div className="flex justify-between text-xs mb-1.5">
+              <span className="font-semibold" style={{ color: '#5D5CDE' }}>الخطوة {currentStep} من 7</span>
+              <span className="text-gray-600">{Math.round(progressPercentage)}%</span>
+            </div>
+            <div className="w-full bg-gray-200 rounded-full h-2">
+              <div className="h-2 rounded-full transition-all" style={{ width: `${progressPercentage}%`, backgroundColor: '#5D5CDE' }}></div>
+            </div>
+          </div>
+
+          <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-6">
             {/* STEP 1 */}
             {currentStep === 1 && (
               <div>
-                <h2 className="text-lg font-semibold mb-4">1 — بيانات العميل</h2>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <h2 className="text-base sm:text-lg font-semibold mb-3 sm:mb-4">1 — بيانات العميل</h2>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                   <div>
-                    <label className="block text-sm mb-1">الاسم الكامل</label>
-                    <input value={formData.clientName} onChange={(e) => setFormData({ ...formData, clientName: e.target.value })} type="text" className="w-full p-3 border rounded-lg" placeholder="أدخل الاسم الكامل" />
+                    <label className="block text-xs sm:text-sm mb-1">الاسم الكامل</label>
+                    <input value={formData.clientName} onChange={(e) => setFormData({ ...formData, clientName: e.target.value })} type="text" className="w-full p-2.5 sm:p-3 border rounded-lg text-sm sm:text-base" placeholder="أدخل الاسم الكامل" />
                   </div>
                   <div>
-                    <label className="block text-sm mb-1">رقم الهاتف</label>
-                    <PhoneInput
-                      defaultCountry="eg"
-                      value={formData.phone}
-                      onChange={(phone) => setFormData({ ...formData, phone })}
-                      inputClassName="w-full p-3 border rounded-lg"
-                      countrySelectorStyleProps={{
-                        buttonClassName: "p-3 border rounded-lg"
-                      }}
-                      placeholder="أدخل رقم الهاتف"
-                    />
+                    <label className="block text-xs sm:text-sm mb-1">رقم الهاتف</label>
+                    <div className="flex gap-2">
+                      <select 
+                        value={formData.phoneCountry || '+20'} 
+                        onChange={(e) => setFormData({ ...formData, phoneCountry: e.target.value })}
+                        className="w-28 p-2.5 sm:p-3 border border-gray-300 rounded-lg text-xs sm:text-base focus:ring-2 focus:ring-primary focus:border-transparent"
+                      >
+                        <option value="+20">🇪🇬 +20</option>
+                        <option value="+966">🇸🇦 +966</option>
+                        <option value="+971">🇦🇪 +971</option>
+                        <option value="+965">🇰🇼 +965</option>
+                        <option value="+974">🇶🇦 +974</option>
+                        <option value="+968">🇴🇲 +968</option>
+                        <option value="+973">🇧🇭 +973</option>
+                        <option value="+962">🇯🇴 +962</option>
+                        <option value="+961">🇱🇧 +961</option>
+                        <option value="+963">🇸🇾 +963</option>
+                        <option value="+964">🇮🇶 +964</option>
+                        <option value="+967">🇾🇪 +967</option>
+                        <option value="+212">🇲🇦 +212</option>
+                        <option value="+213">🇩🇿 +213</option>
+                        <option value="+216">🇹🇳 +216</option>
+                        <option value="+218">🇱🇾 +218</option>
+                        <option value="+249">🇸🇩 +249</option>
+                        <option value="+86">🇨🇳 +86</option>
+                        <option value="+1">🇺🇸 +1</option>
+                        <option value="+44">🇬🇧 +44</option>
+                        <option value="+33">🇫🇷 +33</option>
+                        <option value="+49">🇩🇪 +49</option>
+                        <option value="+90">🇹🇷 +90</option>
+                      </select>
+                      <input 
+                        type="tel" 
+                        value={formData.phone || ''} 
+                        onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                        className="flex-1 p-2.5 sm:p-3 border border-gray-300 rounded-lg text-xs sm:text-base focus:ring-2 focus:ring-primary focus:border-transparent"
+                        placeholder="أدخل رقم الهاتف"
+                      />
+                    </div>
                   </div>
                   <div>
-                    <label className="block text-sm mb-1">رقم الواتساب</label>
-                    <PhoneInput
-                      defaultCountry="eg"
-                      value={formData.whatsapp}
-                      onChange={(whatsapp) => setFormData({ ...formData, whatsapp })}
-                      inputClassName="w-full p-3 border rounded-lg"
-                      countrySelectorStyleProps={{
-                        buttonClassName: "p-3 border rounded-lg"
-                      }}
-                      placeholder="أدخل رقم الواتساب"
-                    />
+                    <label className="block text-xs sm:text-sm mb-1">رقم الواتساب</label>
+                    <div className="flex gap-2">
+                      <select 
+                        value={formData.whatsappCountry || '+20'} 
+                        onChange={(e) => setFormData({ ...formData, whatsappCountry: e.target.value })}
+                        className="w-28 p-2.5 sm:p-3 border border-gray-300 rounded-lg text-xs sm:text-base focus:ring-2 focus:ring-primary focus:border-transparent"
+                      >
+                        <option value="+20">🇪🇬 +20</option>
+                        <option value="+966">🇸🇦 +966</option>
+                        <option value="+971">🇦🇪 +971</option>
+                        <option value="+965">🇰🇼 +965</option>
+                        <option value="+974">🇶🇦 +974</option>
+                        <option value="+968">🇴🇲 +968</option>
+                        <option value="+973">🇧🇭 +973</option>
+                        <option value="+962">🇯🇴 +962</option>
+                        <option value="+961">🇱🇧 +961</option>
+                        <option value="+963">🇸🇾 +963</option>
+                        <option value="+964">🇮🇶 +964</option>
+                        <option value="+967">🇾🇪 +967</option>
+                        <option value="+212">🇲🇦 +212</option>
+                        <option value="+213">🇩🇿 +213</option>
+                        <option value="+216">🇹🇳 +216</option>
+                        <option value="+218">🇱🇾 +218</option>
+                        <option value="+249">🇸🇩 +249</option>
+                        <option value="+86">🇨🇳 +86</option>
+                        <option value="+1">🇺🇸 +1</option>
+                        <option value="+44">🇬🇧 +44</option>
+                        <option value="+33">🇫🇷 +33</option>
+                        <option value="+49">🇩🇪 +49</option>
+                        <option value="+90">🇹🇷 +90</option>
+                      </select>
+                      <input 
+                        type="tel" 
+                        value={formData.whatsapp || ''} 
+                        onChange={(e) => setFormData({ ...formData, whatsapp: e.target.value })}
+                        className="flex-1 p-2.5 sm:p-3 border border-gray-300 rounded-lg text-xs sm:text-base focus:ring-2 focus:ring-primary focus:border-transparent"
+                        placeholder="أدخل رقم الواتساب"
+                      />
+                    </div>
                   </div>
                   <div>
-                    <label className="block text-sm mb-1">نوع العميل</label>
-                    <select value={formData.clientType} onChange={(e) => setFormData({ ...formData, clientType: e.target.value })} className="p-3 border rounded-lg w-full">
+                    <label className="block text-xs sm:text-sm mb-1">نوع العميل</label>
+                    <select value={formData.clientType} onChange={(e) => setFormData({ ...formData, clientType: e.target.value })} className="p-2.5 sm:p-3 border rounded-lg w-full text-sm sm:text-base">
                       <option value="">اختر نوع العميل</option>
                       <option value="فرد">فرد</option>
                       <option value="تاجر">تاجر</option>
@@ -362,7 +448,7 @@ const InternationalShippingFullForm = () => {
                       <option value="other">أخرى</option>
                     </select>
                     {formData.clientType === 'other' && (
-                      <input value={formData.clientTypeOther} onChange={(e) => setFormData({ ...formData, clientTypeOther: e.target.value })} type="text" className="mt-2 p-3 border rounded-lg w-full" placeholder="اذكر نوع العميل" />
+                      <input value={formData.clientTypeOther} onChange={(e) => setFormData({ ...formData, clientTypeOther: e.target.value })} type="text" className="mt-2 p-2.5 sm:p-3 border rounded-lg w-full text-sm sm:text-base" placeholder="اذكر نوع العميل" />
                     )}
                   </div>
                   <div className="flex items-center gap-2">
@@ -376,19 +462,19 @@ const InternationalShippingFullForm = () => {
             {/* STEP 2 */}
             {currentStep === 2 && (
               <div>
-                <h2 className="text-lg font-semibold mb-4">2 — تفاصيل العملية</h2>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <h2 className="text-base sm:text-lg font-semibold mb-3 sm:mb-4">2 — تفاصيل العملية</h2>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                   <div>
-                    <label className="block text-sm mb-1">نوع العملية</label>
-                    <select value={formData.operationType} onChange={(e) => setFormData({ ...formData, operationType: e.target.value })} className="p-3 border rounded-lg w-full">
+                    <label className="block text-xs sm:text-sm mb-1">نوع العملية</label>
+                    <select value={formData.operationType} onChange={(e) => setFormData({ ...formData, operationType: e.target.value })} className="p-2.5 sm:p-3 border rounded-lg w-full text-sm sm:text-base">
                       <option value="">اختر نوع العملية</option>
                       <option value="صادر">صادر</option>
                       <option value="وارد">وارد</option>
                     </select>
                   </div>
                   <div>
-                    <label className="block text-sm mb-1">نوع الشحنة</label>
-                    <select value={formData.cargoMode} onChange={(e) => setFormData({ ...formData, cargoMode: e.target.value, pickupPort: '', deliveryPort: '' })} className="p-3 border rounded-lg w-full">
+                    <label className="block text-xs sm:text-sm mb-1">نوع الشحنة</label>
+                    <select value={formData.cargoMode} onChange={(e) => setFormData({ ...formData, cargoMode: e.target.value, pickupPort: '', deliveryPort: '' })} className="p-2.5 sm:p-3 border rounded-lg w-full text-sm sm:text-base">
                       <option value="">اختر نوع الشحنة</option>
                       <option value="بري">بري</option>
                       <option value="جوي">جوي</option>
@@ -396,8 +482,8 @@ const InternationalShippingFullForm = () => {
                     </select>
                   </div>
                   <div className="md:col-span-2">
-                    <label className="block text-sm mb-1">نوع الخدمة</label>
-                    <select value={formData.serviceType} onChange={(e) => setFormData({ ...formData, serviceType: e.target.value })} className="p-3 border rounded-lg w-full">
+                    <label className="block text-xs sm:text-sm mb-1">نوع الخدمة</label>
+                    <select value={formData.serviceType} onChange={(e) => setFormData({ ...formData, serviceType: e.target.value })} className="p-2.5 sm:p-3 border rounded-lg w-full text-sm sm:text-base">
                       <option value="">اختر نوع الخدمة</option>
                       <option value="شحن فقط">شحن فقط</option>
                       <option value="تخليص فقط">تخليص فقط</option>
@@ -411,32 +497,62 @@ const InternationalShippingFullForm = () => {
             {/* STEP 3 */}
             {currentStep === 3 && (
               <div>
-                <h2 className="text-lg font-semibold mb-4">3 — بيانات التحميل (Pickup)</h2>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <h2 className="text-base sm:text-lg font-semibold mb-3 sm:mb-4">3 — بيانات التحميل (Pickup)</h2>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                   <div>
-                    <label className="block text-sm mb-1">بلد التحميل</label>
-                    <select value={formData.pickupCountry} onChange={(e) => setFormData({ ...formData, pickupCountry: e.target.value, pickupPort: '' })} className="p-3 border rounded-lg w-full">
-                      <option value="">اختر بلد التحميل</option>
-                      {loadingCountries ? (
-                        <option disabled>جاري التحميل...</option>
-                      ) : (
-                        countries.map(country => (
-                          <option key={country.code} value={country.code}>
-                            {getFlagEmoji(country.code)} {country.nameEn}
-                          </option>
-                        ))
-                      )}
-                    </select>
+                    <label className="block text-xs sm:text-sm mb-1">بلد التحميل</label>
+                    <input 
+                      list="pickup-countries" 
+                      value={formData.pickupCountry ? countries.find(c => c.code === formData.pickupCountry)?.nameAr || formData.pickupCountry : ''}
+                      onChange={(e) => {
+                        const selectedCountry = countries.find(c => c.nameAr === e.target.value);
+                        setFormData({ 
+                          ...formData, 
+                          pickupCountry: selectedCountry ? selectedCountry.code : e.target.value,
+                          pickupPort: '', 
+                          pickupCountryOther: selectedCountry ? '' : e.target.value 
+                        });
+                      }}
+                      className="p-2.5 sm:p-3 border rounded-lg w-full text-sm sm:text-base"
+                      placeholder="ابحث عن البلد أو اختر من القائمة"
+                    />
+                    <datalist id="pickup-countries">
+                      {countries.map(country => (
+                        <option key={country.code} value={country.nameAr}>
+                          {country.flag} {country.nameAr}
+                        </option>
+                      ))}
+                    </datalist>
+                    {formData.pickupCountry && !countries.find(c => c.code === formData.pickupCountry) && (
+                      <p className="text-xs text-gray-500 mt-1">دولة مخصصة: {formData.pickupCountry}</p>
+                    )}
                   </div>
                   <div>
-                    <label className="block text-sm mb-1">مطار/ميناء/معبر</label>
-                    <select value={formData.pickupPort} onChange={(e) => setFormData({ ...formData, pickupPort: e.target.value })} className="p-3 border rounded-lg w-full">
-                      <option value="">اختر</option>
-                      {getPorts(formData.pickupCountry, formData.cargoMode).map((p, i) => <option key={i} value={p}>{p}</option>)}
-                    </select>
+                    <label className="block text-xs sm:text-sm mb-1">مطار/ميناء/معبر</label>
+                    {countries.find(c => c.code === formData.pickupCountry) ? (
+                      <>
+                        <select value={formData.pickupPort} onChange={(e) => setFormData({ ...formData, pickupPort: e.target.value, pickupPortOther: '' })} className="p-2.5 sm:p-3 border rounded-lg w-full text-sm sm:text-base" disabled={!formData.pickupCountry}>
+                          <option value="">اختر</option>
+                          {getPorts(formData.pickupCountry, formData.cargoMode).map((p, i) => <option key={i} value={p}>{p}</option>)}
+                          <option value="other">أخرى</option>
+                        </select>
+                        {formData.pickupPort === 'other' && (
+                          <input value={formData.pickupPortOther} onChange={(e) => setFormData({ ...formData, pickupPortOther: e.target.value })} type="text" className="mt-2 p-2.5 sm:p-3 border rounded-lg w-full text-sm sm:text-base" placeholder="اسم الميناء أو المطار" />
+                        )}
+                      </>
+                    ) : (
+                      <input 
+                        value={formData.pickupPortOther} 
+                        onChange={(e) => setFormData({ ...formData, pickupPortOther: e.target.value, pickupPort: 'other' })} 
+                        type="text" 
+                        className="p-2.5 sm:p-3 border rounded-lg w-full text-sm sm:text-base" 
+                        placeholder="اسم الميناء أو المطار" 
+                        disabled={!formData.pickupCountry}
+                      />
+                    )}
                   </div>
                   <div className="md:col-span-2">
-                    <label className="block text-sm mb-1">طريقة الشحن</label>
+                    <label className="block text-xs sm:text-sm mb-1">طريقة الشحن</label>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
                       {[
                         { value: 'door-door', label: 'من الباب إلى الباب' },
@@ -452,7 +568,7 @@ const InternationalShippingFullForm = () => {
                   </div>
                   {showPickupAddress && (
                     <div className="md:col-span-2">
-                      <label className="block text-sm mb-1">عنوان التحميل — من</label>
+                      <label className="block text-xs sm:text-sm mb-1">عنوان التحميل — من</label>
                       <textarea value={formData.pickupFromAddress} onChange={(e) => setFormData({ ...formData, pickupFromAddress: e.target.value })} className="w-full p-3 border rounded-lg" rows="2"></textarea>
                     </div>
                   )}
@@ -463,33 +579,63 @@ const InternationalShippingFullForm = () => {
             {/* STEP 4 */}
             {currentStep === 4 && (
               <div>
-                <h2 className="text-lg font-semibold mb-4">4 — بيانات التسليم (Delivery)</h2>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <h2 className="text-base sm:text-lg font-semibold mb-3 sm:mb-4">4 — بيانات التسليم (Delivery)</h2>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                   <div>
-                    <label className="block text-sm mb-1">بلد التسليم</label>
-                    <select value={formData.deliveryCountry} onChange={(e) => setFormData({ ...formData, deliveryCountry: e.target.value, deliveryPort: '' })} className="p-3 border rounded-lg w-full">
-                      <option value="">اختر بلد التسليم</option>
-                      {loadingCountries ? (
-                        <option disabled>جاري التحميل...</option>
-                      ) : (
-                        countries.map(country => (
-                          <option key={country.code} value={country.code}>
-                            {getFlagEmoji(country.code)} {country.nameEn}
-                          </option>
-                        ))
-                      )}
-                    </select>
+                    <label className="block text-xs sm:text-sm mb-1">بلد التسليم</label>
+                    <input 
+                      list="delivery-countries" 
+                      value={formData.deliveryCountry ? countries.find(c => c.code === formData.deliveryCountry)?.nameAr || formData.deliveryCountry : ''}
+                      onChange={(e) => {
+                        const selectedCountry = countries.find(c => c.nameAr === e.target.value);
+                        setFormData({ 
+                          ...formData, 
+                          deliveryCountry: selectedCountry ? selectedCountry.code : e.target.value,
+                          deliveryPort: '', 
+                          deliveryCountryOther: selectedCountry ? '' : e.target.value 
+                        });
+                      }}
+                      className="p-2.5 sm:p-3 border rounded-lg w-full text-sm sm:text-base"
+                      placeholder="ابحث عن البلد أو اختر من القائمة"
+                    />
+                    <datalist id="delivery-countries">
+                      {countries.map(country => (
+                        <option key={country.code} value={country.nameAr}>
+                          {country.flag} {country.nameAr}
+                        </option>
+                      ))}
+                    </datalist>
+                    {formData.deliveryCountry && !countries.find(c => c.code === formData.deliveryCountry) && (
+                      <p className="text-xs text-gray-500 mt-1">دولة مخصصة: {formData.deliveryCountry}</p>
+                    )}
                   </div>
                   <div>
-                    <label className="block text-sm mb-1">مطار/ميناء/مدينة</label>
-                    <select value={formData.deliveryPort} onChange={(e) => setFormData({ ...formData, deliveryPort: e.target.value })} className="p-3 border rounded-lg w-full">
-                      <option value="">اختر</option>
-                      {getPorts(formData.deliveryCountry, formData.cargoMode).map((p, i) => <option key={i} value={p}>{p}</option>)}
-                    </select>
+                    <label className="block text-xs sm:text-sm mb-1">مطار/ميناء/مدينة</label>
+                    {countries.find(c => c.code === formData.deliveryCountry) ? (
+                      <>
+                        <select value={formData.deliveryPort} onChange={(e) => setFormData({ ...formData, deliveryPort: e.target.value, deliveryPortOther: '' })} className="p-2.5 sm:p-3 border rounded-lg w-full text-sm sm:text-base" disabled={!formData.deliveryCountry}>
+                          <option value="">اختر</option>
+                          {getPorts(formData.deliveryCountry, formData.cargoMode).map((p, i) => <option key={i} value={p}>{p}</option>)}
+                          <option value="other">أخرى</option>
+                        </select>
+                        {formData.deliveryPort === 'other' && (
+                          <input value={formData.deliveryPortOther} onChange={(e) => setFormData({ ...formData, deliveryPortOther: e.target.value })} type="text" className="mt-2 p-2.5 sm:p-3 border rounded-lg w-full text-sm sm:text-base" placeholder="اسم الميناء أو المطار" />
+                        )}
+                      </>
+                    ) : (
+                      <input 
+                        value={formData.deliveryPortOther} 
+                        onChange={(e) => setFormData({ ...formData, deliveryPortOther: e.target.value, deliveryPort: 'other' })} 
+                        type="text" 
+                        className="p-2.5 sm:p-3 border rounded-lg w-full text-sm sm:text-base" 
+                        placeholder="اسم الميناء أو المطار" 
+                        disabled={!formData.deliveryCountry}
+                      />
+                    )}
                   </div>
                   {showDeliveryAddress && (
                     <div className="md:col-span-2">
-                      <label className="block text-sm mb-1">عنوان التسليم — إلى</label>
+                      <label className="block text-xs sm:text-sm mb-1">عنوان التسليم — إلى</label>
                       <textarea value={formData.deliveryToAddress} onChange={(e) => setFormData({ ...formData, deliveryToAddress: e.target.value })} className="w-full p-3 border rounded-lg" rows="2"></textarea>
                     </div>
                   )}
@@ -500,13 +646,13 @@ const InternationalShippingFullForm = () => {
             {/* STEP 5 */}
             {currentStep === 5 && (
               <div>
-                <h2 className="text-lg font-semibold mb-4">5 — تفاصيل البضاعة</h2>
+                <h2 className="text-base sm:text-lg font-semibold mb-3 sm:mb-4">5 — تفاصيل البضاعة</h2>
                 <div className="space-y-4">
                   <div>
-                    <label className="block text-sm mb-1">وصف البضاعة</label>
+                    <label className="block text-xs sm:text-sm mb-1">وصف البضاعة</label>
                     <textarea value={formData.goodsDescription} onChange={(e) => setFormData({ ...formData, goodsDescription: e.target.value })} className="w-full p-3 border rounded-lg" rows="3"></textarea>
                   </div>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                     {[
                       { field: 'hasLiquids', label: 'هل تحتوي على سوائل؟', subField: 'liquidType', subLabel: 'نوع السائل' },
                       { field: 'hasHazmat', label: 'هل تحتوي على مواد خطرة؟', subField: 'hazmatType', subLabel: 'نوع المادة الخطرة' },
@@ -515,28 +661,28 @@ const InternationalShippingFullForm = () => {
                       { field: 'hasDocuments', label: 'هل لديك مستندات؟', subField: 'docType', subLabel: 'نوع المستند' }
                     ].map(item => (
                       <div key={item.field}>
-                        <label className="block text-sm mb-1">{item.label}</label>
-                        <select value={formData[item.field]} onChange={(e) => setFormData({ ...formData, [item.field]: e.target.value })} className="p-3 border rounded-lg w-full">
+                        <label className="block text-xs sm:text-sm mb-1">{item.label}</label>
+                        <select value={formData[item.field]} onChange={(e) => setFormData({ ...formData, [item.field]: e.target.value })} className="p-2.5 sm:p-3 border rounded-lg w-full text-sm sm:text-base">
                           <option value="">اختر</option>
                           <option value="نعم">نعم</option>
                           <option value="لا">لا</option>
                         </select>
                         {formData[item.field] === 'نعم' && (
-                          <input value={formData[item.subField]} onChange={(e) => setFormData({ ...formData, [item.subField]: e.target.value })} type="text" className="mt-2 p-3 border rounded-lg w-full" placeholder={item.subLabel} />
+                          <input value={formData[item.subField]} onChange={(e) => setFormData({ ...formData, [item.subField]: e.target.value })} type="text" className="mt-2 p-2.5 sm:p-3 border rounded-lg w-full text-sm sm:text-base" placeholder={item.subLabel} />
                         )}
                       </div>
                     ))}
                     <div>
-                      <label className="block text-sm mb-1">الوزن الكلي (كجم)</label>
+                      <label className="block text-xs sm:text-sm mb-1">الوزن الكلي (كجم)</label>
                       <input value={formData.totalWeight} onChange={(e) => setFormData({ ...formData, totalWeight: e.target.value })} type="number" step="0.01" className="w-full p-3 border rounded-lg" />
                     </div>
                     <div>
-                      <label className="block text-sm mb-1">عدد القطع (اختياري)</label>
+                      <label className="block text-xs sm:text-sm mb-1">عدد القطع (اختياري)</label>
                       <input value={formData.piecesCount} onChange={(e) => setFormData({ ...formData, piecesCount: e.target.value })} type="number" className="w-full p-3 border rounded-lg" />
                     </div>
                     <div>
-                      <label className="block text-sm mb-1">نوع التغليف</label>
-                      <select value={formData.packagingType} onChange={(e) => setFormData({ ...formData, packagingType: e.target.value })} className="p-3 border rounded-lg w-full">
+                      <label className="block text-xs sm:text-sm mb-1">نوع التغليف</label>
+                      <select value={formData.packagingType} onChange={(e) => setFormData({ ...formData, packagingType: e.target.value })} className="p-2.5 sm:p-3 border rounded-lg w-full text-sm sm:text-base">
                         <option value="">اختر</option>
                         <option value="كراتين">كراتين</option>
                         <option value="باليت">باليت</option>
@@ -545,12 +691,12 @@ const InternationalShippingFullForm = () => {
                         <option value="أخرى">أخرى</option>
                       </select>
                       {formData.packagingType === 'أخرى' && (
-                        <input value={formData.packagingOther} onChange={(e) => setFormData({ ...formData, packagingOther: e.target.value })} type="text" className="mt-2 p-3 border rounded-lg w-full" placeholder="اذكر نوع التغليف" />
+                        <input value={formData.packagingOther} onChange={(e) => setFormData({ ...formData, packagingOther: e.target.value })} type="text" className="mt-2 p-2.5 sm:p-3 border rounded-lg w-full text-sm sm:text-base" placeholder="اذكر نوع التغليف" />
                       )}
                     </div>
                     <div>
-                      <label className="block text-sm mb-1">خط ملاحي مفضل (اختياري)</label>
-                      <select value={formData.preferredLine} onChange={(e) => setFormData({ ...formData, preferredLine: e.target.value })} className="p-3 border rounded-lg w-full">
+                      <label className="block text-xs sm:text-sm mb-1">خط ملاحي مفضل (اختياري)</label>
+                      <select value={formData.preferredLine} onChange={(e) => setFormData({ ...formData, preferredLine: e.target.value })} className="p-2.5 sm:p-3 border rounded-lg w-full text-sm sm:text-base">
                         <option value="">اختر</option>
                         <option value="Maersk">Maersk</option>
                         <option value="MSC">MSC</option>
@@ -558,7 +704,7 @@ const InternationalShippingFullForm = () => {
                         <option value="أخرى">أخرى</option>
                       </select>
                       {formData.preferredLine === 'أخرى' && (
-                        <input value={formData.preferredLineOther} onChange={(e) => setFormData({ ...formData, preferredLineOther: e.target.value })} type="text" className="mt-2 p-3 border rounded-lg w-full" />
+                        <input value={formData.preferredLineOther} onChange={(e) => setFormData({ ...formData, preferredLineOther: e.target.value })} type="text" className="mt-2 p-2.5 sm:p-3 border rounded-lg w-full text-sm sm:text-base" />
                       )}
                     </div>
                   </div>
@@ -569,11 +715,11 @@ const InternationalShippingFullForm = () => {
             {/* STEP 6 */}
             {currentStep === 6 && (
               <div>
-                <h2 className="text-lg font-semibold mb-4">6 — التخليص الجمركي</h2>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <h2 className="text-base sm:text-lg font-semibold mb-3 sm:mb-4">6 — التخليص الجمركي</h2>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                   <div>
-                    <label className="block text-sm mb-1">التخليص مطلوب في</label>
-                    <select value={formData.clearanceLocation} onChange={(e) => setFormData({ ...formData, clearanceLocation: e.target.value })} className="p-3 border rounded-lg w-full">
+                    <label className="block text-xs sm:text-sm mb-1">التخليص مطلوب في</label>
+                    <select value={formData.clearanceLocation} onChange={(e) => setFormData({ ...formData, clearanceLocation: e.target.value })} className="p-2.5 sm:p-3 border rounded-lg w-full text-sm sm:text-base">
                       <option value="">اختر</option>
                       <option value="export">بلد التصدير فقط</option>
                       <option value="import">بلد الاستيراد فقط</option>
@@ -581,15 +727,15 @@ const InternationalShippingFullForm = () => {
                     </select>
                   </div>
                   <div>
-                    <label className="block text-sm mb-1">هل لديك بطاقة استيراد؟</label>
-                    <select value={formData.hasImportCard} onChange={(e) => setFormData({ ...formData, hasImportCard: e.target.value })} className="p-3 border rounded-lg w-full">
+                    <label className="block text-xs sm:text-sm mb-1">هل لديك بطاقة استيراد؟</label>
+                    <select value={formData.hasImportCard} onChange={(e) => setFormData({ ...formData, hasImportCard: e.target.value })} className="p-2.5 sm:p-3 border rounded-lg w-full text-sm sm:text-base">
                       <option value="لا">لا</option>
                       <option value="نعم">نعم</option>
                     </select>
                   </div>
                   <div>
-                    <label className="block text-sm mb-1">الغرض من الشحنة</label>
-                    <select value={formData.shipmentPurpose} onChange={(e) => setFormData({ ...formData, shipmentPurpose: e.target.value })} className="p-3 border rounded-lg w-full">
+                    <label className="block text-xs sm:text-sm mb-1">الغرض من الشحنة</label>
+                    <select value={formData.shipmentPurpose} onChange={(e) => setFormData({ ...formData, shipmentPurpose: e.target.value })} className="p-2.5 sm:p-3 border rounded-lg w-full text-sm sm:text-base">
                       <option value="">اختر</option>
                       <option value="commercial">استيراد تجاري</option>
                       <option value="personal">استيراد شخصي</option>
@@ -598,11 +744,11 @@ const InternationalShippingFullForm = () => {
                       <option value="other">أخرى</option>
                     </select>
                     {formData.shipmentPurpose === 'other' && (
-                      <input value={formData.shipmentPurposeOther} onChange={(e) => setFormData({ ...formData, shipmentPurposeOther: e.target.value })} type="text" className="mt-2 p-3 border rounded-lg w-full" />
+                      <input value={formData.shipmentPurposeOther} onChange={(e) => setFormData({ ...formData, shipmentPurposeOther: e.target.value })} type="text" className="mt-2 p-2.5 sm:p-3 border rounded-lg w-full text-sm sm:text-base" />
                     )}
                   </div>
                   <div>
-                    <label className="block text-sm mb-1">القيمة الجمركية (اختياري)</label>
+                    <label className="block text-xs sm:text-sm mb-1">القيمة الجمركية (اختياري)</label>
                     <div className="flex gap-2">
                       <input value={formData.invoiceValue} onChange={(e) => setFormData({ ...formData, invoiceValue: e.target.value })} type="number" step="0.01" className="flex-1 p-3 border rounded-lg" />
                       <select value={formData.invoiceCurrency} onChange={(e) => setFormData({ ...formData, invoiceCurrency: e.target.value })} className="p-3 border rounded-lg w-28">
@@ -613,7 +759,7 @@ const InternationalShippingFullForm = () => {
                     </div>
                   </div>
                   <div>
-                    <label className="block text-sm mb-1">الكود الجمركي (HS) (اختياري)</label>
+                    <label className="block text-xs sm:text-sm mb-1">الكود الجمركي (HS) (اختياري)</label>
                     <input value={formData.hsCode} onChange={(e) => setFormData({ ...formData, hsCode: e.target.value })} type="text" className="w-full p-3 border rounded-lg" />
                   </div>
                   <div className="md:col-span-2">
@@ -638,11 +784,11 @@ const InternationalShippingFullForm = () => {
             {/* STEP 7 */}
             {currentStep === 7 && (
               <div>
-                <h2 className="text-lg font-semibold mb-4">7 — معلومات إضافية وإنهاء الطلب</h2>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <h2 className="text-base sm:text-lg font-semibold mb-3 sm:mb-4">7 — معلومات إضافية وإنهاء الطلب</h2>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                   <div>
-                    <label className="block text-sm mb-1">كيف علمت بخدماتنا؟</label>
-                    <select value={formData.howFound} onChange={(e) => setFormData({ ...formData, howFound: e.target.value })} className="p-3 border rounded-lg w-full">
+                    <label className="block text-xs sm:text-sm mb-1">كيف علمت بخدماتنا؟</label>
+                    <select value={formData.howFound} onChange={(e) => setFormData({ ...formData, howFound: e.target.value })} className="p-2.5 sm:p-3 border rounded-lg w-full text-sm sm:text-base">
                       <option value="">اختر</option>
                       <option value="website">موقع الشركة</option>
                       <option value="referral">عميل سابق</option>
@@ -656,7 +802,7 @@ const InternationalShippingFullForm = () => {
                     )}
                   </div>
                   <div>
-                    <label className="block text-sm mb-1">ملاحظات إضافية</label>
+                    <label className="block text-xs sm:text-sm mb-1">ملاحظات إضافية</label>
                     <textarea value={formData.additionalNotes} onChange={(e) => setFormData({ ...formData, additionalNotes: e.target.value })} className="w-full p-3 border rounded-lg" rows="5"></textarea>
                   </div>
 
@@ -695,17 +841,17 @@ const InternationalShippingFullForm = () => {
 
 
             {/* Navigation */}
-            <div className="flex justify-between items-center pt-6">
-              <button type="button" onClick={prevStep} className={`px-6 py-3 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 ${currentStep === 1 ? 'invisible' : ''}`}>السابق</button>
-              <div className="flex gap-3">
-                <button type="button" onClick={saveDraft} className="px-6 py-3 bg-yellow-500 text-white rounded-lg hover:bg-yellow-600">حفظ</button>
-                <button type="button" onClick={clearForm} className="px-6 py-3 bg-red-500 text-white rounded-lg hover:bg-red-600">مسح</button>
+            <div className="flex flex-col sm:flex-row justify-between items-stretch sm:items-center gap-3 pt-4 sm:pt-6">
+              <button type="button" onClick={prevStep} className={`px-4 sm:px-6 py-2.5 sm:py-3 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 text-sm sm:text-base ${currentStep === 1 ? 'invisible' : ''}`}>السابق</button>
+              <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 w-full sm:w-auto">
+                <button type="button" onClick={saveDraft} className="px-4 sm:px-6 py-2.5 sm:py-3 bg-yellow-500 text-white rounded-lg hover:bg-yellow-600 text-sm sm:text-base order-2 sm:order-1">حفظ</button>
+                <button type="button" onClick={clearForm} className="px-4 sm:px-6 py-2.5 sm:py-3 bg-red-500 text-white rounded-lg hover:bg-red-600 text-sm sm:text-base order-3 sm:order-2">مسح</button>
 
                 {currentStep === 7 ? (
                   <button
                     type="submit"
                     disabled={isSubmitting}
-                    className={`px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 flex items-center gap-2 ${isSubmitting ? 'opacity-70 cursor-not-allowed' : ''}`}
+                    className={`px-4 sm:px-6 py-2.5 sm:py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 flex items-center justify-center gap-2 text-sm sm:text-base order-1 sm:order-3 ${isSubmitting ? 'opacity-70 cursor-not-allowed' : ''}`}
                   >
                     {isSubmitting ? (
                       <>
@@ -717,7 +863,7 @@ const InternationalShippingFullForm = () => {
                     )}
                   </button>
                 ) : (
-                  <button type="button" onClick={nextStep} className="px-6 py-3 text-white rounded-lg hover:bg-opacity-90" style={{ backgroundColor: '#5D5CDE' }}>التالي</button>
+                  <button type="button" onClick={nextStep} className="px-4 sm:px-6 py-2.5 sm:py-3 text-white rounded-lg hover:bg-opacity-90 text-sm sm:text-base order-1 sm:order-3" style={{ backgroundColor: '#5D5CDE' }}>التالي</button>
                 )}
               </div>
             </div>

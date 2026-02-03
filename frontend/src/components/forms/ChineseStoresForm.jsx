@@ -1215,21 +1215,21 @@ const ChineseStoresForm = () => {
                             كيف تريد إضافة المنتجات؟ <span className="text-red-500 font-bold">*</span>
                           </label>
 
-                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                             <button
                               type="button"
                               onClick={() => selectProductMethod("cartLink")}
-                              className={`flex items-center p-5 border-2 rounded-xl hover:border-[#5D5CDE] transition ${selectedProductMethod === "cartLink" ? "border-[#5D5CDE] bg-[#f8f9ff]" : "border-gray-200"
+                              className={`flex flex-col sm:flex-row items-start sm:items-center p-4 sm:p-5 border-2 rounded-xl hover:border-[#5D5CDE] transition ${selectedProductMethod === "cartLink" ? "border-[#5D5CDE] bg-[#f8f9ff]" : "border-gray-200"
                                 }`}
                             >
-                              <input readOnly type="radio" checked={selectedProductMethod === "cartLink"} className="w-5 h-5 text-[#5D5CDE]" />
-                              <div className="mr-3 text-right">
-                                <div className="font-bold text-lg text-gray-800">إضافة لينك الباج (Cart Link)</div>
-                                <div className="text-sm text-gray-600 mt-1">أرسل رابط واحد يحتوي جميع منتجاتك</div>
+                              <input readOnly type="radio" checked={selectedProductMethod === "cartLink"} className="w-4 h-4 sm:w-5 sm:h-5 text-[#5D5CDE] mb-2 sm:mb-0" />
+                              <div className="mr-0 sm:mr-3 text-right flex-1">
+                                <div className="font-bold text-base sm:text-lg text-gray-800">إضافة لينك الباج (Cart Link)</div>
+                                <div className="text-xs sm:text-sm text-gray-600 mt-1">أرسل رابط واحد يحتوي جميع منتجاتك</div>
                               </div>
-                              <div className="mr-auto">
-                                <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
-                                  <i className="fas fa-link text-blue-600 text-xl" />
+                              <div className="mr-auto mt-2 sm:mt-0">
+                                <div className="w-10 h-10 sm:w-12 sm:h-12 bg-blue-100 rounded-lg flex items-center justify-center">
+                                  <i className="fas fa-link text-blue-600 text-lg sm:text-xl" />
                                 </div>
                               </div>
                             </button>
@@ -1237,17 +1237,17 @@ const ChineseStoresForm = () => {
                             <button
                               type="button"
                               onClick={() => selectProductMethod("manual")}
-                              className={`flex items-center p-5 border-2 rounded-xl hover:border-[#5D5CDE] transition ${selectedProductMethod === "manual" ? "border-[#5D5CDE] bg-[#f8f9ff]" : "border-gray-200"
+                              className={`flex flex-col sm:flex-row items-start sm:items-center p-4 sm:p-5 border-2 rounded-xl hover:border-[#5D5CDE] transition ${selectedProductMethod === "manual" ? "border-[#5D5CDE] bg-[#f8f9ff]" : "border-gray-200"
                                 }`}
                             >
-                              <input readOnly type="radio" checked={selectedProductMethod === "manual"} className="w-5 h-5 text-[#5D5CDE]" />
-                              <div className="mr-3 text-right">
-                                <div className="font-bold text-lg text-gray-800">إضافة المنتجات يدويًا</div>
-                                <div className="text-sm text-gray-600 mt-1">أضف كل منتج على حدة</div>
+                              <input readOnly type="radio" checked={selectedProductMethod === "manual"} className="w-4 h-4 sm:w-5 sm:h-5 text-[#5D5CDE] mb-2 sm:mb-0" />
+                              <div className="mr-0 sm:mr-3 text-right flex-1">
+                                <div className="font-bold text-base sm:text-lg text-gray-800">إضافة المنتجات يدويًا</div>
+                                <div className="text-xs sm:text-sm text-gray-600 mt-1">أضف كل منتج على حدة</div>
                               </div>
-                              <div className="mr-auto">
-                                <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
-                                  <i className="fas fa-edit text-green-600 text-xl" />
+                              <div className="mr-auto mt-2 sm:mt-0">
+                                <div className="w-10 h-10 sm:w-12 sm:h-12 bg-green-100 rounded-lg flex items-center justify-center">
+                                  <i className="fas fa-edit text-green-600 text-lg sm:text-xl" />
                                 </div>
                               </div>
                             </button>
@@ -1575,7 +1575,7 @@ const ChineseStoresForm = () => {
                     <div className="animate-[fadeIn_0.3s_ease-in]">
                       <h3 className="text-lg font-bold text-gray-800 mb-4">🚢 طريقة الشحن</h3>
 
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                         {[
                           { value: "جوي", title: "الشحن الجوي", desc: "أسرع - أعلى تكلفة", icon: "fas fa-plane", bg: "bg-blue-100", iconColor: "text-blue-600", days: "15-25 يوم" },
                           { value: "بحري", title: "الشحن البحري", desc: "أبطأ - أقل تكلفة", icon: "fas fa-ship", bg: "bg-green-100", iconColor: "text-green-600", days: "30-45 يوم" },
@@ -2094,20 +2094,20 @@ const ChineseStoresForm = () => {
             )}
 
             {/* Nav buttons */}
-            <div className="flex items-center justify-between pt-8 mt-8 border-t">
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 pt-6 sm:pt-8 mt-6 sm:mt-8 border-t">
               <button
                 type="button"
-                className={`px-6 py-3 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition flex items-center gap-2 font-medium ${currentStep === 1 ? "invisible" : ""
+                className={`px-4 sm:px-6 py-2.5 sm:py-3 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition flex items-center justify-center gap-2 font-medium text-sm sm:text-base ${currentStep === 1 ? "invisible" : ""
                   }`}
                 onClick={prevStep}
               >
                 <i className="fas fa-arrow-right" /> رجوع
               </button>
 
-              <div className="flex gap-3">
+              <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 w-full sm:w-auto">
                 <button
                   type="button"
-                  className="px-5 py-3 bg-yellow-500 text-white rounded-lg hover:bg-yellow-600 transition flex items-center gap-2 font-medium"
+                  className="px-4 sm:px-5 py-2.5 sm:py-3 bg-yellow-500 text-white rounded-lg hover:bg-yellow-600 transition flex items-center justify-center gap-2 font-medium text-sm sm:text-base order-2 sm:order-1"
                   onClick={saveDraft}
                 >
                   <i className="fas fa-save" /> حفظ المسودة
@@ -2116,7 +2116,7 @@ const ChineseStoresForm = () => {
                 {currentStep < totalSteps && (
                   <button
                     type="button"
-                    className="px-6 py-3 bg-[#5D5CDE] text-white rounded-lg hover:bg-[#5D5CDE]/90 transition flex items-center gap-2 font-medium"
+                    className="px-4 sm:px-6 py-2.5 sm:py-3 bg-[#5D5CDE] text-white rounded-lg hover:bg-[#5D5CDE]/90 transition flex items-center justify-center gap-2 font-medium text-sm sm:text-base order-1 sm:order-2"
                     onClick={nextStep}
                   >
                     التالي <i className="fas fa-arrow-left" />
@@ -2125,7 +2125,7 @@ const ChineseStoresForm = () => {
 
                 <button
                   type="button"
-                  className="px-5 py-3 bg-red-500 text-white rounded-lg hover:bg-red-600 transition flex items-center gap-2 font-medium"
+                  className="px-4 sm:px-5 py-2.5 sm:py-3 bg-red-500 text-white rounded-lg hover:bg-red-600 transition flex items-center justify-center gap-2 font-medium text-sm sm:text-base order-3 sm:order-3"
                   onClick={clearForm}
                 >
                   <i className="fas fa-trash-alt" /> مسح الكل

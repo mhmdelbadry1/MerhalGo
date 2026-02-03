@@ -272,26 +272,26 @@ const LocalShippingFullForm = () => {
       <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700&display=swap" rel="stylesheet" />
       <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
 
-      <div className="max-w-4xl mx-auto py-8 px-4">
-        <div className="bg-white shadow rounded-lg p-6">
-          <div className="flex items-center justify-between gap-4 mb-6">
-            <div>
-              <h2 className="text-2xl font-bold mb-2">نموذج الشحن المحلي</h2>
-              <p className="text-gray-600 dark:text-gray-400">يرجى تعبئة جميع البيانات المطلوبة</p>
+      <div className="max-w-4xl mx-auto py-4 sm:py-6 md:py-8 px-3 sm:px-4 md:px-6">
+        <div className="bg-white shadow rounded-lg p-4 sm:p-5 md:p-6">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-4 mb-4 sm:mb-6">
+            <div className="flex-1 min-w-0">
+              <h2 className="text-lg sm:text-xl md:text-2xl font-bold mb-1 sm:mb-2">نموذج الشحن المحلي</h2>
+              <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400">يرجى تعبئة جميع البيانات المطلوبة</p>
             </div>
 
             <button
               onClick={() => navigate('/customer/dashboard')}
               type="button"
-              className="w-10 h-10 rounded-full bg-gray-100 hover:bg-red-100 text-gray-500 hover:text-red-600 transition-colors flex items-center justify-center"
+              className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-gray-100 hover:bg-red-100 text-gray-500 hover:text-red-600 transition-colors flex items-center justify-center flex-shrink-0 self-end sm:self-auto"
               title="العودة للصفحة الرئيسية"
             >
-              <i className="fas fa-times text-xl"></i>
+              <i className="fas fa-times text-lg sm:text-xl"></i>
             </button>
           </div>
 
-          {/* Progress Steps */}
-          <div className="mb-8">
+          {/* Progress Steps - Desktop */}
+          <div className="mb-6 sm:mb-8 hidden sm:block">
             <div className="flex items-center justify-between mb-4 px-4">
               {[1, 2, 3, 4, 5, 6, 7].map(step => (
                 <div key={step} className="flex flex-col items-center text-center">
@@ -316,28 +316,39 @@ const LocalShippingFullForm = () => {
             </div>
           </div>
 
+          {/* Progress Bar - Mobile */}
+          <div className="mb-4 sm:hidden">
+            <div className="flex justify-between text-xs mb-1.5">
+              <span className="font-semibold text-primary">الخطوة {currentStep} من 7</span>
+              <span className="text-gray-600">{Math.round(progressPercentage)}%</span>
+            </div>
+            <div className="w-full bg-gray-200 rounded-full h-2">
+              <div className="bg-primary h-2 rounded-full transition-all duration-300" style={{ width: `${progressPercentage}%` }}></div>
+            </div>
+          </div>
+
           <form onSubmit={handleSubmit} className="space-y-6">
 
             {/* STEP 1: Client Data */}
             {currentStep === 1 && (
               <div className="bg-white rounded-xl p-6 border border-gray-200">
-                <h3 className="text-xl font-semibold mb-6">بيانات العميل</h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <h3 className="text-base sm:text-lg md:text-xl font-semibold mb-4 sm:mb-6">بيانات العميل</h3>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                   <div>
-                    <label className="block text-sm font-medium mb-2">الاسم الكامل</label>
+                    <label className="block text-xs sm:text-sm font-medium mb-2">الاسم الكامل</label>
                     <input
                       type="text"
                       value={formData.clientName}
                       onChange={(e) => setFormData({ ...formData, clientName: e.target.value })}
-                      className="w-full p-3 border border-gray-300 rounded-lg text-base focus:ring-2 focus:ring-primary focus:border-transparent"
+                      className="w-full p-2.5 sm:p-3 border border-gray-300 rounded-lg text-sm sm:text-base focus:ring-2 focus:ring-primary focus:border-transparent"
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium mb-2">هل العميل</label>
+                    <label className="block text-xs sm:text-sm font-medium mb-2">هل العميل</label>
                     <select
                       value={formData.clientType}
                       onChange={(e) => setFormData({ ...formData, clientType: e.target.value })}
-                      className="w-full p-3 border border-gray-300 rounded-lg text-base focus:ring-2 focus:ring-primary focus:border-transparent"
+                      className="w-full p-2.5 sm:p-3 border border-gray-300 rounded-lg text-sm sm:text-base focus:ring-2 focus:ring-primary focus:border-transparent"
                     >
                       <option value="individual">فرد</option>
                       <option value="trader">تاجر</option>
@@ -348,24 +359,24 @@ const LocalShippingFullForm = () => {
                   </div>
                   {formData.clientType === 'other' && (
                     <div>
-                      <label className="block text-sm font-medium mb-2">نوع العميل الآخر</label>
+                      <label className="block text-xs sm:text-sm font-medium mb-2">نوع العميل الآخر</label>
                       <input
                         type="text"
                         value={formData.clientTypeOther}
                         onChange={(e) => setFormData({ ...formData, clientTypeOther: e.target.value })}
-                        className="w-full p-3 border border-gray-300 rounded-lg text-base focus:ring-2 focus:ring-primary focus:border-transparent"
+                        className="w-full p-2.5 sm:p-3 border border-gray-300 rounded-lg text-sm sm:text-base focus:ring-2 focus:ring-primary focus:border-transparent"
                       />
                     </div>
                   )}
                 </div>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 mt-4">
                   <div>
-                    <label className="block text-sm font-medium mb-2">رقم الهاتف</label>
+                    <label className="block text-xs sm:text-sm font-medium mb-2">رقم الهاتف</label>
                     <div className="flex gap-2">
                       <select
                         value={formData.phoneCountryCode}
                         onChange={(e) => setFormData({ ...formData, phoneCountryCode: e.target.value })}
-                        className="w-24 p-3 border border-gray-300 rounded-lg text-base"
+                        className="w-24 p-2.5 sm:p-3 border border-gray-300 rounded-lg text-sm sm:text-base"
                       >
                         <option value="+20">+20</option>
                         <option value="+966">+966</option>
@@ -375,17 +386,17 @@ const LocalShippingFullForm = () => {
                         type="tel"
                         value={formData.clientPhone}
                         onChange={(e) => setFormData({ ...formData, clientPhone: e.target.value })}
-                        className="flex-1 p-3 border border-gray-300 rounded-lg text-base focus:ring-2 focus:ring-primary focus:border-transparent"
+                        className="flex-1 p-2.5 sm:p-3 border border-gray-300 rounded-lg text-sm sm:text-base focus:ring-2 focus:ring-primary focus:border-transparent"
                       />
                     </div>
                   </div>
                   <div>
-                    <label className="block text-sm font-medium mb-2">رقم الواتساب</label>
+                    <label className="block text-xs sm:text-sm font-medium mb-2">رقم الواتساب</label>
                     <div className="flex gap-2">
                       <select
                         value={formData.whatsappCountryCode}
                         onChange={(e) => setFormData({ ...formData, whatsappCountryCode: e.target.value })}
-                        className="w-24 p-3 border border-gray-300 rounded-lg text-base"
+                        className="w-24 p-2.5 sm:p-3 border border-gray-300 rounded-lg text-sm sm:text-base"
                       >
                         <option value="+20">+20</option>
                         <option value="+966">+966</option>
@@ -395,7 +406,7 @@ const LocalShippingFullForm = () => {
                         type="tel"
                         value={formData.clientWhatsapp}
                         onChange={(e) => setFormData({ ...formData, clientWhatsapp: e.target.value })}
-                        className="flex-1 p-3 border border-gray-300 rounded-lg text-base focus:ring-2 focus:ring-primary focus:border-transparent"
+                        className="flex-1 p-2.5 sm:p-3 border border-gray-300 rounded-lg text-sm sm:text-base focus:ring-2 focus:ring-primary focus:border-transparent"
                       />
                     </div>
                   </div>
@@ -406,14 +417,14 @@ const LocalShippingFullForm = () => {
             {/* STEP 2: Cargo Type */}
             {currentStep === 2 && (
               <div className="bg-white rounded-xl p-6 border border-gray-200">
-                <h3 className="text-xl font-semibold mb-6">نوع الشحنة</h3>
+                <h3 className="text-base sm:text-lg md:text-xl font-semibold mb-4 sm:mb-6">نوع الشحنة</h3>
                 <div className="space-y-4">
                   <div>
-                    <label className="block text-sm font-medium mb-2">اختيار نوع الشحنة</label>
+                    <label className="block text-xs sm:text-sm font-medium mb-2">اختيار نوع الشحنة</label>
                     <select
                       value={formData.cargoType}
                       onChange={(e) => setFormData({ ...formData, cargoType: e.target.value })}
-                      className="w-full p-3 border border-gray-300 rounded-lg text-base focus:ring-2 focus:ring-primary focus:border-transparent"
+                      className="w-full p-2.5 sm:p-3 border border-gray-300 rounded-lg text-sm sm:text-base focus:ring-2 focus:ring-primary focus:border-transparent"
                     >
                       <option value="">اختر نوع الشحنة</option>
                       <option value="furniture">أثاث</option>
@@ -427,9 +438,9 @@ const LocalShippingFullForm = () => {
                   {/* Furniture Details */}
                   {formData.cargoType === 'furniture' && (
                     <div className="space-y-4 p-4 bg-gray-50 rounded-lg">
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                         <div>
-                          <label className="block text-sm font-medium mb-2">عدد القطع</label>
+                          <label className="block text-xs sm:text-sm font-medium mb-2">عدد القطع</label>
                           <input
                             type="number"
                             min="1"
@@ -439,7 +450,7 @@ const LocalShippingFullForm = () => {
                           />
                         </div>
                         <div>
-                          <label className="block text-sm font-medium mb-2">نوع الأثاث</label>
+                          <label className="block text-xs sm:text-sm font-medium mb-2">نوع الأثاث</label>
                           <input
                             type="text"
                             value={formData.furnitureType}
@@ -456,7 +467,7 @@ const LocalShippingFullForm = () => {
                   {formData.cargoType === 'fruits_vegetables' && (
                     <div className="space-y-4 p-4 bg-gray-50 rounded-lg">
                       <div>
-                        <label className="block text-sm font-medium mb-2">نوع الفاكهة أو الخضار</label>
+                        <label className="block text-xs sm:text-sm font-medium mb-2">نوع الفاكهة أو الخضار</label>
                         <input
                           type="text"
                           value={formData.fruitsType}
@@ -466,7 +477,7 @@ const LocalShippingFullForm = () => {
                         />
                       </div>
                       <div>
-                        <label className="block text-sm font-medium mb-2">هل تحتاج تبريد؟</label>
+                        <label className="block text-xs sm:text-sm font-medium mb-2">هل تحتاج تبريد؟</label>
                         <select
                           value={formData.needsCooling}
                           onChange={(e) => setFormData({ ...formData, needsCooling: e.target.value })}
@@ -478,7 +489,7 @@ const LocalShippingFullForm = () => {
                       </div>
                       {formData.needsCooling === 'yes' && (
                         <div>
-                          <label className="block text-sm font-medium mb-2">درجة التبريد</label>
+                          <label className="block text-xs sm:text-sm font-medium mb-2">درجة التبريد</label>
                           <select
                             value={formData.coolingTemp}
                             onChange={(e) => setFormData({ ...formData, coolingTemp: e.target.value })}
@@ -497,7 +508,7 @@ const LocalShippingFullForm = () => {
                   {/* Other Cargo Type */}
                   {formData.cargoType === 'other' && (
                     <div className="p-4 bg-gray-50 rounded-lg">
-                      <label className="block text-sm font-medium mb-2">نوع الشحنة الأخرى</label>
+                      <label className="block text-xs sm:text-sm font-medium mb-2">نوع الشحنة الأخرى</label>
                       <input
                         type="text"
                         value={formData.otherCargoType}
@@ -509,9 +520,9 @@ const LocalShippingFullForm = () => {
                   )}
 
                   {/* Weight & Volume */}
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 mt-4">
                     <div>
-                      <label className="block text-sm font-medium mb-2">الوزن التقريبي (كجم)</label>
+                      <label className="block text-xs sm:text-sm font-medium mb-2">الوزن التقريبي (كجم)</label>
                       <input
                         type="number"
                         value={formData.weight}
@@ -523,7 +534,7 @@ const LocalShippingFullForm = () => {
                       />
                     </div>
                     <div>
-                      <label className="block text-sm font-medium mb-2">الحجم التقريبي (متر مكعب) - اختياري</label>
+                      <label className="block text-xs sm:text-sm font-medium mb-2">الحجم التقريبي (متر مكعب) - اختياري</label>
                       <input
                         type="number"
                         value={formData.volume}
@@ -542,11 +553,11 @@ const LocalShippingFullForm = () => {
             {/* STEP 3: Pickup Details */}
             {currentStep === 3 && (
               <div className="bg-white rounded-xl p-6 border border-gray-200">
-                <h3 className="text-xl font-semibold mb-6">تحميل الشحنة</h3>
+                <h3 className="text-base sm:text-lg md:text-xl font-semibold mb-4 sm:mb-6">تحميل الشحنة</h3>
                 <div className="space-y-4">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                     <div>
-                      <label className="block text-sm font-medium mb-2">المحافظة</label>
+                      <label className="block text-xs sm:text-sm font-medium mb-2">المحافظة</label>
                       <select
                         value={formData.pickupGovernorate}
                         onChange={(e) => setFormData({ ...formData, pickupGovernorate: e.target.value, pickupArea: '' })}
@@ -561,7 +572,7 @@ const LocalShippingFullForm = () => {
                       </select>
                     </div>
                     <div>
-                      <label className="block text-sm font-medium mb-2">المنطقة</label>
+                      <label className="block text-xs sm:text-sm font-medium mb-2">المنطقة</label>
                       <select
                         value={formData.pickupArea}
                         onChange={(e) => setFormData({ ...formData, pickupArea: e.target.value })}
@@ -575,7 +586,7 @@ const LocalShippingFullForm = () => {
                     </div>
                   </div>
                   <div>
-                    <label className="block text-sm font-medium mb-2">العنوان التفصيلي</label>
+                    <label className="block text-xs sm:text-sm font-medium mb-2">العنوان التفصيلي</label>
                     <textarea
                       value={formData.pickupAddress}
                       onChange={(e) => setFormData({ ...formData, pickupAddress: e.target.value })}
@@ -584,9 +595,9 @@ const LocalShippingFullForm = () => {
                       className="w-full p-3 border border-gray-300 rounded-lg"
                     ></textarea>
                   </div>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                     <div>
-                      <label className="block text-sm font-medium mb-2">تاريخ التحميل المطلوب</label>
+                      <label className="block text-xs sm:text-sm font-medium mb-2">تاريخ التحميل المطلوب</label>
                       <input
                         type="date"
                         value={formData.pickupDate}
@@ -595,7 +606,7 @@ const LocalShippingFullForm = () => {
                       />
                     </div>
                     <div>
-                      <label className="block text-sm font-medium mb-2">وقت التحميل المطلوب</label>
+                      <label className="block text-xs sm:text-sm font-medium mb-2">وقت التحميل المطلوب</label>
                       <input
                         type="time"
                         value={formData.pickupTime}
@@ -611,11 +622,11 @@ const LocalShippingFullForm = () => {
             {/* STEP 4: Delivery Details */}
             {currentStep === 4 && (
               <div className="bg-white rounded-xl p-6 border border-gray-200">
-                <h3 className="text-xl font-semibold mb-6">تسليم الشحنة</h3>
+                <h3 className="text-base sm:text-lg md:text-xl font-semibold mb-4 sm:mb-6">تسليم الشحنة</h3>
                 <div className="space-y-4">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                     <div>
-                      <label className="block text-sm font-medium mb-2">المحافظة</label>
+                      <label className="block text-xs sm:text-sm font-medium mb-2">المحافظة</label>
                       <select
                         value={formData.deliveryGovernorate}
                         onChange={(e) => setFormData({ ...formData, deliveryGovernorate: e.target.value, deliveryArea: '' })}
@@ -630,7 +641,7 @@ const LocalShippingFullForm = () => {
                       </select>
                     </div>
                     <div>
-                      <label className="block text-sm font-medium mb-2">المنطقة</label>
+                      <label className="block text-xs sm:text-sm font-medium mb-2">المنطقة</label>
                       <select
                         value={formData.deliveryArea}
                         onChange={(e) => setFormData({ ...formData, deliveryArea: e.target.value })}
@@ -644,7 +655,7 @@ const LocalShippingFullForm = () => {
                     </div>
                   </div>
                   <div>
-                    <label className="block text-sm font-medium mb-2">العنوان التفصيلي</label>
+                    <label className="block text-xs sm:text-sm font-medium mb-2">العنوان التفصيلي</label>
                     <textarea
                       value={formData.deliveryAddress}
                       onChange={(e) => setFormData({ ...formData, deliveryAddress: e.target.value })}
@@ -653,9 +664,9 @@ const LocalShippingFullForm = () => {
                       className="w-full p-3 border border-gray-300 rounded-lg"
                     ></textarea>
                   </div>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                     <div>
-                      <label className="block text-sm font-medium mb-2">تاريخ التسليم المطلوب - اختياري</label>
+                      <label className="block text-xs sm:text-sm font-medium mb-2">تاريخ التسليم المطلوب - اختياري</label>
                       <input
                         type="date"
                         value={formData.deliveryDate}
@@ -664,7 +675,7 @@ const LocalShippingFullForm = () => {
                       />
                     </div>
                     <div>
-                      <label className="block text-sm font-medium mb-2">وقت التسليم المطلوب - اختياري</label>
+                      <label className="block text-xs sm:text-sm font-medium mb-2">وقت التسليم المطلوب - اختياري</label>
                       <input
                         type="time"
                         value={formData.deliveryTime}
@@ -674,7 +685,7 @@ const LocalShippingFullForm = () => {
                     </div>
                   </div>
                   <div>
-                    <label className="block text-sm font-medium mb-2">رقم هاتف المستلم - اختياري</label>
+                    <label className="block text-xs sm:text-sm font-medium mb-2">رقم هاتف المستلم - اختياري</label>
                     <input
                       type="tel"
                       value={formData.deliveryPhone}
@@ -689,10 +700,10 @@ const LocalShippingFullForm = () => {
             {/* STEP 5: Special Requirements */}
             {currentStep === 5 && (
               <div className="bg-white rounded-xl p-6 border border-gray-200">
-                <h3 className="text-xl font-semibold mb-6">متطلبات خاصة</h3>
+                <h3 className="text-base sm:text-lg md:text-xl font-semibold mb-4 sm:mb-6">متطلبات خاصة</h3>
                 <div className="space-y-4">
                   <div>
-                    <label className="block text-sm font-medium mb-2">هل تحتاج تغليف خاص؟</label>
+                    <label className="block text-xs sm:text-sm font-medium mb-2">هل تحتاج تغليف خاص؟</label>
                     <select
                       value={formData.needsSpecialPackaging}
                       onChange={(e) => setFormData({ ...formData, needsSpecialPackaging: e.target.value })}
@@ -704,7 +715,7 @@ const LocalShippingFullForm = () => {
                   </div>
                   {formData.needsSpecialPackaging === 'yes' && (
                     <div>
-                      <label className="block text-sm font-medium mb-2">تفاصيل التغليف الخاص</label>
+                      <label className="block text-xs sm:text-sm font-medium mb-2">تفاصيل التغليف الخاص</label>
                       <textarea
                         value={formData.specialPackagingDetails}
                         onChange={(e) => setFormData({ ...formData, specialPackagingDetails: e.target.value })}
@@ -716,7 +727,7 @@ const LocalShippingFullForm = () => {
                   )}
 
                   <div>
-                    <label className="block text-sm font-medium mb-2">هل البضائع قابلة للكسر؟</label>
+                    <label className="block text-xs sm:text-sm font-medium mb-2">هل البضائع قابلة للكسر؟</label>
                     <select
                       value={formData.hasFragileItems}
                       onChange={(e) => setFormData({ ...formData, hasFragileItems: e.target.value })}
@@ -728,7 +739,7 @@ const LocalShippingFullForm = () => {
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium mb-2">هل تحتاج تأمين على البضائع؟</label>
+                    <label className="block text-xs sm:text-sm font-medium mb-2">هل تحتاج تأمين على البضائع؟</label>
                     <select
                       value={formData.needsInsurance}
                       onChange={(e) => setFormData({ ...formData, needsInsurance: e.target.value })}
@@ -740,7 +751,7 @@ const LocalShippingFullForm = () => {
                   </div>
                   {formData.needsInsurance === 'yes' && (
                     <div>
-                      <label className="block text-sm font-medium mb-2">قيمة التأمين المطلوبة (بالجنيه)</label>
+                      <label className="block text-xs sm:text-sm font-medium mb-2">قيمة التأمين المطلوبة (بالجنيه)</label>
                       <input
                         type="number"
                         value={formData.insuranceValue}
@@ -752,9 +763,9 @@ const LocalShippingFullForm = () => {
                     </div>
                   )}
 
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                     <div>
-                      <label className="block text-sm font-medium mb-2">هل تحتاج فك وتركيب؟</label>
+                      <label className="block text-xs sm:text-sm font-medium mb-2">هل تحتاج فك وتركيب؟</label>
                       <select
                         value={formData.needsDisassembly}
                         onChange={(e) => setFormData({ ...formData, needsDisassembly: e.target.value })}
@@ -765,7 +776,7 @@ const LocalShippingFullForm = () => {
                       </select>
                     </div>
                     <div>
-                      <label className="block text-sm font-medium mb-2">هل تحتاج تركيب فقط؟</label>
+                      <label className="block text-xs sm:text-sm font-medium mb-2">هل تحتاج تركيب فقط؟</label>
                       <select
                         value={formData.needsAssembly}
                         onChange={(e) => setFormData({ ...formData, needsAssembly: e.target.value })}
@@ -783,7 +794,7 @@ const LocalShippingFullForm = () => {
             {/* STEP 6: Payment */}
             {currentStep === 6 && (
               <div className="bg-white rounded-xl p-6 border border-gray-200">
-                <h3 className="text-xl font-semibold mb-6">طريقة الدفع المفضلة</h3>
+                <h3 className="text-base sm:text-lg md:text-xl font-semibold mb-4 sm:mb-6">طريقة الدفع المفضلة</h3>
                 <div className="space-y-3">
                   <label className="flex items-center gap-3 p-4 border-2 border-gray-200 rounded-lg hover:border-primary cursor-pointer transition-colors">
                     <input
@@ -866,10 +877,10 @@ const LocalShippingFullForm = () => {
             {/* STEP 7: Final */}
             {currentStep === 7 && (
               <div className="bg-white rounded-xl p-6 border border-gray-200">
-                <h3 className="text-xl font-semibold mb-6">معلومات إضافية</h3>
+                <h3 className="text-base sm:text-lg md:text-xl font-semibold mb-4 sm:mb-6">معلومات إضافية</h3>
                 <div className="space-y-4">
                   <div>
-                    <label className="block text-sm font-medium mb-2">كيف علمت بخدماتنا؟</label>
+                    <label className="block text-xs sm:text-sm font-medium mb-2">كيف علمت بخدماتنا؟</label>
                     <select
                       value={formData.howDidYouKnow}
                       onChange={(e) => setFormData({ ...formData, howDidYouKnow: e.target.value })}
@@ -885,7 +896,7 @@ const LocalShippingFullForm = () => {
                   {formData.howDidYouKnow === 'previous_client' && (
                     <div className="space-y-3 p-4 bg-gray-50 rounded-lg">
                       <div>
-                        <label className="block text-sm font-medium mb-2">اسم العميل السابق</label>
+                        <label className="block text-xs sm:text-sm font-medium mb-2">اسم العميل السابق</label>
                         <input
                           type="text"
                           value={formData.referralClientName}
@@ -894,7 +905,7 @@ const LocalShippingFullForm = () => {
                         />
                       </div>
                       <div>
-                        <label className="block text-sm font-medium mb-2">رقم العميل السابق</label>
+                        <label className="block text-xs sm:text-sm font-medium mb-2">رقم العميل السابق</label>
                         <input
                           type="tel"
                           value={formData.referralClientPhone}
@@ -912,7 +923,7 @@ const LocalShippingFullForm = () => {
                   )}
 
                   <div>
-                    <label className="block text-sm font-medium mb-2">ملاحظات إضافية</label>
+                    <label className="block text-xs sm:text-sm font-medium mb-2">ملاحظات إضافية</label>
                     <textarea
                       value={formData.additionalNotes}
                       onChange={(e) => setFormData({ ...formData, additionalNotes: e.target.value })}
@@ -926,26 +937,26 @@ const LocalShippingFullForm = () => {
             )}
 
             {/* Navigation Buttons */}
-            <div className="flex justify-between items-center pt-6">
+            <div className="flex flex-col sm:flex-row justify-between items-stretch sm:items-center gap-3 pt-4 sm:pt-6">
               <button
                 type="button"
                 onClick={prevStep}
-                className={`px-6 py-3 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors ${currentStep === 1 ? 'invisible' : ''}`}
+                className={`px-4 sm:px-6 py-2.5 sm:py-3 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors text-sm sm:text-base ${currentStep === 1 ? 'invisible' : ''}`}
               >
                 السابق
               </button>
-              <div className="flex gap-3 ml-auto">
+              <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 w-full sm:w-auto">
                 <button
                   type="button"
                   onClick={saveDraft}
-                  className="px-6 py-3 bg-yellow-500 text-white rounded-lg hover:bg-yellow-600 transition-colors"
+                  className="px-4 sm:px-6 py-2.5 sm:py-3 bg-yellow-500 text-white rounded-lg hover:bg-yellow-600 transition-colors text-sm sm:text-base order-2 sm:order-1"
                 >
                   حفظ
                 </button>
                 <button
                   type="button"
                   onClick={clearForm}
-                  className="px-6 py-3 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors"
+                  className="px-4 sm:px-6 py-2.5 sm:py-3 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors text-sm sm:text-base order-3 sm:order-2"
                 >
                   مسح
                 </button>
@@ -953,7 +964,7 @@ const LocalShippingFullForm = () => {
                   <button
                     type="button"
                     onClick={nextStep}
-                    className="px-6 py-3 text-white rounded-lg hover:bg-opacity-90 transition-colors"
+                    className="px-4 sm:px-6 py-2.5 sm:py-3 text-white rounded-lg hover:bg-opacity-90 transition-colors text-sm sm:text-base order-1 sm:order-3"
                     style={{ backgroundColor: '#5D5CDE' }}
                   >
                     التالي
@@ -962,7 +973,7 @@ const LocalShippingFullForm = () => {
                   <button
                     type="submit"
                     disabled={isSubmitting}
-                    className={`px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors flex items-center gap-2 ${isSubmitting ? 'opacity-70 cursor-not-allowed' : ''}`}
+                    className={`px-4 sm:px-6 py-2.5 sm:py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors flex items-center justify-center gap-2 text-sm sm:text-base order-1 sm:order-3 ${isSubmitting ? 'opacity-70 cursor-not-allowed' : ''}`}
                   >
                     {isSubmitting ? (
                       <>
