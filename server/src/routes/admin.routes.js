@@ -1,27 +1,28 @@
-const express = require('express');
-const { body, param, query } = require('express-validator');
+const express = require("express");
+const { body, param, query } = require("express-validator");
 const router = express.Router();
 
-const adminController = require('../controllers/admin.controller');
-const auth = require('../middleware/auth');
-const { isAdmin } = require('../middleware/roleCheck');
-const validate = require('../middleware/validation');
+const adminController = require("../controllers/admin.controller");
+const auth = require("../middleware/auth");
+const { isAdmin } = require("../middleware/roleCheck");
+const validate = require("../middleware/validation");
 
 /**
  * @route   GET /api/admin/registration-requests
  * @desc    Get company registration requests
  * @access  Private (Admin only)
  */
-router.get('/registration-requests',
+router.get(
+  "/registration-requests",
   auth,
   isAdmin,
   [
-    query('page').optional().isInt({ min: 1 }),
-    query('limit').optional().isInt({ min: 1, max: 100 }),
-    query('status').optional().isString()
+    query("page").optional().isInt({ min: 1 }),
+    query("limit").optional().isInt({ min: 1, max: 100 }),
+    query("status").optional().isString(),
   ],
   validate,
-  adminController.getRegistrationRequests
+  adminController.getRegistrationRequests,
 );
 
 /**
@@ -29,15 +30,16 @@ router.get('/registration-requests',
  * @desc    Approve company registration
  * @access  Private (Admin only)
  */
-router.post('/approve-company',
+router.post(
+  "/approve-company",
   auth,
   isAdmin,
   [
-    body('requestId').isUUID().withMessage('Valid request ID is required'),
-    body('password').optional().isString()
+    body("requestId").isUUID().withMessage("Valid request ID is required"),
+    body("password").optional().isString(),
   ],
   validate,
-  adminController.approveCompany
+  adminController.approveCompany,
 );
 
 /**
@@ -45,15 +47,16 @@ router.post('/approve-company',
  * @desc    Reject company registration
  * @access  Private (Admin only)
  */
-router.post('/reject-company',
+router.post(
+  "/reject-company",
   auth,
   isAdmin,
   [
-    body('requestId').isUUID().withMessage('Valid request ID is required'),
-    body('reason').optional().isString()
+    body("requestId").isUUID().withMessage("Valid request ID is required"),
+    body("reason").optional().isString(),
   ],
   validate,
-  adminController.rejectCompany
+  adminController.rejectCompany,
 );
 
 /**
@@ -61,17 +64,18 @@ router.post('/reject-company',
  * @desc    Get all orders
  * @access  Private (Admin only)
  */
-router.get('/orders',
+router.get(
+  "/orders",
   auth,
   isAdmin,
   [
-    query('page').optional().isInt({ min: 1 }),
-    query('limit').optional().isInt({ min: 1, max: 100 }),
-    query('status').optional().isString(),
-    query('orderType').optional().isString()
+    query("page").optional().isInt({ min: 1 }),
+    query("limit").optional().isInt({ min: 1, max: 100 }),
+    query("status").optional().isString(),
+    query("orderType").optional().isString(),
   ],
   validate,
-  adminController.getAllOrders
+  adminController.getAllOrders,
 );
 
 /**
@@ -79,16 +83,17 @@ router.get('/orders',
  * @desc    Get all companies
  * @access  Private (Admin only)
  */
-router.get('/companies',
+router.get(
+  "/companies",
   auth,
   isAdmin,
   [
-    query('page').optional().isInt({ min: 1 }),
-    query('limit').optional().isInt({ min: 1, max: 100 }),
-    query('isApproved').optional().isBoolean()
+    query("page").optional().isInt({ min: 1 }),
+    query("limit").optional().isInt({ min: 1, max: 100 }),
+    query("isApproved").optional().isBoolean(),
   ],
   validate,
-  adminController.getAllCompanies
+  adminController.getAllCompanies,
 );
 
 /**
@@ -96,26 +101,23 @@ router.get('/companies',
  * @desc    Get platform statistics
  * @access  Private (Admin only)
  */
-router.get('/statistics',
-  auth,
-  isAdmin,
-  adminController.getStatistics
-);
+router.get("/statistics", auth, isAdmin, adminController.getStatistics);
 
 /**
  * @route   PATCH /api/admin/companies/:id
  * @desc    Update company status
  * @access  Private (Admin only)
  */
-router.patch('/companies/:id',
+router.patch(
+  "/companies/:id",
   auth,
   isAdmin,
   [
-    param('id').isUUID().withMessage('Invalid company ID'),
-    body('isApproved').isBoolean().withMessage('Approval status is required')
+    param("id").isUUID().withMessage("Invalid company ID"),
+    body("isApproved").isBoolean().withMessage("Approval status is required"),
   ],
   validate,
-  adminController.updateCompany
+  adminController.updateCompany,
 );
 
 /**
@@ -123,14 +125,31 @@ router.patch('/companies/:id',
  * @desc    Delete order
  * @access  Private (Admin only)
  */
-router.delete('/orders/:id',
+router.delete(
+  "/orders/:id",
+  auth,
+  isAdmin,
+  [param("id").isUUID().withMessage("Invalid order ID")],
+  validate,
+  adminController.deleteOrder,
+);
+
+/**
+ * @route   GET /api/admin/users
+ * @desc    Get all users
+ * @access  Private (Admin only)
+ */
+router.get(
+  "/users",
   auth,
   isAdmin,
   [
-    param('id').isUUID().withMessage('Invalid order ID')
+    query("page").optional().isInt({ min: 1 }),
+    query("limit").optional().isInt({ min: 1, max: 100 }),
+    query("role").optional().isString(),
   ],
   validate,
-  adminController.deleteOrder
+  adminController.getAllUsers,
 );
 
 module.exports = router;
