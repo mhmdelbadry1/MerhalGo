@@ -32,6 +32,7 @@ import CompanyRequests from './components/admin/CompanyRequests';
 import AdminSettings from './components/admin/AdminSettings';
 import AdminOrders from './components/admin/AdminOrders';
 import AdminCompanies from './components/admin/AdminCompanies';
+import AdminUsers from './components/admin/AdminUsers';
 
 // Forms
 import CompanyRegisterForm from './components/forms/CompanyRegisterForm';
@@ -132,6 +133,7 @@ function App() {
               <Route index element={<AdminDashboard />} />
               <Route path="company-requests" element={<CompanyRequests />} />
               <Route path="orders" element={<AdminOrders />} />
+              <Route path="users" element={<AdminUsers />} />
               <Route path="companies" element={<AdminCompanies />} />
               <Route path="settings" element={<AdminSettings />} />
             </Route>

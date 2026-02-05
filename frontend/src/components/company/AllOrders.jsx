@@ -429,7 +429,12 @@ const AllOrders = () => {
                   <div className="grid grid-cols-2 gap-4 text-sm">
                     {Object.entries(selectedOrder.form_data || {}).map(([key, value]) => {
                       // Skip already shown, technical, or SENSITIVE fields
-                      const sensitiveFields = ['phoneNumber', 'phoneCountry', 'waNumber', 'waCountry', 'clientPhone', 'clientWhatsapp', 'referralPhone', 'email', 'referralName'];
+                      const sensitiveFields = [
+                        'phone', 'phoneNumber', 'phoneCountry', 'phoneCode', 'phoneOther', 'phoneCountryCode',
+                        'whatsapp', 'waNumber', 'waCountry', 'whatsappCountryCode',
+                        'clientPhone', 'clientWhatsapp', 
+                        'email', 'referralPhone', 'referralName'
+                      ];
                       const skipFields = ['files', 'products', 'clientName', 'pickupCountry', 'deliveryCountry', 'serviceType', 'goodsDescription', 'totalWeight', 'piecesCount', 'packagingType', 'cargoType', 'type', 'saveClientData', 'saveClient', 'pickupGovernorate', 'deliveryGovernorate', 'recvCountry', 'marketplace'];
                       
                       if (sensitiveFields.includes(key) || skipFields.includes(key)) return null;

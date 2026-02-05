@@ -1,71 +1,17 @@
-# robots.txt for MirhalGO
-# https://mirhalgo.online/robots.txt
-
+# https://www.robotstxt.org/robotstxt.html
 User-agent: *
 Allow: /
 
-# Sitemap location
+# Sitemaps
 Sitemap: https://mirhalgo.online/sitemap.xml
 
 # Crawl-delay (optional, helps prevent server overload)
 Crawl-delay: 1
 
 # Disallow admin and private areas
-Disallow: /admin/
+Disallow: /admin
 Disallow: /api/
-Disallow: /private/
 
-# Allow important pages
-Allow: /
+# Allow all other pages
 Allow: /customer
 Allow: /company
-Allow: /login
-Allow: /register
-Allow: /services/
-Allow: /contact
-Allow: /about
-
-# Block duplicate content
-Disallow: /*?*sort=
-Disallow: /*?*filter=
-Disallow: /*?*page=
-
-# Allow search engines to index images
-User-agent: Googlebot-Image
-Allow: /
-
-# Allow search engines to index videos
-User-agent: Googlebot-Video
-Allow: /
-
-# Specific rules for major search engines
-User-agent: Googlebot
-Allow: /
-
-User-agent: Bingbot
-Allow: /
-
-User-agent: Slurp
-Allow: /
-
-User-agent: DuckDuckBot
-Allow: /
-
-User-agent: Baiduspider
-Allow: /
-
-User-agent: YandexBot
-Allow: /
-
-# Block bad bots
-User-agent: AhrefsBot
-Disallow: /
-
-User-agent: SemrushBot
-Disallow: /
-
-User-agent: MJ12bot
-Disallow: /
-
-User-agent: DotBot
-Disallow: /

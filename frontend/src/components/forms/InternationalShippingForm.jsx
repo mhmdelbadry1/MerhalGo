@@ -353,7 +353,7 @@ const InternationalShippingFullForm = () => {
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                   <div>
                     <label className="block text-xs sm:text-sm mb-1">الاسم الكامل</label>
-                    <input value={formData.clientName} onChange={(e) => setFormData({ ...formData, clientName: e.target.value })} type="text" className="w-full p-2.5 sm:p-3 border rounded-lg text-sm sm:text-base" placeholder="أدخل الاسم الكامل" />
+                    <input value={formData.clientName} onChange={(e) => setFormData({ ...formData, clientName: e.target.value })} type="text" className="w-full p-2.5 sm:p-3 border rounded-lg text-base" placeholder="أدخل الاسم الكامل" />
                   </div>
                   <div>
                     <label className="block text-xs sm:text-sm mb-1">رقم الهاتف</label>
@@ -361,7 +361,7 @@ const InternationalShippingFullForm = () => {
                       <select 
                         value={formData.phoneCountry || '+20'} 
                         onChange={(e) => setFormData({ ...formData, phoneCountry: e.target.value })}
-                        className="w-28 p-2.5 sm:p-3 border border-gray-300 rounded-lg text-xs sm:text-base focus:ring-2 focus:ring-primary focus:border-transparent"
+                        className="w-28 p-2.5 sm:p-3 border border-gray-300 rounded-lg text-base focus:ring-2 focus:ring-primary focus:border-transparent"
                       >
                         <option value="+20">🇪🇬 +20</option>
                         <option value="+966">🇸🇦 +966</option>
@@ -391,7 +391,7 @@ const InternationalShippingFullForm = () => {
                         type="tel" 
                         value={formData.phone || ''} 
                         onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                        className="flex-1 p-2.5 sm:p-3 border border-gray-300 rounded-lg text-xs sm:text-base focus:ring-2 focus:ring-primary focus:border-transparent"
+                        className="flex-1 p-2.5 sm:p-3 border border-gray-300 rounded-lg text-base focus:ring-2 focus:ring-primary focus:border-transparent"
                         placeholder="أدخل رقم الهاتف"
                       />
                     </div>
@@ -402,7 +402,7 @@ const InternationalShippingFullForm = () => {
                       <select 
                         value={formData.whatsappCountry || '+20'} 
                         onChange={(e) => setFormData({ ...formData, whatsappCountry: e.target.value })}
-                        className="w-28 p-2.5 sm:p-3 border border-gray-300 rounded-lg text-xs sm:text-base focus:ring-2 focus:ring-primary focus:border-transparent"
+                        className="w-28 p-2.5 sm:p-3 border border-gray-300 rounded-lg text-base focus:ring-2 focus:ring-primary focus:border-transparent"
                       >
                         <option value="+20">🇪🇬 +20</option>
                         <option value="+966">🇸🇦 +966</option>
@@ -432,14 +432,14 @@ const InternationalShippingFullForm = () => {
                         type="tel" 
                         value={formData.whatsapp || ''} 
                         onChange={(e) => setFormData({ ...formData, whatsapp: e.target.value })}
-                        className="flex-1 p-2.5 sm:p-3 border border-gray-300 rounded-lg text-xs sm:text-base focus:ring-2 focus:ring-primary focus:border-transparent"
+                        className="flex-1 p-2.5 sm:p-3 border border-gray-300 rounded-lg text-base focus:ring-2 focus:ring-primary focus:border-transparent"
                         placeholder="أدخل رقم الواتساب"
                       />
                     </div>
                   </div>
                   <div>
                     <label className="block text-xs sm:text-sm mb-1">نوع العميل</label>
-                    <select value={formData.clientType} onChange={(e) => setFormData({ ...formData, clientType: e.target.value })} className="p-2.5 sm:p-3 border rounded-lg w-full text-sm sm:text-base">
+                    <select value={formData.clientType} onChange={(e) => setFormData({ ...formData, clientType: e.target.value })} className="p-2.5 sm:p-3 border rounded-lg w-full text-base">
                       <option value="">اختر نوع العميل</option>
                       <option value="فرد">فرد</option>
                       <option value="تاجر">تاجر</option>
@@ -448,7 +448,7 @@ const InternationalShippingFullForm = () => {
                       <option value="other">أخرى</option>
                     </select>
                     {formData.clientType === 'other' && (
-                      <input value={formData.clientTypeOther} onChange={(e) => setFormData({ ...formData, clientTypeOther: e.target.value })} type="text" className="mt-2 p-2.5 sm:p-3 border rounded-lg w-full text-sm sm:text-base" placeholder="اذكر نوع العميل" />
+                      <input value={formData.clientTypeOther} onChange={(e) => setFormData({ ...formData, clientTypeOther: e.target.value })} type="text" className="mt-2 p-2.5 sm:p-3 border rounded-lg w-full text-base" placeholder="اذكر نوع العميل" />
                     )}
                   </div>
                   <div className="flex items-center gap-2">
@@ -466,7 +466,7 @@ const InternationalShippingFullForm = () => {
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                   <div>
                     <label className="block text-xs sm:text-sm mb-1">نوع العملية</label>
-                    <select value={formData.operationType} onChange={(e) => setFormData({ ...formData, operationType: e.target.value })} className="p-2.5 sm:p-3 border rounded-lg w-full text-sm sm:text-base">
+                    <select value={formData.operationType} onChange={(e) => setFormData({ ...formData, operationType: e.target.value })} className="p-2.5 sm:p-3 border rounded-lg w-full text-base">
                       <option value="">اختر نوع العملية</option>
                       <option value="صادر">صادر</option>
                       <option value="وارد">وارد</option>
@@ -474,7 +474,7 @@ const InternationalShippingFullForm = () => {
                   </div>
                   <div>
                     <label className="block text-xs sm:text-sm mb-1">نوع الشحنة</label>
-                    <select value={formData.cargoMode} onChange={(e) => setFormData({ ...formData, cargoMode: e.target.value, pickupPort: '', deliveryPort: '' })} className="p-2.5 sm:p-3 border rounded-lg w-full text-sm sm:text-base">
+                    <select value={formData.cargoMode} onChange={(e) => setFormData({ ...formData, cargoMode: e.target.value, pickupPort: '', deliveryPort: '' })} className="p-2.5 sm:p-3 border rounded-lg w-full text-base">
                       <option value="">اختر نوع الشحنة</option>
                       <option value="بري">بري</option>
                       <option value="جوي">جوي</option>
@@ -483,7 +483,7 @@ const InternationalShippingFullForm = () => {
                   </div>
                   <div className="md:col-span-2">
                     <label className="block text-xs sm:text-sm mb-1">نوع الخدمة</label>
-                    <select value={formData.serviceType} onChange={(e) => setFormData({ ...formData, serviceType: e.target.value })} className="p-2.5 sm:p-3 border rounded-lg w-full text-sm sm:text-base">
+                    <select value={formData.serviceType} onChange={(e) => setFormData({ ...formData, serviceType: e.target.value })} className="p-2.5 sm:p-3 border rounded-lg w-full text-base">
                       <option value="">اختر نوع الخدمة</option>
                       <option value="شحن فقط">شحن فقط</option>
                       <option value="تخليص فقط">تخليص فقط</option>
@@ -513,7 +513,7 @@ const InternationalShippingFullForm = () => {
                           pickupCountryOther: selectedCountry ? '' : e.target.value 
                         });
                       }}
-                      className="p-2.5 sm:p-3 border rounded-lg w-full text-sm sm:text-base"
+                      className="p-2.5 sm:p-3 border rounded-lg w-full text-base"
                       placeholder="ابحث عن البلد أو اختر من القائمة"
                     />
                     <datalist id="pickup-countries">
@@ -531,13 +531,13 @@ const InternationalShippingFullForm = () => {
                     <label className="block text-xs sm:text-sm mb-1">مطار/ميناء/معبر</label>
                     {countries.find(c => c.code === formData.pickupCountry) ? (
                       <>
-                        <select value={formData.pickupPort} onChange={(e) => setFormData({ ...formData, pickupPort: e.target.value, pickupPortOther: '' })} className="p-2.5 sm:p-3 border rounded-lg w-full text-sm sm:text-base" disabled={!formData.pickupCountry}>
+                        <select value={formData.pickupPort} onChange={(e) => setFormData({ ...formData, pickupPort: e.target.value, pickupPortOther: '' })} className="p-2.5 sm:p-3 border rounded-lg w-full text-base" disabled={!formData.pickupCountry}>
                           <option value="">اختر</option>
                           {getPorts(formData.pickupCountry, formData.cargoMode).map((p, i) => <option key={i} value={p}>{p}</option>)}
                           <option value="other">أخرى</option>
                         </select>
                         {formData.pickupPort === 'other' && (
-                          <input value={formData.pickupPortOther} onChange={(e) => setFormData({ ...formData, pickupPortOther: e.target.value })} type="text" className="mt-2 p-2.5 sm:p-3 border rounded-lg w-full text-sm sm:text-base" placeholder="اسم الميناء أو المطار" />
+                          <input value={formData.pickupPortOther} onChange={(e) => setFormData({ ...formData, pickupPortOther: e.target.value })} type="text" className="mt-2 p-2.5 sm:p-3 border rounded-lg w-full text-base" placeholder="اسم الميناء أو المطار" />
                         )}
                       </>
                     ) : (
@@ -545,7 +545,7 @@ const InternationalShippingFullForm = () => {
                         value={formData.pickupPortOther} 
                         onChange={(e) => setFormData({ ...formData, pickupPortOther: e.target.value, pickupPort: 'other' })} 
                         type="text" 
-                        className="p-2.5 sm:p-3 border rounded-lg w-full text-sm sm:text-base" 
+                        className="p-2.5 sm:p-3 border rounded-lg w-full text-base" 
                         placeholder="اسم الميناء أو المطار" 
                         disabled={!formData.pickupCountry}
                       />
@@ -595,7 +595,7 @@ const InternationalShippingFullForm = () => {
                           deliveryCountryOther: selectedCountry ? '' : e.target.value 
                         });
                       }}
-                      className="p-2.5 sm:p-3 border rounded-lg w-full text-sm sm:text-base"
+                      className="p-2.5 sm:p-3 border rounded-lg w-full text-base"
                       placeholder="ابحث عن البلد أو اختر من القائمة"
                     />
                     <datalist id="delivery-countries">
@@ -613,13 +613,13 @@ const InternationalShippingFullForm = () => {
                     <label className="block text-xs sm:text-sm mb-1">مطار/ميناء/مدينة</label>
                     {countries.find(c => c.code === formData.deliveryCountry) ? (
                       <>
-                        <select value={formData.deliveryPort} onChange={(e) => setFormData({ ...formData, deliveryPort: e.target.value, deliveryPortOther: '' })} className="p-2.5 sm:p-3 border rounded-lg w-full text-sm sm:text-base" disabled={!formData.deliveryCountry}>
+                        <select value={formData.deliveryPort} onChange={(e) => setFormData({ ...formData, deliveryPort: e.target.value, deliveryPortOther: '' })} className="p-2.5 sm:p-3 border rounded-lg w-full text-base" disabled={!formData.deliveryCountry}>
                           <option value="">اختر</option>
                           {getPorts(formData.deliveryCountry, formData.cargoMode).map((p, i) => <option key={i} value={p}>{p}</option>)}
                           <option value="other">أخرى</option>
                         </select>
                         {formData.deliveryPort === 'other' && (
-                          <input value={formData.deliveryPortOther} onChange={(e) => setFormData({ ...formData, deliveryPortOther: e.target.value })} type="text" className="mt-2 p-2.5 sm:p-3 border rounded-lg w-full text-sm sm:text-base" placeholder="اسم الميناء أو المطار" />
+                          <input value={formData.deliveryPortOther} onChange={(e) => setFormData({ ...formData, deliveryPortOther: e.target.value })} type="text" className="mt-2 p-2.5 sm:p-3 border rounded-lg w-full text-base" placeholder="اسم الميناء أو المطار" />
                         )}
                       </>
                     ) : (
@@ -627,7 +627,7 @@ const InternationalShippingFullForm = () => {
                         value={formData.deliveryPortOther} 
                         onChange={(e) => setFormData({ ...formData, deliveryPortOther: e.target.value, deliveryPort: 'other' })} 
                         type="text" 
-                        className="p-2.5 sm:p-3 border rounded-lg w-full text-sm sm:text-base" 
+                        className="p-2.5 sm:p-3 border rounded-lg w-full text-base" 
                         placeholder="اسم الميناء أو المطار" 
                         disabled={!formData.deliveryCountry}
                       />
@@ -662,13 +662,13 @@ const InternationalShippingFullForm = () => {
                     ].map(item => (
                       <div key={item.field}>
                         <label className="block text-xs sm:text-sm mb-1">{item.label}</label>
-                        <select value={formData[item.field]} onChange={(e) => setFormData({ ...formData, [item.field]: e.target.value })} className="p-2.5 sm:p-3 border rounded-lg w-full text-sm sm:text-base">
+                        <select value={formData[item.field]} onChange={(e) => setFormData({ ...formData, [item.field]: e.target.value })} className="p-2.5 sm:p-3 border rounded-lg w-full text-base">
                           <option value="">اختر</option>
                           <option value="نعم">نعم</option>
                           <option value="لا">لا</option>
                         </select>
                         {formData[item.field] === 'نعم' && (
-                          <input value={formData[item.subField]} onChange={(e) => setFormData({ ...formData, [item.subField]: e.target.value })} type="text" className="mt-2 p-2.5 sm:p-3 border rounded-lg w-full text-sm sm:text-base" placeholder={item.subLabel} />
+                          <input value={formData[item.subField]} onChange={(e) => setFormData({ ...formData, [item.subField]: e.target.value })} type="text" className="mt-2 p-2.5 sm:p-3 border rounded-lg w-full text-base" placeholder={item.subLabel} />
                         )}
                       </div>
                     ))}
@@ -682,7 +682,7 @@ const InternationalShippingFullForm = () => {
                     </div>
                     <div>
                       <label className="block text-xs sm:text-sm mb-1">نوع التغليف</label>
-                      <select value={formData.packagingType} onChange={(e) => setFormData({ ...formData, packagingType: e.target.value })} className="p-2.5 sm:p-3 border rounded-lg w-full text-sm sm:text-base">
+                      <select value={formData.packagingType} onChange={(e) => setFormData({ ...formData, packagingType: e.target.value })} className="p-2.5 sm:p-3 border rounded-lg w-full text-base">
                         <option value="">اختر</option>
                         <option value="كراتين">كراتين</option>
                         <option value="باليت">باليت</option>
@@ -691,12 +691,12 @@ const InternationalShippingFullForm = () => {
                         <option value="أخرى">أخرى</option>
                       </select>
                       {formData.packagingType === 'أخرى' && (
-                        <input value={formData.packagingOther} onChange={(e) => setFormData({ ...formData, packagingOther: e.target.value })} type="text" className="mt-2 p-2.5 sm:p-3 border rounded-lg w-full text-sm sm:text-base" placeholder="اذكر نوع التغليف" />
+                        <input value={formData.packagingOther} onChange={(e) => setFormData({ ...formData, packagingOther: e.target.value })} type="text" className="mt-2 p-2.5 sm:p-3 border rounded-lg w-full text-base" placeholder="اذكر نوع التغليف" />
                       )}
                     </div>
                     <div>
                       <label className="block text-xs sm:text-sm mb-1">خط ملاحي مفضل (اختياري)</label>
-                      <select value={formData.preferredLine} onChange={(e) => setFormData({ ...formData, preferredLine: e.target.value })} className="p-2.5 sm:p-3 border rounded-lg w-full text-sm sm:text-base">
+                      <select value={formData.preferredLine} onChange={(e) => setFormData({ ...formData, preferredLine: e.target.value })} className="p-2.5 sm:p-3 border rounded-lg w-full text-base">
                         <option value="">اختر</option>
                         <option value="Maersk">Maersk</option>
                         <option value="MSC">MSC</option>
@@ -704,7 +704,7 @@ const InternationalShippingFullForm = () => {
                         <option value="أخرى">أخرى</option>
                       </select>
                       {formData.preferredLine === 'أخرى' && (
-                        <input value={formData.preferredLineOther} onChange={(e) => setFormData({ ...formData, preferredLineOther: e.target.value })} type="text" className="mt-2 p-2.5 sm:p-3 border rounded-lg w-full text-sm sm:text-base" />
+                        <input value={formData.preferredLineOther} onChange={(e) => setFormData({ ...formData, preferredLineOther: e.target.value })} type="text" className="mt-2 p-2.5 sm:p-3 border rounded-lg w-full text-base" />
                       )}
                     </div>
                   </div>
@@ -719,7 +719,7 @@ const InternationalShippingFullForm = () => {
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                   <div>
                     <label className="block text-xs sm:text-sm mb-1">التخليص مطلوب في</label>
-                    <select value={formData.clearanceLocation} onChange={(e) => setFormData({ ...formData, clearanceLocation: e.target.value })} className="p-2.5 sm:p-3 border rounded-lg w-full text-sm sm:text-base">
+                    <select value={formData.clearanceLocation} onChange={(e) => setFormData({ ...formData, clearanceLocation: e.target.value })} className="p-2.5 sm:p-3 border rounded-lg w-full text-base">
                       <option value="">اختر</option>
                       <option value="export">بلد التصدير فقط</option>
                       <option value="import">بلد الاستيراد فقط</option>
@@ -728,14 +728,14 @@ const InternationalShippingFullForm = () => {
                   </div>
                   <div>
                     <label className="block text-xs sm:text-sm mb-1">هل لديك بطاقة استيراد؟</label>
-                    <select value={formData.hasImportCard} onChange={(e) => setFormData({ ...formData, hasImportCard: e.target.value })} className="p-2.5 sm:p-3 border rounded-lg w-full text-sm sm:text-base">
+                    <select value={formData.hasImportCard} onChange={(e) => setFormData({ ...formData, hasImportCard: e.target.value })} className="p-2.5 sm:p-3 border rounded-lg w-full text-base">
                       <option value="لا">لا</option>
                       <option value="نعم">نعم</option>
                     </select>
                   </div>
                   <div>
                     <label className="block text-xs sm:text-sm mb-1">الغرض من الشحنة</label>
-                    <select value={formData.shipmentPurpose} onChange={(e) => setFormData({ ...formData, shipmentPurpose: e.target.value })} className="p-2.5 sm:p-3 border rounded-lg w-full text-sm sm:text-base">
+                    <select value={formData.shipmentPurpose} onChange={(e) => setFormData({ ...formData, shipmentPurpose: e.target.value })} className="p-2.5 sm:p-3 border rounded-lg w-full text-base">
                       <option value="">اختر</option>
                       <option value="commercial">استيراد تجاري</option>
                       <option value="personal">استيراد شخصي</option>
@@ -744,7 +744,7 @@ const InternationalShippingFullForm = () => {
                       <option value="other">أخرى</option>
                     </select>
                     {formData.shipmentPurpose === 'other' && (
-                      <input value={formData.shipmentPurposeOther} onChange={(e) => setFormData({ ...formData, shipmentPurposeOther: e.target.value })} type="text" className="mt-2 p-2.5 sm:p-3 border rounded-lg w-full text-sm sm:text-base" />
+                      <input value={formData.shipmentPurposeOther} onChange={(e) => setFormData({ ...formData, shipmentPurposeOther: e.target.value })} type="text" className="mt-2 p-2.5 sm:p-3 border rounded-lg w-full text-base" />
                     )}
                   </div>
                   <div>
@@ -788,7 +788,7 @@ const InternationalShippingFullForm = () => {
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                   <div>
                     <label className="block text-xs sm:text-sm mb-1">كيف علمت بخدماتنا؟</label>
-                    <select value={formData.howFound} onChange={(e) => setFormData({ ...formData, howFound: e.target.value })} className="p-2.5 sm:p-3 border rounded-lg w-full text-sm sm:text-base">
+                    <select value={formData.howFound} onChange={(e) => setFormData({ ...formData, howFound: e.target.value })} className="p-2.5 sm:p-3 border rounded-lg w-full text-base">
                       <option value="">اختر</option>
                       <option value="website">موقع الشركة</option>
                       <option value="referral">عميل سابق</option>

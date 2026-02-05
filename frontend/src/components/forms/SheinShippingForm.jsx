@@ -233,7 +233,7 @@ const SheinShippingForm = () => {
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 md:gap-6">
                   <div>
                     <label className="block text-xs sm:text-sm font-medium mb-2">الاسم الكامل <span className="text-red-500">*</span></label>
-                    <input value={formData.clientName} onChange={(e) => setFormData({ ...formData, clientName: e.target.value })} type="text" className="w-full p-2.5 sm:p-3 md:p-3.5 border rounded-lg text-sm sm:text-base focus:ring-2 focus:ring-primary" placeholder="أدخل الاسم الكامل" />
+                    <input value={formData.clientName} onChange={(e) => setFormData({ ...formData, clientName: e.target.value })} type="text" className="w-full p-2.5 sm:p-3 md:p-3.5 border rounded-lg text-base focus:ring-2 focus:ring-primary" placeholder="أدخل الاسم الكامل" />
                   </div>
                   <div>
                     <label className="block text-xs sm:text-sm font-medium mb-2">رقم الهاتف <span className="text-red-500">*</span></label>
@@ -241,7 +241,7 @@ const SheinShippingForm = () => {
                       <select 
                         value={formData.phoneCountry || '+20'} 
                         onChange={(e) => setFormData({ ...formData, phoneCountry: e.target.value })}
-                        className="w-28 p-2.5 sm:p-3 border border-gray-300 rounded-lg text-xs sm:text-base focus:ring-2 focus:ring-primary focus:border-transparent"
+                        className="w-28 p-2.5 sm:p-3 border border-gray-300 rounded-lg text-base focus:ring-2 focus:ring-primary focus:border-transparent"
                       >
                         <option value="+20">🇪🇬 +20</option>
                         <option value="+966">🇸🇦 +966</option>
@@ -271,7 +271,7 @@ const SheinShippingForm = () => {
                         type="tel" 
                         value={formData.phone || ''} 
                         onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                        className="flex-1 p-2.5 sm:p-3 border border-gray-300 rounded-lg text-xs sm:text-base focus:ring-2 focus:ring-primary focus:border-transparent"
+                        className="flex-1 p-2.5 sm:p-3 border border-gray-300 rounded-lg text-base focus:ring-2 focus:ring-primary focus:border-transparent"
                         placeholder="أدخل رقم الهاتف"
                       />
                     </div>
@@ -282,7 +282,7 @@ const SheinShippingForm = () => {
                       <select 
                         value={formData.whatsappCountry || '+20'} 
                         onChange={(e) => setFormData({ ...formData, whatsappCountry: e.target.value })}
-                        className="w-28 p-2.5 sm:p-3 border border-gray-300 rounded-lg text-xs sm:text-base focus:ring-2 focus:ring-primary focus:border-transparent"
+                        className="w-28 p-2.5 sm:p-3 border border-gray-300 rounded-lg text-base focus:ring-2 focus:ring-primary focus:border-transparent"
                       >
                         <option value="+20">🇪🇬 +20</option>
                         <option value="+966">🇸🇦 +966</option>
@@ -312,14 +312,14 @@ const SheinShippingForm = () => {
                         type="tel" 
                         value={formData.whatsapp || ''} 
                         onChange={(e) => setFormData({ ...formData, whatsapp: e.target.value })}
-                        className="flex-1 p-2.5 sm:p-3 border border-gray-300 rounded-lg text-xs sm:text-base focus:ring-2 focus:ring-primary focus:border-transparent"
+                        className="flex-1 p-2.5 sm:p-3 border border-gray-300 rounded-lg text-base focus:ring-2 focus:ring-primary focus:border-transparent"
                         placeholder="أدخل رقم الواتساب"
                       />
                     </div>
                   </div>
                   <div>
                     <label className="block text-xs sm:text-sm font-medium mb-2">نوع العميل <span className="text-red-500">*</span></label>
-                    <select value={formData.clientType} onChange={(e) => setFormData({ ...formData, clientType: e.target.value })} className="p-2.5 sm:p-3 md:p-3.5 border rounded-lg w-full text-sm sm:text-base focus:ring-2 focus:ring-primary">
+                    <select value={formData.clientType} onChange={(e) => setFormData({ ...formData, clientType: e.target.value })} className="p-2.5 sm:p-3 md:p-3.5 border rounded-lg w-full text-base focus:ring-2 focus:ring-primary">
                       <option value="">اختر نوع العميل</option>
                       <option value="فرد">فرد</option>
                       <option value="تاجر">تاجر</option>
@@ -327,7 +327,7 @@ const SheinShippingForm = () => {
                       <option value="other">أخرى</option>
                     </select>
                     {formData.clientType === 'other' && (
-                      <input value={formData.clientTypeOther} onChange={(e) => setFormData({ ...formData, clientTypeOther: e.target.value })} type="text" className="mt-3 p-2.5 sm:p-3 md:p-3.5 border rounded-lg w-full text-sm sm:text-base" placeholder="اذكر نوع العميل" />
+                      <input value={formData.clientTypeOther} onChange={(e) => setFormData({ ...formData, clientTypeOther: e.target.value })} type="text" className="mt-3 p-2.5 sm:p-3 md:p-3.5 border rounded-lg w-full text-base" placeholder="اذكر نوع العميل" />
                     )}
                   </div>
                   <div className="sm:col-span-2 flex items-center gap-3 p-3 sm:p-4 bg-gray-50 rounded-lg border">

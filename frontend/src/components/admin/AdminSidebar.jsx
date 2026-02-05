@@ -19,6 +19,7 @@ const AdminSidebar = ({ isOpen, onClose }) => {
   const navItems = [
     { path: '/admin', icon: 'fa-home', label: 'الرئيسية', end: true },
     { path: '/admin/orders', icon: 'fa-box', label: 'كل الطلبات' },
+    { path: '/admin/users', icon: 'fa-users', label: 'المستخدمين' },
     { path: '/admin/company-requests', icon: 'fa-building', label: 'طلبات الشركات' },
     { path: '/admin/companies', icon: 'fa-check-circle', label: 'الشركات المعتمدة' },
     { path: '/admin/settings', icon: 'fa-cog', label: 'الإعدادات' },

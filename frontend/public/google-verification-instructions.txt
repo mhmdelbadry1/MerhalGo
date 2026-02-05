@@ -1,0 +1,12 @@
+# Google Search Console Verification
+# Add your verification file here after registering at https://search.google.com/search-console
+
+# Instructions:
+# 1. Go to https://search.google.com/search-console
+# 2. Add property: mirhalgo.online
+# 3. Choose "HTML file" verification method
+# 4. Download the verification file
+# 5. Place it in this public folder
+# 6. Deploy and verify
+
+# Example filename: google1234567890abcdef.html
