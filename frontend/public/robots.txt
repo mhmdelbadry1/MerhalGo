@@ -1,17 +1,34 @@
-# https://www.robotstxt.org/robotstxt.html
+# robots.txt for MirhalGO
+# Allow all search engines to crawl everything
+
 User-agent: *
 Allow: /
 
-# Sitemaps
+# Sitemap location
 Sitemap: https://mirhalgo.online/sitemap.xml
 
 # Crawl-delay (optional, helps prevent server overload)
 Crawl-delay: 1
 
-# Disallow admin and private areas
-Disallow: /admin
-Disallow: /api/
+# Specific rules for major search engines
+User-agent: Googlebot
+Allow: /
 
-# Allow all other pages
-Allow: /customer
-Allow: /company
+User-agent: Bingbot
+Allow: /
+
+User-agent: Slurp
+Allow: /
+
+# Block access to admin and API endpoints
+User-agent: *
+Disallow: /admin/
+Disallow: /api/
+Disallow: /customer/
+Disallow: /company/
+
+# Allow access to static assets
+Allow: /assets/
+Allow: /logo.jpeg
+Allow: /*.css$
+Allow: /*.js$

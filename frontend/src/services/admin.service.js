@@ -78,6 +78,14 @@ const adminService = {
     const response = await api.get("/admin/users", { params });
     return response.data;
   },
+
+  /**
+   * Delete company (only if inactive)
+   */
+  deleteCompany: async (id) => {
+    const response = await api.delete(`/admin/companies/${id}`);
+    return response.data;
+  },
 };
 
 export default adminService;

@@ -67,18 +67,49 @@ const CompanyRequests = () => {
   };
 
   const acceptCompany = async () => {
+    // Prevent double submission
+    if (isSubmitting) {
+      console.warn('Already submitting, ignoring duplicate request');
+      return;
+    }
+
     // Password is optional - backend will auto-generate if empty
     try {
       setIsSubmitting(true);
-      await adminService.approveCompany(selectedRequest.id, password);
+      const response = await adminService.approveCompany(selectedRequest.id, password);
       
-      showSuccess('تم قبول الشركة وإنشاء الحساب بنجاح');
+      // Success - close modal and reset state BEFORE showing success message
       setShowAcceptModal(false);
       setPassword('');
-      loadRequests();
+      setSelectedRequest(null);
+      
+      // Show success message
+      showSuccess('تم قبول الشركة وإنشاء الحساب بنجاح');
+      
+      // Reload requests
+      await loadRequests();
     } catch (error) {
       console.error('Error approving company:', error);
-      showError(error.response?.data?.message || 'فشل قبول الشركة');
+      
+      // Check for specific error messages
+      const errorMessage = error.response?.data?.message;
+      
+      if (errorMessage?.includes('مسجل بالفعل كشركة') || errorMessage?.includes('already registered')) {
+        showError('هذا البريد الإلكتروني مسجل بالفعل كشركة. قد يكون الطلب تمت الموافقة عليه مسبقاً.');
+        // Close modal and reload to show updated list
+        setShowAcceptModal(false);
+        setPassword('');
+        setSelectedRequest(null);
+        await loadRequests();
+      } else if (errorMessage?.includes('already exists')) {
+        showError('الشركة موجودة بالفعل في النظام.');
+        setShowAcceptModal(false);
+        setPassword('');
+        setSelectedRequest(null);
+        await loadRequests();
+      } else {
+        showError(errorMessage || 'فشل قبول الشركة. يرجى المحاولة مرة أخرى.');
+      }
     } finally {
       setIsSubmitting(false);
     }
@@ -174,23 +205,112 @@ const CompanyRequests = () => {
                 </span>
               </div>
 
-              <div className="grid grid-cols-2 gap-4 mb-6 text-sm">
-                <div className="p-3 bg-gray-50 dark:bg-gray-700/30 rounded-lg">
-                  <p className="text-xs text-gray-500 mb-1">ممثل الشركة</p>
-                  <p className="font-semibold text-gray-800 dark:text-white">{request.form_data?.representativeName}</p>
+              <div className="space-y-4 mb-6">
+                {/* Basic Info Grid */}
+                <div className="grid grid-cols-2 gap-3 text-sm">
+                  <div className="p-3 bg-gray-50 dark:bg-gray-700/30 rounded-lg">
+                    <p className="text-xs text-gray-500 mb-1">ممثل الشركة</p>
+                    <p className="font-semibold text-gray-800 dark:text-white">{request.form_data?.representativeName}</p>
+                  </div>
+                  <div className="p-3 bg-gray-50 dark:bg-gray-700/30 rounded-lg">
+                    <p className="text-xs text-gray-500 mb-1">رقم الهاتف</p>
+                    <p className="font-semibold text-gray-800 dark:text-white" dir="ltr">{request.form_data?.phoneCode} {request.form_data?.phoneNumber}</p>
+                  </div>
+                  <div className="p-3 bg-gray-50 dark:bg-gray-700/30 rounded-lg">
+                    <p className="text-xs text-gray-500 mb-1">رقم الواتساب</p>
+                    <p className="font-semibold text-gray-800 dark:text-white" dir="ltr">{request.form_data?.whatsappCode} {request.form_data?.whatsappNumber}</p>
+                  </div>
+                  <div className="p-3 bg-gray-50 dark:bg-gray-700/30 rounded-lg">
+                    <p className="text-xs text-gray-500 mb-1">النشاط الرئيسي</p>
+                    <p className="font-semibold text-gray-800 dark:text-white">
+                      {request.form_data?.mainActivity === 'local' && 'شحن محلي'}
+                      {request.form_data?.mainActivity === 'international' && 'شحن دولي'}
+                      {request.form_data?.mainActivity === 'customs' && 'تخليص جمركي'}
+                      {request.form_data?.mainActivity === 'chinese' && 'شحن من مواقع صينية'}
+                      {request.form_data?.mainActivity === 'shein' && 'شحن من شي إن'}
+                      {request.form_data?.mainActivity === 'other' && (request.form_data?.otherActivity || 'أخرى')}
+                    </p>
+                  </div>
+                  <div className="p-3 bg-gray-50 dark:bg-gray-700/30 rounded-lg">
+                    <p className="text-xs text-gray-500 mb-1">السجل التجاري</p>
+                    <p className="font-semibold text-gray-800 dark:text-white">{request.form_data?.commercialRegisterNumber}</p>
+                  </div>
+                  <div className="p-3 bg-gray-50 dark:bg-gray-700/30 rounded-lg">
+                    <p className="text-xs text-gray-500 mb-1">البطاقة الضريبية</p>
+                    <p className="font-semibold text-gray-800 dark:text-white">{request.form_data?.taxCardNumber}</p>
+                  </div>
                 </div>
-                <div className="p-3 bg-gray-50 dark:bg-gray-700/30 rounded-lg">
-                  <p className="text-xs text-gray-500 mb-1">رقم الهاتف</p>
-                  <p className="font-semibold text-gray-800 dark:text-white" dir="ltr">{request.form_data?.phoneCode} {request.form_data?.phoneNumber}</p>
-                </div>
-                <div className="p-3 bg-gray-50 dark:bg-gray-700/30 rounded-lg">
-                  <p className="text-xs text-gray-500 mb-1">السجل التجاري</p>
-                  <p className="font-semibold text-gray-800 dark:text-white">{request.form_data?.commercialRegisterNumber}</p>
-                </div>
-                <div className="p-3 bg-gray-50 dark:bg-gray-700/30 rounded-lg">
-                  <p className="text-xs text-gray-500 mb-1">البطاقة الضريبية</p>
-                  <p className="font-semibold text-gray-800 dark:text-white">{request.form_data?.taxCardNumber}</p>
-                </div>
+
+                {/* Headquarter Address */}
+                {request.form_data?.headquarterAddress && (
+                  <div className="p-3 bg-gray-50 dark:bg-gray-700/30 rounded-lg">
+                    <p className="text-xs text-gray-500 mb-1">المقر الرئيسي</p>
+                    <p className="font-semibold text-gray-800 dark:text-white">{request.form_data.headquarterAddress}</p>
+                  </div>
+                )}
+
+                {/* Services Details - Conditional based on activity */}
+                {request.form_data?.mainActivity === 'local' && request.form_data?.governorates && (
+                  <div className="p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
+                    <p className="text-xs text-blue-600 dark:text-blue-400 mb-1 flex items-center gap-1">
+                      <i className="fas fa-map-marked-alt"></i>
+                      المحافظات المخدومة
+                    </p>
+                    <p className="font-semibold text-gray-800 dark:text-white">{request.form_data.governorates}</p>
+                  </div>
+                )}
+
+                {request.form_data?.mainActivity === 'international' && request.form_data?.shippingMethods?.length > 0 && (
+                  <div className="p-3 bg-purple-50 dark:bg-purple-900/20 rounded-lg border border-purple-200 dark:border-purple-800">
+                    <p className="text-xs text-purple-600 dark:text-purple-400 mb-2 flex items-center gap-1">
+                      <i className="fas fa-shipping-fast"></i>
+                      طرق الشحن المتوفرة
+                    </p>
+                    <div className="flex flex-wrap gap-2">
+                      {request.form_data.shippingMethods.map((method) => (
+                        <span key={method} className="px-2 py-1 bg-white dark:bg-gray-800 rounded text-xs font-semibold text-gray-700 dark:text-gray-300">
+                          {method === 'land' && '🚛 شحن بري'}
+                          {method === 'air' && '✈️ شحن جوي'}
+                          {method === 'sea' && '🚢 شحن بحري'}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {request.form_data?.mainActivity === 'chinese' && (
+                  <div className="p-3 bg-orange-50 dark:bg-orange-900/20 rounded-lg border border-orange-200 dark:border-orange-800">
+                    <p className="text-xs text-orange-600 dark:text-orange-400 mb-2">تفاصيل الشحن من المواقع الصينية</p>
+                    {request.form_data?.siteName && (
+                      <p className="font-semibold text-gray-800 dark:text-white mb-2">
+                        <i className="fas fa-globe mr-1"></i>
+                        {request.form_data.siteName}
+                      </p>
+                    )}
+                    {request.form_data?.chineseMethods?.length > 0 && (
+                      <div className="flex flex-wrap gap-2">
+                        {request.form_data.chineseMethods.map((method) => (
+                          <span key={method} className="px-2 py-1 bg-white dark:bg-gray-800 rounded text-xs font-semibold text-gray-700 dark:text-gray-300">
+                            {method === 'land' && '🚛 شحن بري'}
+                            {method === 'air' && '✈️ شحن جوي'}
+                            {method === 'sea' && '🚢 شحن بحري'}
+                          </span>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                {/* Additional Notes */}
+                {request.form_data?.additionalNotes && (
+                  <div className="p-3 bg-yellow-50 dark:bg-yellow-900/20 rounded-lg border border-yellow-200 dark:border-yellow-800">
+                    <p className="text-xs text-yellow-600 dark:text-yellow-400 mb-1 flex items-center gap-1">
+                      <i className="fas fa-sticky-note"></i>
+                      ملاحظات إضافية
+                    </p>
+                    <p className="text-sm text-gray-800 dark:text-white">{request.form_data.additionalNotes}</p>
+                  </div>
+                )}
               </div>
 
               {/* Attachments Section */}
@@ -226,6 +346,18 @@ const CompanyRequests = () => {
                       <i className="fas fa-id-card"></i>
                       رخصة النشاط
                     </button>
+                  )}
+                  {request.form_data?.additionalDocsFiles && request.form_data.additionalDocsFiles.length > 0 && (
+                    request.form_data.additionalDocsFiles.map((file, index) => (
+                      <button 
+                        key={index}
+                        onClick={() => handleViewFile(file, `مستند إضافي ${index + 1}`)}
+                        className="flex items-center gap-2 px-3 py-2 bg-green-50 text-green-700 hover:bg-green-100 rounded-lg text-xs font-medium transition-colors"
+                      >
+                        <i className="fas fa-file"></i>
+                        مستند إضافي {index + 1}
+                      </button>
+                    ))
                   )}
                 </div>
               </div>

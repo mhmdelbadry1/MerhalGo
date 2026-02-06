@@ -143,6 +143,20 @@ const AdminSidebar = ({ isOpen, onClose }) => {
           <i className="fas fa-shopping-bag w-6 text-center text-lg text-pink-500"></i>
           <span className="font-medium">شي ان</span>
         </NavLink>
+
+        <NavLink
+          to="/admin/orders?type=chinese"
+          onClick={handleLinkClick}
+          className={({ isActive }) => `
+            flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200
+            ${isActive
+              ? 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300'
+              : 'text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700'}
+          `}
+        >
+          <i className="fas fa-box-open w-6 text-center text-lg text-blue-500"></i>
+          <span className="font-medium">شحن المنتجات الصينية</span>
+        </NavLink>
       </nav>
 
       <div className="p-4 border-t border-gray-200 dark:border-gray-700">

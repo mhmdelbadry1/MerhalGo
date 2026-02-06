@@ -152,4 +152,18 @@ router.get(
   adminController.getAllUsers,
 );
 
+/**
+ * @route   DELETE /api/admin/companies/:id
+ * @desc    Delete company (only if inactive)
+ * @access  Private (Admin only)
+ */
+router.delete(
+  "/companies/:id",
+  auth,
+  isAdmin,
+  [param("id").isUUID().withMessage("Invalid company ID")],
+  validate,
+  adminController.deleteCompany,
+);
+
 module.exports = router;

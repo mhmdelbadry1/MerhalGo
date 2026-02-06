@@ -27,11 +27,11 @@ const AdminCompanies = () => {
     
     const query = searchQuery.toLowerCase();
     const filtered = companies.filter(company => {
-      // company is the profile row
+      // company is the company_profile row
       const name = company.company_name?.toLowerCase() || '';
       const nameEn = company.company_name_en?.toLowerCase() || '';
-      // User data is in 'profile' relation
-      const email = company.profile?.email?.toLowerCase() || '';
+      // User data is in 'user' relation
+      const email = company.user?.email?.toLowerCase() || '';
       const phone = company.phone_number || '';
       
       return name.includes(query) || nameEn.includes(query) || email.includes(query) || phone.includes(query);
@@ -106,10 +106,37 @@ const AdminCompanies = () => {
     setIsModalOpen(true);
   };
 
+  const handleViewFile = (fileUrl, fileName) => {
+    if (!fileUrl) return;
+    // Open file in new tab
+    window.open(fileUrl, '_blank');
+  };
+
+  const handleDeleteCompany = async (company) => {
+    if (company.is_approved) {
+      showError('لا يمكن حذف شركة نشطة. يجب إيقافها أولاً.');
+      return;
+    }
+
+    if (!window.confirm(`هل أنت متأكد من حذف شركة "${company.company_name}"؟\n\nهذا الإجراء لا يمكن التراجع عنه.`)) {
+      return;
+    }
+
+    try {
+      await adminService.deleteCompany(company.user_id);
+      showSuccess('تم حذف الشركة بنجاح');
+      loadCompanies(); // Refresh list
+    } catch (error) {
+      console.error('Error deleting company:', error);
+      const errorMessage = error.response?.data?.message || 'فشل حذف الشركة';
+      showError(errorMessage);
+    }
+  };
+
   const CompanyDetailsModal = ({ company, onClose }) => {
     if (!company) return null;
     // company IS the profile
-    const user = company.profile || {};
+    const user = company.user || {};
 
     return (
       <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
@@ -180,28 +207,79 @@ const AdminCompanies = () => {
                 <i className="fas fa-briefcase text-primary"></i>
                 تفاصيل الشركة
               </h3>
-              <div className="bg-gray-50 dark:bg-gray-700/30 rounded-xl p-4 space-y-3">
-                <div className="flex justify-between border-b border-gray-200 dark:border-gray-600 pb-2">
-                  <span className="text-sm text-gray-500">نوع الشركة</span>
-                  <span className="text-sm font-medium text-gray-800 dark:text-white">{company.company_type || '-'}</span>
+              <div className="grid grid-cols-2 gap-3 text-sm">
+                {company.representative_name && (
+                  <div className="p-3 bg-gray-50 dark:bg-gray-700/30 rounded-lg">
+                    <p className="text-xs text-gray-500 mb-1">ممثل الشركة</p>
+                    <p className="font-semibold text-gray-800 dark:text-white">{company.representative_name}</p>
+                  </div>
+                )}
+                <div className="p-3 bg-gray-50 dark:bg-gray-700/30 rounded-lg">
+                  <p className="text-xs text-gray-500 mb-1">نوع الشركة</p>
+                  <p className="font-semibold text-gray-800 dark:text-white">
+                    {company.company_type === 'local' && 'شحن محلي'}
+                    {company.company_type === 'international' && 'شحن دولي'}
+                    {company.company_type === 'customs' && 'تخليص جمركي'}
+                    {company.company_type === 'chinese' && 'شحن من مواقع صينية'}
+                    {company.company_type === 'shein' && 'شحن من شي إن'}
+                    {!['local', 'international', 'customs', 'chinese', 'shein'].includes(company.company_type) && (company.company_type || '-')}
+                  </p>
                 </div>
-                <div className="flex justify-between border-b border-gray-200 dark:border-gray-600 pb-2">
-                  <span className="text-sm text-gray-500">السجل التجاري</span>
-                  <span className="text-sm font-medium text-gray-800 dark:text-white">{company.commercial_register || '-'}</span>
+                <div className="p-3 bg-gray-50 dark:bg-gray-700/30 rounded-lg">
+                  <p className="text-xs text-gray-500 mb-1">السجل التجاري</p>
+                  <p className="font-semibold text-gray-800 dark:text-white">{company.commercial_register || '-'}</p>
                 </div>
-                <div className="flex justify-between border-b border-gray-200 dark:border-gray-600 pb-2">
-                  <span className="text-sm text-gray-500">الرقم الضريبي</span>
-                  <span className="text-sm font-medium text-gray-800 dark:text-white">{company.tax_number || '-'}</span>
-                </div>
-                <div className="flex justify-between border-b border-gray-200 dark:border-gray-600 pb-2">
-                  <span className="text-sm text-gray-500">العنوان الرئيسي</span>
-                  <span className="text-sm font-medium text-gray-800 dark:text-white text-left">{company.main_office_address || '-'}</span>
-                </div>
-                <div className="flex justify-between pt-1">
-                  <span className="text-sm text-gray-500">سنوات الخبرة</span>
-                  <span className="text-sm font-medium text-gray-800 dark:text-white">{company.experience_years || 0} سنوات</span>
+                <div className="p-3 bg-gray-50 dark:bg-gray-700/30 rounded-lg">
+                  <p className="text-xs text-gray-500 mb-1">الرقم الضريبي</p>
+                  <p className="font-semibold text-gray-800 dark:text-white">{company.tax_number || '-'}</p>
                 </div>
               </div>
+              
+              {company.main_office_address && (
+                <div className="p-3 bg-gray-50 dark:bg-gray-700/30 rounded-lg mt-3">
+                  <p className="text-xs text-gray-500 mb-1">العنوان الرئيسي</p>
+                  <p className="font-semibold text-gray-800 dark:text-white">{company.main_office_address}</p>
+                </div>
+              )}
+              
+              {/* Services */}
+              {company.company_type === 'local' && company.service_countries?.length > 0 && (
+                <div className="p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800 mt-3">
+                  <p className="text-xs text-blue-600 dark:text-blue-400 mb-1 flex items-center gap-1">
+                    <i className="fas fa-map-marked-alt"></i>
+                    المحافظات المخدومة
+                  </p>
+                  <p className="font-semibold text-gray-800 dark:text-white">{company.service_countries.join(', ')}</p>
+                </div>
+              )}
+              
+              {company.company_type === 'international' && company.services?.length > 0 && (
+                <div className="p-3 bg-purple-50 dark:bg-purple-900/20 rounded-lg border border-purple-200 dark:border-purple-800 mt-3">
+                  <p className="text-xs text-purple-600 dark:text-purple-400 mb-2 flex items-center gap-1">
+                    <i className="fas fa-shipping-fast"></i>
+                    طرق الشحن المتوفرة
+                  </p>
+                  <div className="flex flex-wrap gap-2">
+                    {company.services.map((method, idx) => (
+                      <span key={idx} className="px-2 py-1 bg-white dark:bg-gray-800 rounded text-xs font-semibold text-gray-700 dark:text-gray-300">
+                        {method === 'land' && '🚛 شحن بري'}
+                        {method === 'air' && '✈️ شحن جوي'}
+                        {method === 'sea' && '🚢 شحن بحري'}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              )}
+              
+              {company.notes && (
+                <div className="p-3 bg-yellow-50 dark:bg-yellow-900/20 rounded-lg border border-yellow-200 dark:border-yellow-800 mt-3">
+                  <p className="text-xs text-yellow-600 dark:text-yellow-400 mb-1 flex items-center gap-1">
+                    <i className="fas fa-sticky-note"></i>
+                    ملاحظات
+                  </p>
+                  <p className="text-sm text-gray-800 dark:text-white">{company.notes}</p>
+                </div>
+              )}
             </div>
 
             {/* Contact Info */}
@@ -209,21 +287,82 @@ const AdminCompanies = () => {
               <div className="bg-green-50 dark:bg-green-900/10 p-4 rounded-xl border border-green-100 dark:border-green-900/30">
                  <p className="text-xs text-green-600 mb-1 font-bold">رقم الهاتف</p>
                  <p className="text-green-800 dark:text-green-300 font-mono dir-ltr text-left">
-                   {company.phone_number || '-'}
+                   {user.phone || company.phone_number || '-'}
                  </p>
               </div>
-              <div className="bg-blue-50 dark:bg-blue-900/10 p-4 rounded-xl border border-blue-100 dark:border-blue-900/30">
-                 <p className="text-xs text-blue-600 mb-1 font-bold">الموقع الإلكتروني</p>
-                 <a 
-                   href={company.website} 
-                   target="_blank" 
-                   rel="noopener noreferrer"
-                   className="text-blue-800 dark:text-blue-300 hover:underline truncate block"
-                 >
-                   {company.website || '-'}
-                 </a>
-              </div>
+              {company.whatsapp_number && (
+                <div className="bg-green-50 dark:bg-green-900/10 p-4 rounded-xl border border-green-100 dark:border-green-900/30">
+                   <p className="text-xs text-green-600 mb-1 font-bold">رقم الواتساب</p>
+                   <p className="text-green-800 dark:text-green-300 font-mono dir-ltr text-left">
+                     {company.whatsapp_number}
+                   </p>
+                </div>
+              )}
+              {company.website && (
+                <div className="bg-blue-50 dark:bg-blue-900/10 p-4 rounded-xl border border-blue-100 dark:border-blue-900/30">
+                   <p className="text-xs text-blue-600 mb-1 font-bold">الموقع الإلكتروني</p>
+                   <a 
+                     href={company.website} 
+                     target="_blank" 
+                     rel="noopener noreferrer"
+                     className="text-blue-800 dark:text-blue-300 hover:underline truncate block"
+                   >
+                     {company.website}
+                   </a>
+                </div>
+              )}
             </div>
+            
+            {/* Documents */}
+            {(company.commercial_register_file || company.tax_card_file || company.business_license_file || company.additional_docs?.length > 0) && (
+              <div>
+                <h3 className="text-sm font-bold text-gray-900 dark:text-gray-100 mb-3 flex items-center gap-2">
+                  <i className="fas fa-paperclip text-primary"></i>
+                  المرفقات
+                </h3>
+                <div className="flex flex-wrap gap-2">
+                  {company.commercial_register_file && (
+                    <button 
+                      onClick={() => handleViewFile(company.commercial_register_file, 'السجل التجاري')}
+                      className="flex items-center gap-2 px-3 py-2 bg-blue-50 text-blue-700 hover:bg-blue-100 rounded-lg text-xs font-medium transition-colors"
+                    >
+                      <i className="fas fa-file-alt"></i>
+                      السجل التجاري
+                    </button>
+                  )}
+                  {company.tax_card_file && (
+                    <button 
+                      onClick={() => handleViewFile(company.tax_card_file, 'البطاقة الضريبية')}
+                      className="flex items-center gap-2 px-3 py-2 bg-blue-50 text-blue-700 hover:bg-blue-100 rounded-lg text-xs font-medium transition-colors"
+                    >
+                      <i className="fas fa-file-invoice"></i>
+                      البطاقة الضريبية
+                    </button>
+                  )}
+                  {company.business_license_file && (
+                    <button 
+                      onClick={() => handleViewFile(company.business_license_file, 'رخصة النشاط')}
+                      className="flex items-center gap-2 px-3 py-2 bg-blue-50 text-blue-700 hover:bg-blue-100 rounded-lg text-xs font-medium transition-colors"
+                    >
+                      <i className="fas fa-id-card"></i>
+                      رخصة النشاط
+                    </button>
+                  )}
+                  {company.additional_docs && company.additional_docs.length > 0 && (
+                    company.additional_docs.map((file, index) => (
+                      <button 
+                        key={index}
+                        onClick={() => handleViewFile(file, `مستند إضافي ${index + 1}`)}
+                        className="flex items-center gap-2 px-3 py-2 bg-green-50 text-green-700 hover:bg-green-100 rounded-lg text-xs font-medium transition-colors"
+                      >
+                        <i className="fas fa-file"></i>
+                        مستند إضافي {index + 1}
+                      </button>
+                    ))
+                  )}
+                </div>
+              </div>
+            )}
 
           </div>
 
@@ -348,6 +487,15 @@ const AdminCompanies = () => {
                   >
                     <i className={`fas ${company.is_approved ? 'fa-ban' : 'fa-check'}`}></i>
                   </button>
+                  {!company.is_approved && (
+                    <button 
+                      onClick={() => handleDeleteCompany(company)}
+                      className="w-10 h-10 flex items-center justify-center rounded-lg transition-colors bg-gray-50 text-gray-600 hover:bg-red-50 hover:text-red-600 dark:bg-gray-700 dark:text-gray-400 dark:hover:bg-red-900/20 dark:hover:text-red-400"
+                      title="حذف الشركة"
+                    >
+                      <i className="fas fa-trash"></i>
+                    </button>
+                  )}
                 </div>
               </div>
             );

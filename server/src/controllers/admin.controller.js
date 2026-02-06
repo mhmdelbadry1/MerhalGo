@@ -143,7 +143,11 @@ const approveCompany = async (req, res) => {
         logger.error(
           `Attempt to re-register existing company blocked: ${email}`,
         );
-        return sendError(res, "هذا البريد الإلكتروني مسجل بالفعل كشركة.", 400);
+        return sendError(
+          res,
+          "هذا البريد الإلكتروني مسجل بالفعل كشركة. قد يكون الطلب تمت الموافقة عليه مسبقاً.",
+          409,
+        );
       }
 
       // Only allow customer → company conversion
@@ -260,47 +264,71 @@ const approveCompany = async (req, res) => {
     // Check if company_profile already exists (to prevent unique constraint error)
     const { data: existingCompanyProfile } = await supabaseAdmin
       .from("company_profiles")
-      .select("id")
+      .select("id, company_name")
       .eq("user_id", authUserId)
-      .single();
+      .maybeSingle();
 
     if (existingCompanyProfile) {
+      logger.warn(
+        `Company profile already exists for user ${authUserId} (${existingCompanyProfile.company_name}). Request may have been processed already.`,
+      );
       return sendError(
         res,
-        "Company profile already exists for this user",
-        400,
+        "الشركة موجودة بالفعل في النظام. قد يكون الطلب تمت الموافقة عليه مسبقاً.",
+        409,
       );
     }
 
     // Create company profile
+    const companyProfileData = {
+      user_id: authUserId,
+      company_name: formData.companyName,
+      company_name_en: formData.companyNameEn || null,
+      commercial_register: formData.commercialRegisterNumber,
+      tax_number: formData.taxCardNumber,
+      company_type: formData.mainActivity,
+      license_type: formData.licenseType || null,
+      website: formData.siteName || null,
+      main_office_address: formData.headquarterAddress,
+      // Note: phone_number is stored in profiles table, not company_profiles
+      branches: formData.branches || [],
+      description: formData.additionalNotes || null,
+      services: formData.shippingMethods || formData.chineseMethods || [],
+      service_countries: formData.governorates ? [formData.governorates] : [],
+      experience_years: formData.experienceYears || 0,
+      is_approved: true,
+      approved_at: new Date().toISOString(),
+      approved_by: adminId,
+
+      // Additional fields from registration form
+      representative_name: formData.representativeName,
+      whatsapp_number:
+        formData.whatsappCode && formData.whatsappNumber
+          ? `${formData.whatsappCode}${formData.whatsappNumber}`
+          : null,
+
+      // Document URLs
+      commercial_register_file: formData.commercialRegisterFile || null,
+      tax_card_file: formData.taxCardFile || null,
+      business_license_file: formData.businessLicenseFile || null,
+      additional_docs: formData.additionalDocsFiles || [],
+
+      // Notes
+      notes: formData.additionalNotes || null,
+    };
+
+    logger.info(
+      `Creating company profile for ${email}:`,
+      JSON.stringify(companyProfileData, null, 2),
+    );
+
     const { error: companyError } = await supabaseAdmin
       .from("company_profiles")
-      .insert({
-        user_id: authUserId,
-        company_name: formData.companyName,
-        company_name_en: formData.companyNameEn || null,
-        commercial_register: formData.commercialRegisterNumber,
-        tax_number: formData.taxCardNumber,
-        company_type: formData.mainActivity,
-        license_type: formData.licenseType || null,
-        website: formData.siteName || null,
-        main_office_address: formData.headquarterAddress,
-        phone_number:
-          formData.phoneCode && formData.phoneNumber
-            ? `${formData.phoneCode}${formData.phoneNumber}`
-            : null,
-        branches: formData.branches || [],
-        description: formData.additionalNotes || null,
-        services: formData.shippingMethods || formData.chineseMethods || [],
-        service_countries: formData.governorates ? [formData.governorates] : [],
-        experience_years: formData.experienceYears || 0,
-        is_approved: true,
-        approved_at: new Date().toISOString(),
-        approved_by: adminId,
-      });
+      .insert(companyProfileData);
 
     if (companyError) {
       logger.error("Create company details error:", companyError);
+      logger.error("Failed data:", JSON.stringify(companyProfileData, null, 2));
       // Only rollback user creation if it was a NEW user.
       // If it was existing, we might leave them with 'company' role but no profile?
       // Safe to just return error for now.
@@ -475,10 +503,11 @@ const getAllCompanies = async (req, res) => {
       .select(
         `
         *,
-        profile:user_id(
+        user:user_id(
           id,
           email,
           full_name,
+          phone,
           created_at
         )
       `,
@@ -661,10 +690,11 @@ const getAllUsers = async (req, res) => {
     let query = supabaseAdmin
       .from("profiles")
       .select("*", { count: "exact" })
+      .neq("role", "company") // Exclude companies - they have their own page
       .order("created_at", { ascending: false })
       .range(offset, offset + pageLimit - 1);
 
-    if (role) {
+    if (role && role !== "all") {
       query = query.eq("role", role);
     }
 
@@ -720,6 +750,73 @@ const getAllUsers = async (req, res) => {
   }
 };
 
+/**
+ * Delete company (only if inactive)
+ * DELETE /api/admin/companies/:id
+ */
+const deleteCompany = async (req, res) => {
+  try {
+    const { id } = req.params; // user_id of the company
+
+    logger.info(`Attempting to delete company with user_id: ${id}`);
+
+    // 1. Get company profile to check if it's inactive
+    const { data: company, error: fetchError } = await supabaseAdmin
+      .from("company_profiles")
+      .select("is_approved, company_name")
+      .eq("user_id", id)
+      .single();
+
+    if (fetchError || !company) {
+      logger.error("Company not found:", fetchError);
+      return sendError(res, "Company not found", 404);
+    }
+
+    // 2. Safety check: Only allow deletion of inactive companies
+    if (company.is_approved) {
+      logger.warn(
+        `Attempted to delete active company: ${company.company_name}`,
+      );
+      return sendError(
+        res,
+        "Cannot delete active company. Please deactivate it first.",
+        400,
+      );
+    }
+
+    // 3. Delete company profile
+    const { error: deleteProfileError } = await supabaseAdmin
+      .from("company_profiles")
+      .delete()
+      .eq("user_id", id);
+
+    if (deleteProfileError) {
+      logger.error("Error deleting company profile:", deleteProfileError);
+      return sendError(res, "Failed to delete company profile", 500);
+    }
+
+    // 4. Delete user account from auth
+    const { error: deleteUserError } =
+      await supabaseAdmin.auth.admin.deleteUser(id);
+
+    if (deleteUserError) {
+      logger.error("Error deleting user account:", deleteUserError);
+      // Profile is already deleted, so we'll consider this a partial success
+      return sendSuccess(
+        res,
+        "Company profile deleted, but user account deletion failed",
+        { warning: true },
+      );
+    }
+
+    logger.info(`Successfully deleted company: ${company.company_name}`);
+    return sendSuccess(res, "Company deleted successfully");
+  } catch (error) {
+    logger.error("Delete company error:", error);
+    return sendError(res, "Failed to delete company", 500);
+  }
+};
+
 module.exports = {
   getRegistrationRequests,
   approveCompany,
@@ -730,4 +827,5 @@ module.exports = {
   updateCompany,
   deleteOrder,
   getAllUsers,
+  deleteCompany,
 };

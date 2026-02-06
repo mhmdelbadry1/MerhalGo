@@ -2,65 +2,67 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
         xmlns:xhtml="http://www.w3.org/1999/xhtml">
   
-  <!-- Homepage - Arabic -->
+  <!-- Homepage -->
   <url>
     <loc>https://mirhalgo.online/</loc>
-    <lastmod>2026-02-05</lastmod>
+    <lastmod>2026-02-06</lastmod>
     <changefreq>daily</changefreq>
     <priority>1.0</priority>
     <xhtml:link rel="alternate" hreflang="ar" href="https://mirhalgo.online/" />
     <xhtml:link rel="alternate" hreflang="en" href="https://mirhalgo.online/en" />
   </url>
 
-  <!-- Customer Pages -->
+  <!-- Login -->
   <url>
-    <loc>https://mirhalgo.online/customer</loc>
-    <lastmod>2026-02-05</lastmod>
-    <changefreq>weekly</changefreq>
+    <loc>https://mirhalgo.online/login</loc>
+    <lastmod>2026-02-06</lastmod>
+    <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
 
+  <!-- Register -->
   <url>
-    <loc>https://mirhalgo.online/customer/shipping/local</loc>
-    <lastmod>2026-02-05</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.9</priority>
+    <loc>https://mirhalgo.online/register</loc>
+    <lastmod>2026-02-06</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
   </url>
 
+  <!-- Company Register -->
   <url>
-    <loc>https://mirhalgo.online/customer/shipping/international</loc>
-    <lastmod>2026-02-05</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.9</priority>
-  </url>
-
-  <url>
-    <loc>https://mirhalgo.online/customer/shipping/chinese</loc>
-    <lastmod>2026-02-05</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.9</priority>
-  </url>
-
-  <url>
-    <loc>https://mirhalgo.online/customer/shipping/shein</loc>
-    <lastmod>2026-02-05</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.9</priority>
-  </url>
-
-  <!-- Company Pages -->
-  <url>
-    <loc>https://mirhalgo.online/company</loc>
-    <lastmod>2026-02-05</lastmod>
-    <changefreq>weekly</changefreq>
+    <loc>https://mirhalgo.online/company-register</loc>
+    <lastmod>2026-02-06</lastmod>
+    <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
 
+  <!-- Services Pages -->
   <url>
-    <loc>https://mirhalgo.online/company-register</loc>
-    <lastmod>2026-02-05</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
+    <loc>https://mirhalgo.online/local-shipping</loc>
+    <lastmod>2026-02-06</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+  </url>
+
+  <url>
+    <loc>https://mirhalgo.online/international-shipping</loc>
+    <lastmod>2026-02-06</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+  </url>
+
+  <url>
+    <loc>https://mirhalgo.online/shein-shipping</loc>
+    <lastmod>2026-02-06</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+  </url>
+
+  <url>
+    <loc>https://mirhalgo.online/chinese-products</loc>
+    <lastmod>2026-02-06</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
   </url>
 
 </urlset>
