@@ -9,6 +9,9 @@ import NotFound from './components/shared/NotFound';
 // Landing
 import LandingPage from './components/Landing/LandingPage';
 
+// Public Pages
+import AboutPage from './components/shared/AboutPage';
+
 // Auth Pages
 import VerifyEmail from './components/Auth/VerifyEmail';
 import ResetPasswordPage from './components/Auth/ResetPasswordPage';
@@ -50,6 +53,9 @@ function App() {
           <Routes>
             {/* Landing Page */}
             <Route path="/" element={<LandingPage />} />
+
+            {/* About Page */}
+            <Route path="/about" element={<AboutPage />} />
 
             {/* Admin Login - Secret URL */}
             <Route path="/admin-login" element={<AdminLogin />} />

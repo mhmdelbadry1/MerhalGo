@@ -1,18 +1,23 @@
-import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { useTranslation } from 'react-i18next';
-import Navbar from '../shared/Navbar';
-import ContactIcons from '../shared/ContactIcons';
-import orderService from '../../services/order.service';
-import { useToast } from '../../contexts/ToastContext';
-import { useAuth } from '../../contexts/AuthContext';
+import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
+import Navbar from "../shared/Navbar";
+import ContactIcons from "../shared/ContactIcons";
+import orderService from "../../services/order.service";
+import { useToast } from "../../contexts/ToastContext";
+import { useAuth } from "../../contexts/AuthContext";
 
 const CustomerDashboard = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const { user } = useAuth();
   const { showError } = useToast();
-  const [stats, setStats] = useState({ total: 0, active: 0, completed: 0, withOffers: 0 });
+  const [stats, setStats] = useState({
+    total: 0,
+    active: 0,
+    completed: 0,
+    withOffers: 0,
+  });
   const [recentOrders, setRecentOrders] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -31,19 +36,31 @@ const CustomerDashboard = () => {
 
       const total = ordersArray.length;
       // Active: pending, reviewing, offered, accepted, in_progress
-      const active = ordersArray.filter(o =>
-        ['new', 'pending', 'reviewing', 'offered', 'accepted', 'in_progress'].includes(o.status)
+      const active = ordersArray.filter((o) =>
+        [
+          "new",
+          "pending",
+          "reviewing",
+          "offered",
+          "accepted",
+          "in_progress",
+        ].includes(o.status),
       ).length;
-      const completed = ordersArray.filter(o => o.status === 'completed').length;
-      const withOffers = ordersArray.filter(o =>
-        (o.total_offers > 0) || (o.offers?.[0]?.count > 0) || o.status === 'offered'
+      const completed = ordersArray.filter(
+        (o) => o.status === "completed",
+      ).length;
+      const withOffers = ordersArray.filter(
+        (o) =>
+          o.total_offers > 0 ||
+          o.offers?.[0]?.count > 0 ||
+          o.status === "offered",
       ).length;
 
       setStats({ total, active, completed, withOffers });
       setRecentOrders(ordersArray.slice(0, 3)); // Get 3 most recent
     } catch (error) {
-      console.error('Error fetching dashboard stats:', error);
-      showError('حدث خطأ أثناء تحميل البيانات');
+      console.error("Error fetching dashboard stats:", error);
+      showError("حدث خطأ أثناء تحميل البيانات");
     } finally {
       setLoading(false);
     }
@@ -51,45 +68,45 @@ const CustomerDashboard = () => {
 
   const shippingTypes = [
     {
-      id: 'international',
-      title: t('internationalShipping'),
-      icon: 'fa-globe',
-      color: 'bg-blue-500',
-      lightColor: 'bg-blue-100',
-      darkColor: 'dark:bg-blue-900/30',
-      textColor: 'text-blue-600 dark:text-blue-400',
-      route: '/customer/shipping/international'
+      id: "international",
+      title: t("internationalShipping"),
+      icon: "fa-globe",
+      color: "bg-blue-500",
+      lightColor: "bg-blue-100",
+      darkColor: "dark:bg-blue-900/30",
+      textColor: "text-blue-600 dark:text-blue-400",
+      route: "/customer/shipping/international",
     },
     {
-      id: 'local',
-      title: t('localShipping'),
-      icon: 'fa-truck',
-      color: 'bg-green-500',
-      lightColor: 'bg-green-100',
-      darkColor: 'dark:bg-green-900/30',
-      textColor: 'text-green-600 dark:text-green-400',
-      route: '/customer/shipping/local'
+      id: "local",
+      title: t("localShipping"),
+      icon: "fa-truck",
+      color: "bg-green-500",
+      lightColor: "bg-green-100",
+      darkColor: "dark:bg-green-900/30",
+      textColor: "text-green-600 dark:text-green-400",
+      route: "/customer/shipping/local",
     },
     {
-      id: 'chinese',
-      title: t('chineseStoresShipping'),
-      icon: 'fa-store',
-      color: 'bg-purple-500',
-      lightColor: 'bg-purple-100',
-      darkColor: 'dark:bg-purple-900/30',
-      textColor: 'text-purple-600 dark:text-purple-400',
-      route: '/customer/shipping/chinese'
+      id: "chinese",
+      title: t("chineseStoresShipping"),
+      icon: "fa-store",
+      color: "bg-purple-500",
+      lightColor: "bg-purple-100",
+      darkColor: "dark:bg-purple-900/30",
+      textColor: "text-purple-600 dark:text-purple-400",
+      route: "/customer/shipping/chinese",
     },
     {
-      id: 'shein',
-      title: t('sheinShipping'),
-      icon: 'fa-shopping-bag',
-      color: 'bg-pink-500',
-      lightColor: 'bg-pink-100',
-      darkColor: 'dark:bg-pink-900/30',
-      textColor: 'text-pink-600 dark:text-pink-400',
-      route: '/customer/shipping/shein'
-    }
+      id: "shein",
+      title: t("sheinShipping"),
+      icon: "fa-shopping-bag",
+      color: "bg-pink-500",
+      lightColor: "bg-pink-100",
+      darkColor: "dark:bg-pink-900/30",
+      textColor: "text-pink-600 dark:text-pink-400",
+      route: "/customer/shipping/shein",
+    },
   ];
 
   return (
@@ -116,7 +133,9 @@ const CustomerDashboard = () => {
               style={{ animationDelay: `${index * 0.1}s` }}
               onClick={() => navigate(type.route)}
             >
-              <div className={`w-16 h-16 ${type.lightColor} ${type.darkColor} rounded-full flex items-center justify-center ${type.textColor} text-2xl mb-4 mx-auto`}>
+              <div
+                className={`w-16 h-16 ${type.lightColor} ${type.darkColor} rounded-full flex items-center justify-center ${type.textColor} text-2xl mb-4 mx-auto`}
+              >
                 <i className={`fas ${type.icon}`}></i>
               </div>
               <h3 className="text-xl font-bold text-center text-gray-800 dark:text-white mb-2">
@@ -139,9 +158,15 @@ const CustomerDashboard = () => {
           <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-md">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">إجمالي الطلبات</p>
+                <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">
+                  إجمالي الطلبات
+                </p>
                 <p className="text-3xl font-bold text-gray-800 dark:text-white">
-                  {loading ? <i className="fas fa-spinner fa-spin text-xl"></i> : stats.total}
+                  {loading ? (
+                    <i className="fas fa-spinner fa-spin text-xl"></i>
+                  ) : (
+                    stats.total
+                  )}
                 </p>
               </div>
               <div className="w-12 h-12 bg-blue-100 dark:bg-blue-900/30 rounded-full flex items-center justify-center text-blue-600 dark:text-blue-400">
@@ -153,9 +178,15 @@ const CustomerDashboard = () => {
           <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-md">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">قيد التنفيذ</p>
+                <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">
+                  قيد التنفيذ
+                </p>
                 <p className="text-3xl font-bold text-gray-800 dark:text-white">
-                  {loading ? <i className="fas fa-spinner fa-spin text-xl"></i> : stats.active}
+                  {loading ? (
+                    <i className="fas fa-spinner fa-spin text-xl"></i>
+                  ) : (
+                    stats.active
+                  )}
                 </p>
               </div>
               <div className="w-12 h-12 bg-yellow-100 dark:bg-yellow-900/30 rounded-full flex items-center justify-center text-yellow-600 dark:text-yellow-400">
@@ -167,9 +198,15 @@ const CustomerDashboard = () => {
           <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-md">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">واصلة العروض</p>
+                <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">
+                  واصلة العروض
+                </p>
                 <p className="text-3xl font-bold text-gray-800 dark:text-white">
-                  {loading ? <i className="fas fa-spinner fa-spin text-xl"></i> : stats.withOffers}
+                  {loading ? (
+                    <i className="fas fa-spinner fa-spin text-xl"></i>
+                  ) : (
+                    stats.withOffers
+                  )}
                 </p>
               </div>
               <div className="w-12 h-12 bg-purple-100 dark:bg-purple-900/30 rounded-full flex items-center justify-center text-purple-600 dark:text-purple-400">
@@ -181,9 +218,15 @@ const CustomerDashboard = () => {
           <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-md">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">مكتملة</p>
+                <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">
+                  مكتملة
+                </p>
                 <p className="text-3xl font-bold text-gray-800 dark:text-white">
-                  {loading ? <i className="fas fa-spinner fa-spin text-xl"></i> : stats.completed}
+                  {loading ? (
+                    <i className="fas fa-spinner fa-spin text-xl"></i>
+                  ) : (
+                    stats.completed
+                  )}
                 </p>
               </div>
               <div className="w-12 h-12 bg-green-100 dark:bg-green-900/30 rounded-full flex items-center justify-center text-green-600 dark:text-green-400">
@@ -200,7 +243,7 @@ const CustomerDashboard = () => {
               أحدث الطلبات
             </h2>
             <button
-              onClick={() => navigate('/customer/orders')}
+              onClick={() => navigate("/customer/orders")}
               className="text-primary hover:text-primary-dark font-semibold text-sm"
             >
               عرض الكل
@@ -219,49 +262,89 @@ const CustomerDashboard = () => {
                   className="bg-white dark:bg-gray-800 rounded-xl p-5 shadow-sm hover:shadow-md transition-all flex flex-col md:flex-row md:items-center justify-between gap-4"
                 >
                   <div className="flex items-center gap-4">
-                    <div className={`w-12 h-12 rounded-full flex items-center justify-center text-xl
-                      ${['international', 'chinese'].includes(order.order_type || order.type) ? 'bg-blue-100 text-blue-600' :
-                        (order.order_type || order.type) === 'local' ? 'bg-green-100 text-green-600' : 'bg-pink-100 text-pink-600'}`}
+                    <div
+                      className={`w-12 h-12 rounded-full flex items-center justify-center text-xl
+                      ${
+                        ["international", "chinese"].includes(
+                          order.order_type || order.type,
+                        )
+                          ? "bg-blue-100 text-blue-600"
+                          : (order.order_type || order.type) === "local"
+                            ? "bg-green-100 text-green-600"
+                            : "bg-pink-100 text-pink-600"
+                      }`}
                     >
-                      <i className={`fas ${['international', 'chinese'].includes(order.order_type || order.type) ? 'fa-globe' :
-                        (order.order_type || order.type) === 'local' ? 'fa-truck' : 'fa-shopping-bag'
-                        }`}></i>
+                      <i
+                        className={`fas ${
+                          ["international", "chinese"].includes(
+                            order.order_type || order.type,
+                          )
+                            ? "fa-globe"
+                            : (order.order_type || order.type) === "local"
+                              ? "fa-truck"
+                              : "fa-shopping-bag"
+                        }`}
+                      ></i>
                     </div>
                     <div>
                       <h3 className="font-bold text-gray-800 dark:text-white">
-                        {order.order_type === 'international' ? t('internationalShipping') :
-                          order.order_type === 'local' ? t('localShipping') :
-                            order.order_type === 'chinese' ? t('chineseStoresShipping') : t('sheinShipping')}
+                        {order.order_type === "international"
+                          ? t("internationalShipping")
+                          : order.order_type === "local"
+                            ? t("localShipping")
+                            : order.order_type === "chinese"
+                              ? t("chineseStoresShipping")
+                              : t("sheinShipping")}
                       </h3>
                       <p className="text-xs text-gray-500">
-                        #{order.order_number || order.id?.substring(0, 8)} • {new Date(order.created_at).toLocaleDateString('ar-EG')}
+                        #{order.order_number || order.id?.substring(0, 8)} •{" "}
+                        {new Date(order.created_at).toLocaleDateString("ar-EG")}
                       </p>
                     </div>
                   </div>
 
                   <div className="flex items-center gap-6">
                     <div>
-                      <span className={`px-3 py-1 rounded-full text-xs font-semibold
-                        ${order.status === 'new' ? 'bg-blue-100 text-blue-800' :
-                          order.status === 'pending' ? 'bg-yellow-100 text-yellow-800' :
-                            order.status === 'offered' ? 'bg-purple-100 text-purple-800' :
-                              order.status === 'accepted' ? 'bg-green-100 text-green-800' :
-                                'bg-gray-100 text-gray-800'}`}
+                      <span
+                        className={`px-3 py-1 rounded-full text-xs font-semibold
+                        ${
+                          order.status === "new"
+                            ? "bg-blue-100 text-blue-800"
+                            : order.status === "pending"
+                              ? "bg-yellow-100 text-yellow-800"
+                              : order.status === "offered"
+                                ? "bg-purple-100 text-purple-800"
+                                : order.status === "accepted"
+                                  ? "bg-green-100 text-green-800"
+                                  : "bg-gray-100 text-gray-800"
+                        }`}
                       >
-                        {order.status === 'new' ? 'جديد' :
-                          order.status === 'pending' ? 'قيد الانتظار' :
-                            order.status === 'offered' ? 'وصلت عروض' :
-                              order.status === 'accepted' ? 'تم القبول' : order.status}
+                        {order.status === "new"
+                          ? "جديد"
+                          : order.status === "pending"
+                            ? "قيد الانتظار"
+                            : order.status === "offered"
+                              ? "وصلت عروض"
+                              : order.status === "accepted"
+                                ? "تم القبول"
+                                : order.status}
                       </span>
                     </div>
-                    {(order.total_offers > 0 || order.offers_count > 0 || (order.offers && order.offers[0] && order.offers[0].count > 0)) && (
+                    {(order.total_offers > 0 ||
+                      order.offers_count > 0 ||
+                      (order.offers &&
+                        order.offers[0] &&
+                        order.offers[0].count > 0)) && (
                       <div className="flex items-center gap-1 text-purple-600 dark:text-purple-400 text-sm font-semibold">
                         <i className="fas fa-handshake"></i>
-                        <span>{order.total_offers || order.offers?.[0]?.count || 0} عروض</span>
+                        <span>
+                          {order.total_offers || order.offers?.[0]?.count || 0}{" "}
+                          عروض
+                        </span>
                       </div>
                     )}
                     <button
-                      onClick={() => navigate('/customer/orders')}
+                      onClick={() => navigate("/customer/orders")}
                       className="px-4 py-2 border border-gray-200 dark:border-gray-700 rounded-lg text-sm hover:bg-gray-50 dark:hover:bg-gray-700 transition-all text-gray-600 dark:text-gray-300"
                     >
                       التفاصيل

@@ -16,6 +16,7 @@ logs/
 # OS
 .DS_Store
 Thumbs.db
+desktop.ini
 
 # IDE
 .vscode/
@@ -26,6 +27,12 @@ Thumbs.db
 # Temporary files
 *.tmp
 *.temp
+
+# Debug and test scripts
+debug-*.js
+test-*.js
+check-*.js
+*.md.backup
 
 # Uploads (if storing locally)
 uploads/

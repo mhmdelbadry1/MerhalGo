@@ -1,9 +1,9 @@
-import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { useTranslation } from 'react-i18next';
-import Navbar from '../shared/Navbar';
-import ContactIcons from '../shared/ContactIcons';
-import companyService from '../../services/company.service';
+import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
+import Navbar from "../shared/Navbar";
+import ContactIcons from "../shared/ContactIcons";
+import companyService from "../../services/company.service";
 
 const CompanyDashboard = () => {
   const { t } = useTranslation();
@@ -13,7 +13,7 @@ const CompanyDashboard = () => {
     availableOrders: 0,
     activeOffers: 0,
     acceptedOffers: 0,
-    inProgress: 0
+    inProgress: 0,
   });
 
   useEffect(() => {
@@ -22,7 +22,7 @@ const CompanyDashboard = () => {
         const [availableResp, offersResp, myOrdersResp] = await Promise.all([
           companyService.getAvailableOrders(),
           companyService.getOffers(),
-          companyService.getCompanyOrders()
+          companyService.getCompanyOrders(),
         ]);
 
         // Extract arrays from paginated responses
@@ -32,12 +32,17 @@ const CompanyDashboard = () => {
 
         setDashboardStats({
           availableOrders: available.length || 0,
-          activeOffers: offers.filter(o => o.status === 'pending').length || 0,
-          acceptedOffers: offers.filter(o => o.status === 'accepted').length || 0,
-          inProgress: myOrders.filter(o => ['accepted', 'in_progress'].includes(o.status)).length || 0
+          activeOffers:
+            offers.filter((o) => o.status === "pending").length || 0,
+          acceptedOffers:
+            offers.filter((o) => o.status === "accepted").length || 0,
+          inProgress:
+            myOrders.filter((o) =>
+              ["accepted", "in_progress"].includes(o.status),
+            ).length || 0,
         });
       } catch (error) {
-        console.error('Error fetching dashboard stats:', error);
+        console.error("Error fetching dashboard stats:", error);
       } finally {
         setLoading(false);
       }
@@ -48,41 +53,41 @@ const CompanyDashboard = () => {
 
   const stats = [
     {
-      title: 'كل الطلبات',
-      value: loading ? '...' : dashboardStats.availableOrders,
-      icon: 'fa-box',
-      color: 'bg-blue-500',
-      lightColor: 'bg-blue-100',
-      darkColor: 'dark:bg-blue-900/30',
-      textColor: 'text-blue-600 dark:text-blue-400'
+      title: "كل الطلبات",
+      value: loading ? "..." : dashboardStats.availableOrders,
+      icon: "fa-box",
+      color: "bg-blue-500",
+      lightColor: "bg-blue-100",
+      darkColor: "dark:bg-blue-900/30",
+      textColor: "text-blue-600 dark:text-blue-400",
     },
     {
-      title: 'عروضي النشطة',
-      value: loading ? '...' : dashboardStats.activeOffers,
-      icon: 'fa-handshake',
-      color: 'bg-green-500',
-      lightColor: 'bg-green-100',
-      darkColor: 'dark:bg-green-900/30',
-      textColor: 'text-green-600 dark:text-green-400'
+      title: "عروضي النشطة",
+      value: loading ? "..." : dashboardStats.activeOffers,
+      icon: "fa-handshake",
+      color: "bg-green-500",
+      lightColor: "bg-green-100",
+      darkColor: "dark:bg-green-900/30",
+      textColor: "text-green-600 dark:text-green-400",
     },
     {
-      title: 'عروض مقبولة',
-      value: loading ? '...' : dashboardStats.acceptedOffers,
-      icon: 'fa-check-circle',
-      color: 'bg-purple-500',
-      lightColor: 'bg-purple-100',
-      darkColor: 'dark:bg-purple-900/30',
-      textColor: 'text-purple-600 dark:text-purple-400'
+      title: "عروض مقبولة",
+      value: loading ? "..." : dashboardStats.acceptedOffers,
+      icon: "fa-check-circle",
+      color: "bg-purple-500",
+      lightColor: "bg-purple-100",
+      darkColor: "dark:bg-purple-900/30",
+      textColor: "text-purple-600 dark:text-purple-400",
     },
     {
-      title: 'قيد التنفيذ',
-      value: loading ? '...' : dashboardStats.inProgress,
-      icon: 'fa-clock',
-      color: 'bg-yellow-500',
-      lightColor: 'bg-yellow-100',
-      darkColor: 'dark:bg-yellow-900/30',
-      textColor: 'text-yellow-600 dark:text-yellow-400'
-    }
+      title: "قيد التنفيذ",
+      value: loading ? "..." : dashboardStats.inProgress,
+      icon: "fa-clock",
+      color: "bg-yellow-500",
+      lightColor: "bg-yellow-100",
+      darkColor: "dark:bg-yellow-900/30",
+      textColor: "text-yellow-600 dark:text-yellow-400",
+    },
   ];
 
   return (
@@ -108,10 +113,16 @@ const CompanyDashboard = () => {
             >
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">{stat.title}</p>
-                  <p className="text-3xl font-bold text-gray-800 dark:text-white">{stat.value}</p>
+                  <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">
+                    {stat.title}
+                  </p>
+                  <p className="text-3xl font-bold text-gray-800 dark:text-white">
+                    {stat.value}
+                  </p>
                 </div>
-                <div className={`w-12 h-12 ${stat.lightColor} ${stat.darkColor} rounded-full flex items-center justify-center ${stat.textColor}`}>
+                <div
+                  className={`w-12 h-12 ${stat.lightColor} ${stat.darkColor} rounded-full flex items-center justify-center ${stat.textColor}`}
+                >
                   <i className={`fas ${stat.icon} text-xl`}></i>
                 </div>
               </div>
@@ -121,7 +132,7 @@ const CompanyDashboard = () => {
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div
-            onClick={() => navigate('/company/all-orders')}
+            onClick={() => navigate("/company/all-orders")}
             className="bg-gradient-to-br from-primary to-purple-600 rounded-2xl p-8 text-white cursor-pointer hover:scale-105 transition-all shadow-xl"
           >
             <i className="fas fa-list text-4xl mb-4"></i>
@@ -130,7 +141,7 @@ const CompanyDashboard = () => {
           </div>
 
           <div
-            onClick={() => navigate('/company/offers')}
+            onClick={() => navigate("/company/offers")}
             className="bg-gradient-to-br from-green-500 to-teal-600 rounded-2xl p-8 text-white cursor-pointer hover:scale-105 transition-all shadow-xl"
           >
             <i className="fas fa-handshake text-4xl mb-4"></i>

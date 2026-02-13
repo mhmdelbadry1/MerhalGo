@@ -22,3 +22,14 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+desktop.ini
+Thumbs.db
+
+# Build files
+build_log.txt
+
+# Images (unused)
+*.jpeg
+*.jpg
+*.png
+logo.*

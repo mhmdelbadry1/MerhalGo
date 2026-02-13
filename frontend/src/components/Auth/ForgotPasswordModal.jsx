@@ -139,16 +139,39 @@ const ForgotPasswordModal = ({ isOpen, onClose }) => {
                         <h3 className="text-xl font-bold text-gray-800 dark:text-white mb-2">
                             {i18n.language === 'ar' ? 'تم إرسال البريد!' : 'Email Sent!'}
                         </h3>
-                        <p className="text-gray-600 dark:text-gray-300 text-sm mb-6">
+                        <p className="text-gray-600 dark:text-gray-300 text-sm mb-3">
                             {i18n.language === 'ar'
-                                ? 'راجع بريدك الإلكتروني واتبع التعليمات لإعادة تعيين كلمة المرور'
-                                : 'Check your email and follow the instructions to reset your password'}
+                                ? 'أرسلنا رابط إعادة تعيين كلمة المرور إلى:'
+                                : 'We sent a password reset link to:'}
                         </p>
+                        <p className="font-semibold text-blue-600 dark:text-blue-400 mb-4">{email}</p>
+                        
+                        {/* Instructions Box */}
+                        <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4 text-right mb-4">
+                            <p className="text-sm text-gray-700 dark:text-gray-300 font-semibold mb-2">
+                                {i18n.language === 'ar' ? '⚠️ ملاحظة هامة:' : '⚠️ Important Note:'}
+                            </p>
+                            <ul className="text-sm text-gray-600 dark:text-gray-400 space-y-1.5" dir={i18n.language === 'ar' ? 'rtl' : 'ltr'}>
+                                <li className="flex items-start gap-2">
+                                    <span className="text-blue-600">📧</span>
+                                    <span>{i18n.language === 'ar' ? 'تحقق من صندوق الوارد وقد يكون في البريد العشوائي (Spam)' : 'Check your inbox and spam folder'}</span>
+                                </li>
+                                <li className="flex items-start gap-2">
+                                    <span className="text-blue-600">⏰</span>
+                                    <span>{i18n.language === 'ar' ? 'الرابط صالح لمدة ساعة واحدة فقط' : 'The link is valid for 1 hour only'}</span>
+                                </li>
+                                <li className="flex items-start gap-2">
+                                    <span className="text-blue-600">🔒</span>
+                                    <span>{i18n.language === 'ar' ? 'إذا لم تطلب إعادة التعيين، تجاهل هذا البريد' : 'If you didn\'t request this, ignore the email'}</span>
+                                </li>
+                            </ul>
+                        </div>
+
                         <button
                             onClick={handleClose}
-                            className="px-6 py-3 bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-white rounded-xl hover:bg-gray-200 dark:hover:bg-gray-600 transition-all font-semibold"
+                            className="w-full px-6 py-3 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-xl hover:shadow-lg hover:shadow-blue-500/25 transition-all font-semibold"
                         >
-                            {i18n.language === 'ar' ? 'إغلاق' : 'Close'}
+                            {i18n.language === 'ar' ? 'حسناً، فهمت' : 'Got it, thanks'}
                         </button>
                     </div>
                 )}

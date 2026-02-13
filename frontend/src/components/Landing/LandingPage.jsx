@@ -99,6 +99,40 @@ const LandingPage = () => {
             </div>
           </div>
 
+          {/* Navigation Links */}
+          <nav className="hidden md:flex items-center gap-6 mx-8">
+            <button
+              onClick={() => navigate('/about')}
+              className="text-gray-700 dark:text-gray-300 hover:text-primary dark:hover:text-primary transition-colors font-semibold"
+            >
+              {i18n.language === 'ar' ? 'من نحن' : 'About Us'}
+            </button>
+            <button
+              onClick={() => {
+                navigate('/about');
+                setTimeout(() => {
+                  const servicesSection = document.getElementById('services-section');
+                  servicesSection?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }, 100);
+              }}
+              className="text-gray-700 dark:text-gray-300 hover:text-primary dark:hover:text-primary transition-colors font-semibold"
+            >
+              {i18n.language === 'ar' ? 'الخدمات' : 'Services'}
+            </button>
+            <button
+              onClick={() => {
+                navigate('/about');
+                setTimeout(() => {
+                  const contactSection = document.getElementById('contact-section');
+                  contactSection?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }, 100);
+              }}
+              className="text-gray-700 dark:text-gray-300 hover:text-primary dark:hover:text-primary transition-colors font-semibold"
+            >
+              {i18n.language === 'ar' ? 'تواصل معنا' : 'Contact Us'}
+            </button>
+          </nav>
+
           {/* Language Switcher */}
           <div className="flex items-center gap-2 bg-white/80 dark:bg-gray-800/80 rounded-full p-1 shadow-lg backdrop-blur-sm">
             <button
@@ -214,17 +248,68 @@ const LandingPage = () => {
       </main>
 
       {/* Footer */}
-      <footer className="relative z-10 border-t border-gray-200/50 dark:border-gray-700/50 mt-16">
-        <div className="container mx-auto px-4 py-6">
-          <div className="flex flex-col items-center gap-4">
+      <footer id="contact-section" className="relative z-10 border-t border-gray-200/50 dark:border-gray-700/50 mt-16">
+        <div className="container mx-auto px-4 py-8">
+          <div className="grid md:grid-cols-3 gap-8 mb-6">
+            {/* Company Info */}
             <div>
-              <p className="text-sm text-gray-600 dark:text-gray-400 mb-3 text-center font-semibold">
-                تواصل معنا
+              <h3 className="text-lg font-bold text-gray-800 dark:text-white mb-4">
+                {i18n.language === 'ar' ? 'مرحال جو' : 'MirhalGO'}
+              </h3>
+              <p className="text-sm text-gray-600 dark:text-gray-400 leading-relaxed">
+                {i18n.language === 'ar' 
+                  ? 'منصة الشحن الرائدة في مصر للشحن المحلي والدولي'
+                  : 'Egypt\'s leading shipping platform for local and international freight'}
               </p>
-              <ContactIcons className="justify-center" />
             </div>
-            <p className="text-sm text-gray-500 dark:text-gray-400">
-              © 2026 MirhalGO. جميع الحقوق محفوظة.
+
+            {/* Quick Links */}
+            <div>
+              <h3 className="text-lg font-bold text-gray-800 dark:text-white mb-4">
+                {i18n.language === 'ar' ? 'روابط سريعة' : 'Quick Links'}
+              </h3>
+              <div className="flex flex-col gap-2">
+                <button
+                  onClick={() => navigate('/about')}
+                  className="text-sm text-gray-600 dark:text-gray-400 hover:text-primary dark:hover:text-primary transition-colors text-right"
+                >
+                  {i18n.language === 'ar' ? 'من نحن' : 'About Us'}
+                </button>
+                <button
+                  onClick={() => {
+                    navigate('/about');
+                    setTimeout(() => {
+                      const servicesSection = document.getElementById('services-section');
+                      servicesSection?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    }, 100);
+                  }}
+                  className="text-sm text-gray-600 dark:text-gray-400 hover:text-primary dark:hover:text-primary transition-colors text-right"
+                >
+                  {i18n.language === 'ar' ? 'الخدمات' : 'Services'}
+                </button>
+                <button
+                  onClick={() => navigate('/company-register')}
+                  className="text-sm text-gray-600 dark:text-gray-400 hover:text-primary dark:hover:text-primary transition-colors text-right"
+                >
+                  {i18n.language === 'ar' ? 'انضم كشركة شحن' : 'Join as Company'}
+                </button>
+              </div>
+            </div>
+
+            {/* Contact */}
+            <div>
+              <h3 className="text-lg font-bold text-gray-800 dark:text-white mb-4">
+                {i18n.language === 'ar' ? 'تواصل معنا' : 'Contact Us'}
+              </h3>
+              <div className="mt-4">
+                <ContactIcons className="justify-start" />
+              </div>
+            </div>
+          </div>
+
+          <div className="border-t border-gray-200/50 dark:border-gray-700/50 pt-6">
+            <p className="text-sm text-gray-500 dark:text-gray-400 text-center">
+              © 2026 MirhalGO. {i18n.language === 'ar' ? 'جميع الحقوق محفوظة' : 'All rights reserved'}.
             </p>
           </div>
         </div>

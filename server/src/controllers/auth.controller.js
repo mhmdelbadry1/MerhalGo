@@ -375,13 +375,13 @@ const forgotPassword = async (req, res) => {
       const token = crypto.randomBytes(32).toString('hex');
       const expiresAt = new Date(Date.now() + 60 * 60 * 1000); // 1 hour from now
 
-      // Store token in database
+      // Store token in database (ensure UTC timezone)
       const { data: insertData, error: tokenError } = await supabaseAdmin
         .from('password_resets')
         .insert({
           user_id: profile.id,
           token,
-          expires_at: expiresAt.toISOString()
+          expires_at: expiresAt.toISOString() // toISOString() ensures UTC with Z suffix
         })
         .select();
 
@@ -753,9 +753,12 @@ const resetPassword = async (req, res) => {
       return sendError(res, 'Invalid or expired reset link', 400);
     }
 
-    // Check if token has expired
-    if (new Date() > new Date(resetRecord.expires_at)) {
-      logger.warn('Expired reset token attempt');
+    // Check if token has expired (compare UTC times)
+    const now = new Date();
+    const expiresAt = new Date(resetRecord.expires_at);
+    
+    if (now > expiresAt) {
+      logger.warn(`Expired reset token attempt - Token expired at: ${expiresAt.toISOString()}, Current time: ${now.toISOString()}`);
       return sendError(res, 'Reset link has expired. Please request a new one', 400);
     }
 

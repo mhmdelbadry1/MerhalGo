@@ -22,12 +22,21 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+desktop.ini
+Thumbs.db
 
 # Test
 coverage
 jest
 
 # Build
+build_log.txt
+
+# Debug and temporary files
+debug-*.js
+test-*.js
+check-*.js
+*.md.backup
 build
 dist
 
